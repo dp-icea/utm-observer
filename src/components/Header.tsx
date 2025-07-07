@@ -1,4 +1,4 @@
-import { Shield, Settings, Bell, User, Wifi } from "lucide-react";
+import { Binoculars, Settings, Bell, User, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -7,11 +7,11 @@ export const Header = () => {
     <header className="h-16 bg-gray-800 border-gray-700 border-b flex items-center justify-between px-4 relative z-30">
       <div className="flex items-center space-x-4">
         <div className="flex items-center space-x-2">
-          <Shield className="h-8 w-8 text-blue-400" />
-          <div>
-            <p className="text-xl font-bold text-white">Defense Monitoring</p>
+          <Binoculars className="h-8 w-8 text-blue-400" />
+          <div className="flex flex-col items-start">
+            <p className="text-xl font-bold text-white">BR-UTM Observer</p>
             <p className="text-sm text-gray-300">
-              Real-time Surveillance System
+              Real-time UTM Tracking System
             </p>
           </div>
         </div>

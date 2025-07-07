@@ -8,8 +8,14 @@ import {
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
-import { format, differenceInHours, addHours } from "date-fns";
+import {
+  format,
+  differenceInHours,
+  differenceInMinutes,
+  addMinutes,
+} from "date-fns";
 import { cn } from "@/lib/utils";
 
 export const TimelineBar = () => {
@@ -18,9 +24,11 @@ export const TimelineBar = () => {
   const [startTime, setStartTime] = useState(format(new Date(), "HH:mm"));
 
   // End date/time (default to 24 hours later)
-  const [endDate, setEndDate] = useState<Date>(addHours(new Date(), 24));
+  const [endDate, setEndDate] = useState<Date>(
+    new Date(Date.now() + 24 * 60 * 60 * 1000),
+  );
   const [endTime, setEndTime] = useState(
-    format(addHours(new Date(), 24), "HH:mm"),
+    format(new Date(Date.now() + 24 * 60 * 60 * 1000), "HH:mm"),
   );
 
   // Calculate datetime objects
@@ -29,137 +37,208 @@ export const TimelineBar = () => {
   );
   const endDateTime = new Date(`${format(endDate, "yyyy-MM-dd")}T${endTime}`);
 
+  // Current selected time (starts at beginning)
+  const totalMinutes = differenceInMinutes(endDateTime, startDateTime);
+  const [selectedMinutes, setSelectedMinutes] = useState([0]);
+  const selectedDateTime = addMinutes(startDateTime, selectedMinutes[0]);
+
   const formatDisplayTime = (date: Date) => {
-    return format(date, "MMM dd, HH:mm");
+    return format(date, "MMM dd, HH:mm:ss");
   };
 
-  // Calculate timeline duration in hours
-  const totalHours = Math.max(1, differenceInHours(endDateTime, startDateTime));
+  const formatTimelineTime = (date: Date) => {
+    return format(date, "HH:mm");
+  };
+
+  // Calculate total time between start and end
+  const formatTotalTime = () => {
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+
+    if (totalHours === 0) {
+      return `${remainingMinutes}m`;
+    } else if (remainingMinutes === 0) {
+      return `${totalHours}h`;
+    } else {
+      return `${totalHours}h ${remainingMinutes}m`;
+    }
+  };
+
+  // Generate timeline markers
+  const generateTimeMarkers = () => {
+    const markers = [];
+    const totalHours = Math.max(
+      1,
+      differenceInHours(endDateTime, startDateTime),
+    );
+    const markerCount = Math.min(12, Math.max(4, totalHours));
+
+    for (let i = 0; i <= markerCount; i++) {
+      const minutes = (totalMinutes / markerCount) * i;
+      const markerTime = addMinutes(startDateTime, minutes);
+      markers.push({
+        position: (i / markerCount) * 100,
+        time: markerTime,
+        minutes: minutes,
+      });
+    }
+    return markers;
+  };
+
+  const timeMarkers = generateTimeMarkers();
+
+  const handleSliderChange = (value: number[]) => {
+    setSelectedMinutes(value);
+  };
 
   return (
-    <div className="h-20 bg-gray-800 border-gray-700 border-t flex items-center px-6 space-x-6">
-      {/* Start Date Selection */}
-      <div className="flex items-center space-x-2">
-        <Label className="text-xs text-gray-300">Start:</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-[120px] justify-start text-left font-normal text-xs",
-                !startDate && "text-muted-foreground",
-              )}
-            >
-              <CalendarIcon className="mr-2 h-3 w-3" />
-              {startDate ? format(startDate, "MMM dd") : "Pick date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={startDate}
-              onSelect={(date) => date && setStartDate(date)}
-            />
-          </PopoverContent>
-        </Popover>
-        <Input
-          type="time"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-          className="w-20 text-xs"
-        />
-      </div>
-
-      {/* End Date Selection */}
-      <div className="flex items-center space-x-2">
-        <Label className="text-xs text-gray-300">End:</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              className={cn(
-                "w-[120px] justify-start text-left font-normal text-xs",
-                !endDate && "text-muted-foreground",
-              )}
-            >
-              <CalendarIcon className="mr-2 h-3 w-3" />
-              {endDate ? format(endDate, "MMM dd") : "Pick date"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={endDate}
-              onSelect={(date) => date && setEndDate(date)}
-            />
-          </PopoverContent>
-        </Popover>
-        <Input
-          type="time"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-          className="w-20 text-xs"
-        />
-      </div>
-
-      {/* Current Selection Display */}
-      <div className="flex items-center space-x-4 text-white bg-opacity-50 px-4 py-2 rounded-lg bg-gray-700">
-        <div className="flex items-center space-x-2">
-          <Clock className="h-4 w-4 text-gray-400" />
-          <span className="text-xs font-mono">
-            {formatDisplayTime(startDateTime)} →{" "}
-            {formatDisplayTime(endDateTime)}
+    <div className="h-32 bg-gray-800 border-gray-700 border-t flex flex-col px-6 py-4 space-y-4">
+      {/* Top Row - Interactive Timeline (moved to top) */}
+      <div className="flex items-center space-x-4">
+        {/* Start Time Label */}
+        <div className="flex flex-col items-center min-w-[60px]">
+          <span className="text-xs text-gray-400 font-mono">
+            {formatTimelineTime(startDateTime)}
           </span>
+          <div className="w-2 h-2 rounded-full bg-white mt-1" />
         </div>
-        <div className="text-xs text-gray-400">Duration: {totalHours}h</div>
-      </div>
 
-      {/* Visual Timeline */}
-      <div className="flex-1 flex items-center justify-center space-x-4 max-w-2xl">
-        <span className="text-xs text-gray-400 min-w-[80px]">
-          {formatDisplayTime(startDateTime)}
-        </span>
-
+        {/* Interactive Timeline */}
         <div className="flex-1 relative">
-          <div className="h-3 bg-gray-700 rounded-full relative overflow-hidden">
-            {/* Timeline gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 rounded-full opacity-80" />
-
-            {/* Start marker */}
+          {/* Timeline Track */}
+          <div className="relative h-6 bg-gray-700 rounded-full overflow-hidden">
+            {/* Progress fill - black and white */}
             <div
-              className="absolute w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-md transform -translate-y-0.5"
-              style={{
-                left: "0%",
-                transform: "translateX(-50%) translateY(-12.5%)",
-              }}
+              className="absolute left-0 top-0 h-full bg-white rounded-full transition-all"
+              style={{ width: `${(selectedMinutes[0] / totalMinutes) * 100}%` }}
             />
 
-            {/* End marker */}
-            <div
-              className="absolute w-4 h-4 bg-green-600 rounded-full border-2 border-white shadow-md transform -translate-y-0.5"
-              style={{
-                right: "0%",
-                transform: "translateX(50%) translateY(-12.5%)",
-              }}
-            />
+            {/* Time markers */}
+            {timeMarkers.map((marker, index) => (
+              <div
+                key={index}
+                className="absolute top-0 bottom-0 flex flex-col items-center justify-center"
+                style={{
+                  left: `${marker.position}%`,
+                  transform: "translateX(-50%)",
+                }}
+              >
+                <div className="w-0.5 h-full bg-gray-500 opacity-50" />
+                <span className="absolute -bottom-6 text-xs text-gray-400 font-mono whitespace-nowrap">
+                  {formatTimelineTime(marker.time)}
+                </span>
+              </div>
+            ))}
+          </div>
 
-            {/* Progress indicators */}
-            <div className="absolute inset-0 flex items-center justify-between px-2">
-              {Array.from({
-                length: Math.min(5, Math.ceil(totalHours / 6)),
-              }).map((_, i) => (
-                <div
-                  key={i}
-                  className="w-1 h-1 bg-gray-300 rounded-full opacity-60"
-                />
-              ))}
-            </div>
+          {/* Slider overlay */}
+          <div className="absolute inset-0 -mt-1 -mb-1">
+            <Slider
+              value={selectedMinutes}
+              onValueChange={handleSliderChange}
+              max={totalMinutes}
+              min={0}
+              step={1}
+              className="w-full h-8"
+            />
           </div>
         </div>
 
-        <span className="text-xs text-gray-400 min-w-[80px] text-right">
-          {formatDisplayTime(endDateTime)}
-        </span>
+        {/* End Time Label */}
+        <div className="flex flex-col items-center min-w-[60px]">
+          <span className="text-xs text-gray-400 font-mono">
+            {formatTimelineTime(endDateTime)}
+          </span>
+          <div className="w-2 h-2 rounded-full bg-white mt-1" />
+        </div>
+      </div>
+
+      {/* Bottom Row - Date/Time Selectors and Current Selection */}
+      <div className="flex items-center justify-between">
+        {/* Start Date Selection */}
+        <div className="flex items-center space-x-2">
+          <Label className="text-xs text-gray-300">Start:</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[110px] justify-start text-left font-normal text-xs h-8",
+                  !startDate && "text-muted-foreground",
+                )}
+              >
+                <CalendarIcon className="mr-1 h-3 w-3" />
+                {startDate ? format(startDate, "MMM dd") : "Pick date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={startDate}
+                onSelect={(date) => date && setStartDate(date)}
+              />
+            </PopoverContent>
+          </Popover>
+          <Input
+            type="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            className="w-18 text-xs h-8"
+          />
+        </div>
+
+        {/* End Date Selection */}
+        <div className="flex items-center space-x-2">
+          <Label className="text-xs text-gray-300">End:</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "w-[110px] justify-start text-left font-normal text-xs h-8",
+                  !endDate && "text-muted-foreground",
+                )}
+              >
+                <CalendarIcon className="mr-1 h-3 w-3" />
+                {endDate ? format(endDate, "MMM dd") : "Pick date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={endDate}
+                onSelect={(date) => date && setEndDate(date)}
+              />
+            </PopoverContent>
+          </Popover>
+          <Input
+            type="time"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+            className="w-18 text-xs h-8"
+          />
+        </div>
+
+        {/* Current Selection Display and Total Time */}
+        <div className="flex items-center space-x-4">
+          {/* Total Time Display */}
+          <div className="flex items-center space-x-2 text-gray-300">
+            <span className="text-xs">Total:</span>
+            <span className="text-xs font-mono font-semibold">
+              {formatTotalTime()}
+            </span>
+          </div>
+
+          {/* Current Selection */}
+          <div className="flex items-center space-x-3 text-white bg-opacity-50 px-4 py-2 rounded-lg bg-gray-700">
+            <div className="flex items-center space-x-2">
+              <Clock className="h-4 w-4 text-white" />
+              <span className="text-sm font-mono font-semibold">
+                {formatDisplayTime(selectedDateTime)}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
