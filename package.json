@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.81.5",
+    "autoprefixer": "^10.4.21",
     "cesium": "^1.130.0",
     "class-variance-authority": "^0.7.1",
     "date-fns": "^4.1.0",

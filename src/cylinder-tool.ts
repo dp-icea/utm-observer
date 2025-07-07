@@ -1,13 +1,12 @@
 import * as Cesium from "cesium";
-import { useEffect } from "react";
-import type { CylinderToolState } from "./cylinder-tool-state.ts";
+import type { CylinderToolState } from "@/cylinder-tool-state.ts";
 import type {
   CylinderVolumeSchema,
   CylinderVolumeModel,
   CylinderVolumeRequestPayload,
-} from "./volume.ts";
+} from "@/volume.ts";
 
-import { CylinderVolumeState, CylinderVolumeStateColors } from "./volume.ts";
+import { CylinderVolumeState, CylinderVolumeStateColors } from "@/volume.ts";
 
 const SCALE = 2.0;
 const WHEEL_ACCELERATION = 1.0;

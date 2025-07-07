@@ -1,5 +1,5 @@
 import * as Cesium from "cesium";
-import { CylinderVolumeModel } from "./volume";
+import { type CylinderVolumeModel } from "@/volume";
 
 export interface CylinderToolState {
   addedRegions: CylinderVolumeModel[];
