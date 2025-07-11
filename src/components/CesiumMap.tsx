@@ -4,6 +4,8 @@ import * as Cesium from "cesium";
 import { Viewer, useCesium, Cesium3DTileset } from "resium";
 import { CylinderTool } from "@/cylinder-tool.ts";
 
+const IonKey = import.meta.env.VITE_ION_KEY;
+
 class ViewerController {
   constructor() {
     console.log("ViewerControlller component was called");
@@ -37,8 +39,9 @@ const ViewerManager = () => {
 
 export default class MapComponent extends Component {
   render() {
-    Ion.defaultAccessToken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlY2Q0OTMyNS03ZjU0LTRjNDUtOTI1My02ZjdkMmMyNGMxZDYiLCJpZCI6MzA4MjgyLCJpYXQiOjE3NDkzMzMxMzR9.ezlAm0SmsrJil5SQA_Z7i7jHlDgJezGrK2_MMqd_gxg";
+    // Set the default access token for Cesium Ion  d
+
+    Ion.defaultAccessToken = IonKey;
 
     return (
       <div className="absolute inset-0">
