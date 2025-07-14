@@ -7,22 +7,31 @@ import type {
   EntityID,
   EntityOVN,
 } from "@/schemas";
-import api from "../api";
+import { Scope } from "@/schemas"; // Import the Scope enum
+import { dssApi } from "../api";
 
-const BASE_URL = "/dss/v1/constraint_references";
+const RESOURCE_PATH = "/constraint_references";
 
 export const dssConstraintService = {
   queryConstraintReferences: async (
     params: QueryConstraintReferenceParameters,
   ): Promise<QueryConstraintReferencesResponse> => {
-    const res = await api.post(`${BASE_URL}/query`, params);
+    const res = await dssApi.post(`${RESOURCE_PATH}/query`, params, {
+      authContext: {
+        scope: Scope.ConstraintProcessing,
+      },
+    });
     return res.data;
   },
 
   getConstraintReference: async (
     entityid: EntityID,
   ): Promise<GetConstraintReferenceResponse> => {
-    const res = await api.get(`${BASE_URL}/${entityid}`);
+    const res = await dssApi.get(`${RESOURCE_PATH}/${entityid}`, {
+      authContext: {
+        scope: Scope.ConstraintProcessing,
+      },
+    });
     return res.data;
   },
 
@@ -30,7 +39,11 @@ export const dssConstraintService = {
     entityid: EntityID,
     params: PutConstraintReferenceParameters,
   ): Promise<ChangeConstraintReferenceResponse> => {
-    const res = await api.put(`${BASE_URL}/${entityid}`, params);
+    const res = await dssApi.put(`${RESOURCE_PATH}/${entityid}`, params, {
+      authContext: {
+        scope: Scope.ConstraintProcessing,
+      },
+    });
     return res.data;
   },
 
@@ -39,7 +52,15 @@ export const dssConstraintService = {
     ovn: EntityOVN,
     params: PutConstraintReferenceParameters,
   ): Promise<ChangeConstraintReferenceResponse> => {
-    const res = await api.put(`${BASE_URL}/${entityid}/${ovn}`, params);
+    const res = await dssApi.put(
+      `${RESOURCE_PATH}/${entityid}/${ovn}`,
+      params,
+      {
+        authContext: {
+          scope: Scope.ConstraintProcessing,
+        },
+      },
+    );
     return res.data;
   },
 
@@ -47,7 +68,11 @@ export const dssConstraintService = {
     entityid: EntityID,
     ovn: EntityOVN,
   ): Promise<ChangeConstraintReferenceResponse> => {
-    const res = await api.delete(`${BASE_URL}/${entityid}/${ovn}`);
+    const res = await dssApi.delete(`${RESOURCE_PATH}/${entityid}/${ovn}`, {
+      authContext: {
+        scope: Scope.ConstraintProcessing,
+      },
+    });
     return res.data;
   },
 };

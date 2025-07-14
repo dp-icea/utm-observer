@@ -6,3 +6,4 @@ export * from "./logging";
 export * from "./operational-intent";
 export * from "./subscription";
 export * from "./uss";
+export * from "./scope";

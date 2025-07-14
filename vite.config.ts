@@ -23,6 +23,8 @@ export default defineConfig({
     "process.env": {
       NODE_ENV: JSON.stringify(process.env.NODE_ENV),
       VITE_ION_KEY: JSON.stringify(process.env.VITE_ION_KEY),
+      VITE_BRUTM_BASE_URL: JSON.stringify(process.env.VITE_BRUTM_BASE_URL),
+      VITE_BRUTM_API_KEY: JSON.stringify(process.env.VITE_BRUTM_API_KEY),
     },
   },
 });
