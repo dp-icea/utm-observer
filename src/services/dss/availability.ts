@@ -2,22 +2,31 @@ import type {
   SetUssAvailabilityStatusParameters,
   UssAvailabilityStatusResponse,
 } from "@/schemas";
-import api from "../api";
+import { dssApi } from "../api";
+import { Scope } from "@/schemas";
 
-const BASE_URL = "/dss/v1/uss_availability";
+const RESOURCE_PATH = "/dss/v1/uss_availability";
 
 export const dssAvailabilityService = {
   setUssAvailability: async (
     ussId: string,
     params: SetUssAvailabilityStatusParameters,
   ): Promise<UssAvailabilityStatusResponse> => {
-    const res = await api.put(`${BASE_URL}/${ussId}`, params);
+    const res = await dssApi.put(`${RESOURCE_PATH}/${ussId}`, params, {
+      authContext: {
+        scope: Scope.AvailabilityArbitration,
+      },
+    });
     return res.data;
   },
   getUssAvailability: async (
     ussId: string,
   ): Promise<UssAvailabilityStatusResponse> => {
-    const res = await api.get(`${BASE_URL}/${ussId}`);
+    const res = await dssApi.get(`${RESOURCE_PATH}/${ussId}`, {
+      authContext: {
+        scope: Scope.AvailabilityArbitration,
+      },
+    });
     return res.data;
   },
 };

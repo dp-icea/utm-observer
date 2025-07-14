@@ -5,36 +5,61 @@ import type {
   PutOperationalIntentDetailsParameters,
   EntityID,
 } from "@/schemas";
-import api from "../api";
+import { createUssApi } from "../api";
+import { Scope } from "@/schemas";
 
-const BASE_URL = "/uss/v1/operational_intents";
+const RESOURCE_PATH = "/uss/v1/operational_intents";
 
 export const ussOperationalIntentService = {
   getOperationalIntentDetails: async (
+    ussBaseUrl: string,
     entityid: EntityID,
   ): Promise<GetOperationalIntentDetailsResponse> => {
-    const res = await api.get(`${BASE_URL}/${entityid}`);
+    const ussApi = createUssApi(ussBaseUrl);
+    const res = await ussApi.get(`${RESOURCE_PATH}/${entityid}`, {
+      authContext: {
+        scope: Scope.StrategicCoordination,
+      },
+    });
     return res.data;
   },
 
   getOperationalIntentTelemetry: async (
+    ussBaseUrl: string,
     entityid: EntityID,
   ): Promise<GetOperationalIntentTelemetryResponse> => {
-    const res = await api.get(`${BASE_URL}/${entityid}/telemetry`);
+    const ussApi = createUssApi(ussBaseUrl);
+    const res = await ussApi.get(`${RESOURCE_PATH}/${entityid}/telemetry`, {
+      authContext: {
+        scope: Scope.ConformanceMonitoringSA,
+      },
+    });
     return res.data;
   },
 
   getOperationalIntentAuthorization: async (
+    ussBaseUrl: string,
     entityid: EntityID,
   ): Promise<GetOperationalIntentAuthorizationResponse> => {
-    const res = await api.get(`${BASE_URL}/${entityid}/authorization`);
+    const ussApi = createUssApi(ussBaseUrl);
+    const res = await ussApi.get(`${RESOURCE_PATH}/${entityid}/authorization`, {
+      authContext: {
+        scope: Scope.AviationAuthority,
+      },
+    });
     return res.data;
   },
 
   notifyOperationalIntentDetailsChanged: async (
+    ussBaseUrl: string,
     params: PutOperationalIntentDetailsParameters,
   ): Promise<void> => {
-    const res = await api.post(BASE_URL, params);
+    const ussApi = createUssApi(ussBaseUrl);
+    const res = await ussApi.post(RESOURCE_PATH, params, {
+      authContext: {
+        scope: Scope.StrategicCoordination,
+      },
+    });
     return res.data;
   },
 };

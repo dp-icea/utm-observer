@@ -18,7 +18,7 @@ export const dssConstraintService = {
   ): Promise<QueryConstraintReferencesResponse> => {
     const res = await dssApi.post(`${RESOURCE_PATH}/query`, params, {
       authContext: {
-        scope: Scope.ConstraintProcessing,
+        scope: Scope.ConstraintManagement,
       },
     });
     return res.data;
@@ -29,7 +29,7 @@ export const dssConstraintService = {
   ): Promise<GetConstraintReferenceResponse> => {
     const res = await dssApi.get(`${RESOURCE_PATH}/${entityid}`, {
       authContext: {
-        scope: Scope.ConstraintProcessing,
+        scope: Scope.ConstraintManagement,
       },
     });
     return res.data;
@@ -41,7 +41,7 @@ export const dssConstraintService = {
   ): Promise<ChangeConstraintReferenceResponse> => {
     const res = await dssApi.put(`${RESOURCE_PATH}/${entityid}`, params, {
       authContext: {
-        scope: Scope.ConstraintProcessing,
+        scope: Scope.ConstraintManagement,
       },
     });
     return res.data;
@@ -57,7 +57,7 @@ export const dssConstraintService = {
       params,
       {
         authContext: {
-          scope: Scope.ConstraintProcessing,
+          scope: Scope.ConstraintManagement,
         },
       },
     );
@@ -70,7 +70,7 @@ export const dssConstraintService = {
   ): Promise<ChangeConstraintReferenceResponse> => {
     const res = await dssApi.delete(`${RESOURCE_PATH}/${entityid}/${ovn}`, {
       authContext: {
-        scope: Scope.ConstraintProcessing,
+        scope: Scope.ConstraintManagement,
       },
     });
     return res.data;
