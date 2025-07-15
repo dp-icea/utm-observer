@@ -22,7 +22,7 @@ class TokenService {
   private tokenApiUrl =
     `${import.meta.env.VITE_BRUTM_BASE_URL}/token` ||
     "http://api.dev.br-utm.org/token";
-  private apiKey = process.env.VITE_BRUTM_API_KEY;
+  private apiKey = process.env.VITE_BRUTM_API_KEY || "brutm";
 
   /**
    * Decodes a JWT token to extract its payload without verifying the signature.
@@ -52,6 +52,7 @@ class TokenService {
     scope: string,
   ): Promise<string> {
     try {
+      console.log(this.apiKey);
       const response = await axios.get<TokenResponse>(this.tokenApiUrl, {
         params: {
           intended_audience: audience,
