@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import List, Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from .base import Time
 from .enums import (
     RadiusUnits,
@@ -55,10 +55,20 @@ class Volume3D(BaseModel):
     """
     A three-dimensional geographic volume consisting of a vertically-extruded shape.
     """
-    outline_circle: Optional[Circle]
-    outline_polygon: Optional[Polygon]
-    altitude_lower: Optional[Altitude]
-    altitude_upper: Optional[Altitude]
+    outline_circle: Optional[Circle] = None
+    outline_polygon: Optional[Polygon] = None
+    altitude_lower: Altitude
+    altitude_upper: Altitude
+
+    @model_validator(mode="before")
+    def check_fields(cls, values):
+        if not values.get("outline_circle") and not values.get("outline_polygon"):
+            raise ValueError(
+                "Either outline_circle or outline_polygon must be provided.")
+        if values.get("outline_circle") and values.get("outline_polygon"):
+            raise ValueError(
+                "Only one of outline_circle or outline_polygon can be provided.")
+        return values
 
 
 class Volume4D(BaseModel):
@@ -66,8 +76,8 @@ class Volume4D(BaseModel):
     Contiguous block of geographic spacetime.
     """
     volume: Volume3D
-    time_start: Optional[Time]
-    time_end: Optional[Time]
+    time_start: Time
+    time_end: Time
 
 
 class Position(BaseModel):

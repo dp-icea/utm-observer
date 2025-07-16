@@ -2,26 +2,10 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
-from ..common.base import Time
-from ..common.geo import Volume4D
-from .operational_intents import OperationalIntentReference
-from .constraints import ConstraintReference
-
-
-class SubscriptionState(BaseModel):
-    """
-    State of subscription which is causing a notification to be sent.
-    """
-    subscription_id: Optional[UUID]
-    notification_index: Optional[int] = Field(0, ge=0)
-
-
-class SubscriberToNotify(BaseModel):
-    """
-    Subscriber to notify of a change in the airspace.
-    """
-    subscriptions: List[SubscriptionState] = Field(..., min_items=1)
-    uss_base_url: Optional[str]
+from schemas.common.base import Time
+from schemas.common.geo import Volume4D
+from schemas.dss.operational_intents import OperationalIntentReference
+from schemas.dss.common import ConstraintReference, SubscriberToNotify, SubscriptionState
 
 
 class Subscription(BaseModel):

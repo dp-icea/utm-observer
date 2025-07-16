@@ -2,24 +2,10 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
-from ..common.base import Time
-from ..common.enums import UssAvailabilityState
-from ..common.geo import Volume4D
-from .subscriptions import SubscriberToNotify
-
-
-class ConstraintReference(BaseModel):
-    """
-    A ConstraintReference (area in which a constraint is present).
-    """
-    id: Optional[UUID]
-    manager: Optional[str]
-    uss_availability: Optional[UssAvailabilityState]
-    version: Optional[int]
-    ovn: Optional[str]
-    time_start: Optional[Time]
-    time_end: Optional[Time]
-    uss_base_url: Optional[str]
+from schemas.common.base import Time
+from schemas.common.enums import UssAvailabilityState
+from schemas.common.geo import Volume4D
+from schemas.dss.common import ConstraintReference, SubscriberToNotify
 
 
 class PutConstraintReferenceParameters(BaseModel):

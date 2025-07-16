@@ -85,8 +85,8 @@ class AuthService:
         settings = Settings()
 
         self._tokens = {}
-        self._base_url = settings.AUTH_URL
-        self._auth_key = settings.AUTH_KEY
+        self._base_url = settings.BRUTM_BASE_URL
+        self._auth_key = settings.BRUTM_KEY
 
         if not self._base_url or not self._auth_key:
             raise ValueError(
