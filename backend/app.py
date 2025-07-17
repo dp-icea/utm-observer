@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
 from routes.fetch import router as FetchRouter
+from schemas.response import Response
 
 
 @asynccontextmanager
@@ -28,9 +29,10 @@ async def catch_exceptions_middleware(request: Request, call_next):
     except Exception as e:
         return JSONResponse(
             status_code=500,
-            content={
-                "message": "Internal Server Error",
-                "data": str(e)},
+            content=Response(
+                message = "Internal Server Error",
+                data = str(e),
+            ).model_dump(mode="json")
         )
 
 app.add_middleware(
@@ -41,6 +43,5 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Operator router
 app.include_router(FetchRouter, tags=[
                    "Fetch"], prefix="/fetch")

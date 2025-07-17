@@ -144,6 +144,6 @@ async def query_volumes(
     print(response_data.model_dump(mode="json"))
 
     return QueryVolumesResponse(
-        status=HTTPStatus.OK,
+        message="Query requested successfully",
         data=response_data,
     )
