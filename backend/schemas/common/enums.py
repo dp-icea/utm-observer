@@ -18,6 +18,7 @@ class FlightType(str, Enum):
     VLOS = "VLOS"
     EVLOS = "EVLOS"
     BVLOS = "BVLOS"
+    UNKNOWN = ""
 
 
 class TimeFormat(str, Enum):

@@ -1,79 +1,53 @@
-from __future__ import annotations
-from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel, Field
-from schemas.common.base import Time
-from schemas.common.geo import Volume4D
-from schemas.dss.operational_intents import OperationalIntentReference
-from schemas.dss.common import ConstraintReference, SubscriberToNotify, SubscriptionState
+from schemas.auth.client import AuthHttpxClient
+from schemas.dss.subscriptions import (
+    QuerySubscriptionParameters,
+    QuerySubscriptionsResponse,
+    GetSubscriptionResponse,
+    PutSubscriptionParameters,
+    PutSubscriptionResponse,
+    DeleteSubscriptionResponse,
+)
 
 
-class Subscription(BaseModel):
-    """
-    Specification of a geographic area that a client is interested in on an ongoing basis.
-    """
-    id: Optional[UUID]
-    version: Optional[str]
-    notification_index: Optional[int] = Field(0, ge=0)
-    time_start: Optional[Time]
-    time_end: Optional[Time]
-    uss_base_url: Optional[str]
-    notify_for_operational_intents: bool = False
-    notify_for_constraints: bool = False
-    implicit_subscription: bool = False
-    dependent_operational_intents: List[UUID] = []
+class DSSSubscriptionsService:
+    def __init__(self, client: AuthHttpxClient):
+        self.client = client
 
+    async def query_subscriptions(
+        self, params: QuerySubscriptionParameters
+    ) -> QuerySubscriptionsResponse:
+        response = await self.client.post(
+            "/dss/v1/subscriptions/query", json=params.dict(exclude_none=True)
+        )
+        return QuerySubscriptionsResponse(**response.json())
 
-class QuerySubscriptionParameters(BaseModel):
-    """
-    Parameters for a request to find subscriptions matching the provided criteria.
-    """
-    area_of_interest: Optional[Volume4D]
+    async def get_subscription(self, subscription_id: UUID) -> GetSubscriptionResponse:
+        response = await self.client.get(f"/dss/v1/subscriptions/{subscription_id}")
+        return GetSubscriptionResponse(**response.json())
 
+    async def create_subscription(
+        self, subscription_id: UUID, params: PutSubscriptionParameters
+    ) -> PutSubscriptionResponse:
+        response = await self.client.put(
+            f"/dss/v1/subscriptions/{subscription_id}",
+            json=params.dict(exclude_none=True),
+        )
+        return PutSubscriptionResponse(**response.json())
 
-class QuerySubscriptionsResponse(BaseModel):
-    """
-    Response to DSS query for subscriptions in a particular geographic area.
-    """
-    subscriptions: List[Subscription] = []
+    async def update_subscription(
+        self, subscription_id: UUID, version: str, params: PutSubscriptionParameters
+    ) -> PutSubscriptionResponse:
+        response = await self.client.put(
+            f"/dss/v1/subscriptions/{subscription_id}/{version}",
+            json=params.dict(exclude_none=True),
+        )
+        return PutSubscriptionResponse(**response.json())
 
-
-class GetSubscriptionResponse(BaseModel):
-    """
-    Response to DSS request for the subscription with the given id.
-    """
-    subscription: Subscription
-
-
-class PutSubscriptionParameters(BaseModel):
-    """
-    Parameters for a request to create/update a subscription in the DSS.
-    """
-    extents: Volume4D
-    uss_base_url: str
-    notify_for_operational_intents: bool = False
-    notify_for_constraints: bool = False
-
-
-class PutSubscriptionResponse(BaseModel):
-    """
-    Response for a request to create or update a subscription.
-    """
-    subscription: Subscription
-    operational_intent_references: List[OperationalIntentReference] = []
-    constraint_references: List[ConstraintReference] = []
-
-
-class DeleteSubscriptionResponse(BaseModel):
-    """
-    Response for a successful request to delete a subscription.
-    """
-    subscription: Subscription
-
-
-class ImplicitSubscriptionParameters(BaseModel):
-    """
-    Information necessary to create a subscription to serve a single operational intent's notification needs.
-    """
-    uss_base_url: Optional[str]
-    notify_for_constraints: bool = False
+    async def delete_subscription(
+        self, subscription_id: UUID, version: str
+    ) -> DeleteSubscriptionResponse:
+        response = await self.client.delete(
+            f"/dss/v1/subscriptions/{subscription_id}/{version}"
+        )
+        return DeleteSubscriptionResponse(**response.json())

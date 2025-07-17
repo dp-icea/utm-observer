@@ -6,23 +6,7 @@ from ..common.base import Time
 from ..common.enums import FlightType, OperationalIntentState, UssAvailabilityState
 from ..common.geo import Volume4D
 from .subscriptions import SubscriberToNotify, ImplicitSubscriptionParameters
-
-
-class OperationalIntentReference(BaseModel):
-    """
-    High-level information of a planned or active operational intent.
-    """
-    id: Optional[UUID]
-    flight_type: Optional[FlightType]
-    manager: Optional[str]
-    uss_availability: Optional[UssAvailabilityState]
-    version: Optional[int]
-    state: Optional[OperationalIntentState]
-    ovn: Optional[str]
-    time_start: Optional[Time]
-    time_end: Optional[Time]
-    uss_base_url: Optional[str]
-    subscription_id: Optional[UUID]
+from .common import OperationalIntentReference, ConstraintReference
 
 
 class PutOperationalIntentReferenceParameters(BaseModel):

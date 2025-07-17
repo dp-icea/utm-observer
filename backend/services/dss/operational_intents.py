@@ -1,77 +1,114 @@
-from __future__ import annotations
-from typing import List, Optional
 from uuid import UUID
-from pydantic import BaseModel, Field
-from schemas.common.base import Time
-from schemas.common.enums import FlightType, OperationalIntentState, UssAvailabilityState
-from schemas.common.geo import Volume4D
-from schemas.dss.subscriptions import ImplicitSubscriptionParameters
-from schemas.dss.common import ConstraintReference, SubscriberToNotify
+from schemas.dss.operational_intents import (
+    QueryOperationalIntentReferenceParameters,
+    QueryOperationalIntentReferenceResponse,
+    GetOperationalIntentReferenceResponse,
+    PutOperationalIntentReferenceParameters,
+    ChangeOperationalIntentReferenceResponse,
+)
+from schemas.common.enums import Audition, Authority
+from services.client import AuthAsyncClient
+from config.config import Settings
+from pprint import pprint
 
 
-class OperationalIntentReference(BaseModel):
-    """
-    High-level information of a planned or active operational intent.
-    """
-    id: Optional[UUID]
-    flight_type: Optional[FlightType]
-    manager: Optional[str]
-    uss_availability: Optional[UssAvailabilityState]
-    version: Optional[int]
-    state: Optional[OperationalIntentState]
-    ovn: Optional[str]
-    time_start: Optional[Time]
-    time_end: Optional[Time]
-    uss_base_url: Optional[str]
-    subscription_id: Optional[UUID]
+RESOURCE_PATH = "/dss/v1/operational_intent_references"
 
 
-class PutOperationalIntentReferenceParameters(BaseModel):
-    """
-    Parameters for a request to create an OperationalIntentReference in the DSS.
-    """
-    extents: List[Volume4D] = Field(..., min_items=1)
-    key: Optional[List[str]] = []
-    state: OperationalIntentState
-    uss_base_url: Optional[str]
-    subscription_id: Optional[UUID]
-    new_subscription: Optional[ImplicitSubscriptionParameters]
-    flight_type: Optional[FlightType]
+class DSSOperationalIntentsService:
+    def __init__(self):
+        settings = Settings()
+        self.client = AuthAsyncClient(
+            base_url=settings.BRUTM_BASE_URL, aud=Audition.DSS.value)
 
+    async def query_operational_intent_references(
+        self, params: QueryOperationalIntentReferenceParameters
+    ) -> QueryOperationalIntentReferenceResponse:
+        response = await self.client.request(
+            "POST",
+            f"{RESOURCE_PATH}/query",
+            scope=Authority.STRATEGIC_COORDINATION,
+            json=params.model_dump(mode="json"),
+        )
 
-class GetOperationalIntentReferenceResponse(BaseModel):
-    """
-    Response to DSS request for the OperationalIntentReference with the given ID.
-    """
-    operational_intent_reference: OperationalIntentReference
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error querying operational intent references: \
+                {response.text}"
+            )
 
+        pprint(response.json())
 
-class ChangeOperationalIntentReferenceResponse(BaseModel):
-    """
-    Response to a request to create, update, or delete an OperationalIntentReference in the DSS.
-    """
-    subscribers: List[SubscriberToNotify] = []
-    operational_intent_reference: OperationalIntentReference
+        return QueryOperationalIntentReferenceResponse\
+            .model_validate(response.json())
 
+    async def get_operational_intent_reference(
+        self, entity_id: UUID
+    ) -> GetOperationalIntentReferenceResponse:
+        response = await self.client.request(
+            "GET",
+            f"{RESOURCE_PATH}/{entity_id}",
+            scope=Authority.STRATEGIC_COORDINATION,
+        )
 
-class QueryOperationalIntentReferenceParameters(BaseModel):
-    """
-    Parameters for a request to find OperationalIntentReferences matching the provided criteria.
-    """
-    area_of_interest: Optional[Volume4D]
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error getting operational intent reference: {response.text}"
+            )
 
+        return GetOperationalIntentReferenceResponse\
+            .model_validate(response.json())
 
-class QueryOperationalIntentReferenceResponse(BaseModel):
-    """
-    Response to DSS query for OperationalIntentReferences in an area of interest.
-    """
-    operational_intent_references: List[OperationalIntentReference] = []
+    async def create_operational_intent_reference(
+        self, entity_id: UUID, params: PutOperationalIntentReferenceParameters
+    ) -> ChangeOperationalIntentReferenceResponse:
+        response = await self.client.request(
+            "PUT",
+            f"{RESOURCE_PATH}/{entity_id}",
+            json=params.model_dump(mode="json"),
+        )
 
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error creating operational intent reference: {response.text}"
+            )
 
-class AirspaceConflictResponse(BaseModel):
-    """
-    Data provided when an airspace conflict was encountered.
-    """
-    message: Optional[str]
-    missing_operational_intents: List[OperationalIntentReference] = []
-    missing_constraints: List[ConstraintReference] = []
+        return ChangeOperationalIntentReferenceResponse\
+            .model_validate(response.json())
+
+    async def update_operational_intent_reference(
+        self,
+        entity_id: UUID,
+        ovn: str,
+        params: PutOperationalIntentReferenceParameters,
+    ) -> ChangeOperationalIntentReferenceResponse:
+        response = await self.client.request(
+            "PUT",
+            f"{RESOURCE_PATH}/{entity_id}/{ovn}",
+            json=params.model_dump(mode="json"),
+        )
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error updating operational intent reference: {response.text}"
+            )
+
+        return ChangeOperationalIntentReferenceResponse\
+            .model_validate(response.json())
+
+    async def delete_operational_intent_reference(
+        self, entity_id: UUID, ovn: str
+    ) -> ChangeOperationalIntentReferenceResponse:
+        response = await self.client.request(
+            "DELETE",
+            f"{RESOURCE_PATH}/{entity_id}/{ovn}",
+            scope=Authority.STRATEGIC_COORDINATION,
+        )
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error deleting operational intent reference: {response.text}"
+            )
+
+        return ChangeOperationalIntentReferenceResponse\
+            .model_validate(response.json())

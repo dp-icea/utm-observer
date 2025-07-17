@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Optional, Any
 from pydantic import BaseModel, Field, model_validator
 from .base import Time
 from .enums import (
@@ -90,3 +90,25 @@ class Position(BaseModel):
     accuracy_v: Optional[PositionAccuracyVertical]
     extrapolated: bool = False
     altitude: Optional[Altitude]
+
+
+class GeoZone(BaseModel):
+    """
+    An airspace of defined dimensions, above the land areas or territorial
+    waters of a State, within which a particular restriction or condition
+    for UAS flights applies.
+    """
+    identifier: str
+    country: str
+    zone_authority: List[Any]
+    type: str
+    restriction: str
+    name: Optional[str] = None
+    restriction_conditions: Optional[List[Any]] = None
+    region: Optional[int] = Field(None, ge=0, le=65535)
+    reason: Optional[List[str]] = Field(default=None, max_items=9)
+    other_reason_info: Optional[str] = Field(default=None, max_length=30)
+    regulation_exemption: Optional[str] = None
+    u_space_class: Optional[str] = None
+    message: Optional[str] = None
+    additional_properties: Optional[dict] = Field(default=None)

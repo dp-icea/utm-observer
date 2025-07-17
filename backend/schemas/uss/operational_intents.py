@@ -2,26 +2,8 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
-from ..common.geo import Volume4D
-from ..dss.operational_intents import OperationalIntentReference
-from ..dss.subscriptions import SubscriptionState
-
-
-class OperationalIntentDetails(BaseModel):
-    """
-    Details of a UTM operational intent.
-    """
-    volumes: List[Volume4D] = []
-    off_nominal_volumes: List[Volume4D] = []
-    priority: Optional[int] = 0
-
-
-class OperationalIntent(BaseModel):
-    """
-    Full description of a UTM operational intent.
-    """
-    reference: OperationalIntentReference
-    details: OperationalIntentDetails
+from schemas.dss.subscriptions import SubscriptionState
+from schemas.uss.common import OperationalIntent
 
 
 class PutOperationalIntentDetailsParameters(BaseModel):

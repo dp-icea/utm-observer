@@ -19,12 +19,17 @@ class AuthAsyncClient(httpx.AsyncClient):
         super().__init__(*args, **kwargs)
         self._aud = aud
 
-    async def request(self, method: str, url: httpx.URL | str, **kwargs: Any) -> httpx.Response:
+    async def request(
+        self,
+        method: str,
+        url: httpx.URL | str,
+        **kwargs: Any
+    ) -> httpx.Response:
         scope: Authority | None = kwargs.pop("scope", None)
 
         if scope is None:
-            raise ValueError(
-                "Authority must be provided in the request for authentication.")
+            raise ValueError("Authority must be provided in the request for \
+            authentication.")
 
         try:
             res = await super().request(
@@ -62,17 +67,29 @@ class ServiceTokenMiddleware(httpx.Auth):
         self._scope = scope
 
     def sync_auth_flow(self, request: httpx.Request):
+        _ = request
         raise RuntimeError(
-            "This middleware is designed for asynchronous use only. Use async_auth_flow instead.")
+            "This middleware is designed for asynchronous use only.\
+            Use async_auth_flow instead.")
 
     async def async_auth_flow(self, request: httpx.Request):
         auth = AuthService.get_instance()
+
+        print(
+            f"Trying to get token for audience: \
+            {self._aud} and scope: {self._scope}"
+        )
+
         token = await auth.get_token(aud=self._aud, scope=self._scope)
         request.headers["Authorization"] = f"Bearer {token}"
         response = yield request
-        if response.status_code in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
+
+        if response.status_code in (
+            HTTPStatus.UNAUTHORIZED,
+            HTTPStatus.FORBIDDEN
+        ):
             await auth.refresh_token(aud=self._aud, scope=self._scope)
-            token = auth.get_token(aud=self._aud, scope=self._scope)
+            token = await auth.get_token(aud=self._aud, scope=self._scope)
             request.headers["Authorization"] = f"Bearer {token}"
             yield request
 
@@ -90,7 +107,8 @@ class AuthService:
 
         if not self._base_url or not self._auth_key:
             raise ValueError(
-                "AUTH_URL and AUTH_KEY must be set in the environment variables.")
+                "AUTH_URL and AUTH_KEY must be set in the environment \
+                variables.")
 
         self._client = httpx.AsyncClient(base_url=self._base_url)
 
@@ -102,13 +120,23 @@ class AuthService:
                     cls._instance = cls()
         return cls._instance
 
-    async def get_token(self, aud: str, scope: Authority = Authority.CONSTRAINT_PROCESSING) -> str:
-        if aud not in self._tokens or scope not in self._tokens[aud] or not self._is_token_valid(self._tokens[aud][scope]):
+    async def get_token(
+        self,
+        aud: str,
+        scope: Authority = Authority.CONSTRAINT_PROCESSING,
+    ) -> str:
+        if aud not in self._tokens \
+                or scope not in self._tokens[aud] \
+                or not self._is_token_valid(self._tokens[aud][scope]):
             await self.refresh_token(aud=aud, scope=scope)
 
         return self._tokens[aud][scope]
 
-    async def refresh_token(self, aud: str, scope: Authority = Authority.CONSTRAINT_PROCESSING):
+    async def refresh_token(
+        self,
+        aud: str,
+        scope: Authority = Authority.CONSTRAINT_PROCESSING
+    ):
         params = {
             "intended_audience": aud,
             "scope": scope.value,

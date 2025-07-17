@@ -3,7 +3,11 @@ from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
 from schemas.common.base import Time
-from schemas.common.enums import UssAvailabilityState
+from schemas.common.enums import (
+    UssAvailabilityState,
+    FlightType,
+    OperationalIntentState,
+)
 
 
 class ConstraintReference(BaseModel):
@@ -18,6 +22,23 @@ class ConstraintReference(BaseModel):
     time_start: Optional[Time]
     time_end: Optional[Time]
     uss_base_url: Optional[str]
+
+
+class OperationalIntentReference(BaseModel):
+    """
+    High-level information of a planned or active operational intent.
+    """
+    id: Optional[UUID]
+    flight_type: Optional[FlightType]
+    manager: Optional[str]
+    uss_availability: Optional[UssAvailabilityState]
+    version: Optional[int]
+    state: Optional[OperationalIntentState]
+    ovn: Optional[str]
+    time_start: Optional[Time]
+    time_end: Optional[Time]
+    uss_base_url: Optional[str]
+    subscription_id: Optional[UUID]
 
 
 class SubscriptionState(BaseModel):

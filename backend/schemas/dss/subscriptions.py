@@ -4,8 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 from schemas.common.base import Time
 from schemas.common.geo import Volume4D
-from schemas.dss.operational_intents import OperationalIntentReference
-from schemas.dss.common import ConstraintReference, SubscriberToNotify, SubscriptionState
+from schemas.dss.common import OperationalIntentReference, ConstraintReference, SubscriberToNotify, SubscriptionState
 
 
 class Subscription(BaseModel):

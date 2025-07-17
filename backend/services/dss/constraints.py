@@ -18,7 +18,7 @@ class DSSConstraintsService:
     def __init__(self):
         settings = Settings()
         self.client = AuthAsyncClient(
-            base_url=settings.BRUTM_BASE_URL, aud=Audition.DSS)
+            base_url=settings.BRUTM_BASE_URL, aud=Audition.DSS.value)
 
     async def query_constraint_references(
         self, params: QueryConstraintReferenceParameters
@@ -29,7 +29,14 @@ class DSSConstraintsService:
             scope=Authority.CONSTRAINT_PROCESSING,
             json=params.model_dump(mode="json")
         )
-        return QueryConstraintReferencesResponse.model_validate(response.json())
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error querying constraint references: {response.text}"
+            )
+
+        return QueryConstraintReferencesResponse\
+            .model_validate(response.json())
 
     async def get_constraint_reference(
         self, entity_id: UUID
@@ -39,7 +46,14 @@ class DSSConstraintsService:
             f"{RESOURCE_PATH}/{entity_id}",
             scope=Authority.CONSTRAINT_PROCESSING,
         )
-        return GetConstraintReferenceResponse.model_validate(response.json())
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error getting constraint reference: {response.text}"
+            )
+
+        return GetConstraintReferenceResponse\
+            .model_validate(response.json())
 
     async def create_constraint_reference(
         self, entity_id: UUID, params: PutConstraintReferenceParameters
@@ -50,7 +64,14 @@ class DSSConstraintsService:
             json=params.model_dump(exclude_none=True),
             scope=Authority.CONSTRAINT_PROCESSING,
         )
-        return ChangeConstraintReferenceResponse.model_validate(response.json())
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error creating constraint reference: {response.text}"
+            )
+
+        return ChangeConstraintReferenceResponse\
+            .model_validate(response.json())
 
     async def update_constraint_reference(
         self, entity_id: UUID, ovn: str, params: PutConstraintReferenceParameters
@@ -61,7 +82,14 @@ class DSSConstraintsService:
             json=params.model_dump(exclude_none=True),
             scope=Authority.CONSTRAINT_PROCESSING,
         )
-        return ChangeConstraintReferenceResponse.model_validate(response.json())
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error updating constraint reference: {response.text}"
+            )
+
+        return ChangeConstraintReferenceResponse\
+            .model_validate(response.json())
 
     async def delete_constraint_reference(
         self, entity_id: UUID, ovn: str
@@ -71,4 +99,11 @@ class DSSConstraintsService:
             f"{RESOURCE_PATH}/{entity_id}/{ovn}",
             scope=Authority.CONSTRAINT_PROCESSING,
         )
-        return ChangeConstraintReferenceResponse(**response.json())
+
+        if response.status_code != 200:
+            raise ValueError(
+                f"Error deleting constraint reference: {response.text}"
+            )
+
+        return ChangeConstraintReferenceResponse\
+            .model_validate(response.json())

@@ -5,23 +5,7 @@ from pydantic import BaseModel, Field
 from ..common.geo import Volume4D, GeoZone
 from ..dss.constraints import ConstraintReference
 from ..dss.subscriptions import SubscriptionState
-
-
-class ConstraintDetails(BaseModel):
-    """
-    Details of a UTM constraint.
-    """
-    volumes: List[Volume4D] = Field(..., min_items=1)
-    type: Optional[str]
-    geozone: Optional[GeoZone]
-
-
-class Constraint(BaseModel):
-    """
-    Full specification of a UTM constraint.
-    """
-    reference: ConstraintReference
-    details: ConstraintDetails
+from schemas.uss.common import Constraint
 
 
 class PutConstraintDetailsParameters(BaseModel):
