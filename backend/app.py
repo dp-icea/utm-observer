@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
-from routes.space_tracking import router as ObserveRouter
+from routes.fetch import router as FetchRouter
 
 
 @asynccontextmanager
@@ -42,5 +42,5 @@ app.add_middleware(
 )
 
 # Operator router
-app.include_router(ObserveRouter, tags=[
-                   "Observe"], prefix="/observe")
+app.include_router(FetchRouter, tags=[
+                   "Fetch"], prefix="/fetch")

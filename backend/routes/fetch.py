@@ -12,7 +12,6 @@ from services.dss.constraints import DSSConstraintsService
 
 router = APIRouter()
 
-
 @router.post(
     "/",
     response_description="Query constraints and operational \
@@ -26,13 +25,12 @@ async def query_volumes(
     pprint(area_of_interest.model_dump(mode="json"))
 
     dss_constraints_service = DSSConstraintsService()
-
-    payload = QueryConstraintReferenceParameters.model_validate({
-        "area_of_interest": area_of_interest,
-    })
-    const_refs = await dss_constraints_service.query_constraint_references(payload)
-
-    print(const_refs.model_dump(mode="json"))
+    query_constraints = await dss_constraints_service.query_constraint_references(
+        QueryConstraintReferenceParameters.model_validate({
+            "area_of_interest": area_of_interest,
+        })
+    )
+    print(query_constraints.model_dump(mode="json"))
 
     return Response(
         status=HTTPStatus.OK,

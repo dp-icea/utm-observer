@@ -1,7 +1,6 @@
 fastapi[standard]==0.115.12
 starlette==0.46.2
-uvicorn==0.34.2
-beanie==1.29.0
+uvicorn==0.35.0
 motor==3.7.1
 pydantic==2.11.4
 pydantic-core==2.33.2

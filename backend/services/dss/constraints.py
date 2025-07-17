@@ -18,7 +18,7 @@ class DSSConstraintsService:
     def __init__(self):
         settings = Settings()
         self.client = AuthAsyncClient(
-            base_url=settings.BRUTM_BASE_URL, aud=Audition.DSS.value)
+            base_url=settings.BRUTM_BASE_URL, aud=Audition.DSS)
 
     async def query_constraint_references(
         self, params: QueryConstraintReferenceParameters
@@ -26,7 +26,7 @@ class DSSConstraintsService:
         response = await self.client.request(
             "POST",
             f"{RESOURCE_PATH}/query",
-            scope=Authority.CONSTRAINT_PROCESSING.value,
+            scope=Authority.CONSTRAINT_PROCESSING,
             json=params.model_dump(mode="json")
         )
         return QueryConstraintReferencesResponse.model_validate(response.json())
@@ -37,7 +37,7 @@ class DSSConstraintsService:
         response = await self.client.request(
             "GET",
             f"{RESOURCE_PATH}/{entity_id}",
-            scope=Authority.CONSTRAINT_PROCESSING.value,
+            scope=Authority.CONSTRAINT_PROCESSING,
         )
         return GetConstraintReferenceResponse.model_validate(response.json())
 
@@ -48,7 +48,7 @@ class DSSConstraintsService:
             "PUT",
             f"{RESOURCE_PATH}/{entity_id}",
             json=params.model_dump(exclude_none=True),
-            scope=Authority.CONSTRAINT_PROCESSING.value,
+            scope=Authority.CONSTRAINT_PROCESSING,
         )
         return ChangeConstraintReferenceResponse.model_validate(response.json())
 
@@ -59,7 +59,7 @@ class DSSConstraintsService:
             "PUT",
             f"{RESOURCE_PATH}/{entity_id}/{ovn}",
             json=params.model_dump(exclude_none=True),
-            scope=Authority.CONSTRAINT_PROCESSING.value,
+            scope=Authority.CONSTRAINT_PROCESSING,
         )
         return ChangeConstraintReferenceResponse.model_validate(response.json())
 
@@ -69,6 +69,6 @@ class DSSConstraintsService:
         response = await self.client.request(
             "DELETE",
             f"{RESOURCE_PATH}/{entity_id}/{ovn}",
-            scope=Authority.CONSTRAINT_PROCESSING.value,
+            scope=Authority.CONSTRAINT_PROCESSING,
         )
         return ChangeConstraintReferenceResponse(**response.json())

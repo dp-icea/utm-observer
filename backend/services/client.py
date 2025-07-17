@@ -20,7 +20,7 @@ class AuthAsyncClient(httpx.AsyncClient):
         self._aud = aud
 
     async def request(self, method: str, url: httpx.URL | str, **kwargs: Any) -> httpx.Response:
-        scope = kwargs.pop("scope", None)
+        scope: Authority | None = kwargs.pop("scope", None)
 
         if scope is None:
             raise ValueError(
