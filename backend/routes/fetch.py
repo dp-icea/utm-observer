@@ -1,21 +1,22 @@
+# backend-ec/routes/fetch.py
+
 from http import HTTPStatus
-from uuid import uuid4, UUID
-from typing import Any, List
-from fastapi import APIRouter, Body, HTTPException
-from pydantic import BaseModel, Field, HttpUrl
-from pprint import pprint
+from typing import List
+from fastapi import APIRouter, Body
+from pydantic import HttpUrl
 
 from schemas.common.geo import Volume4D
 from schemas.dss.common import ConstraintReference, OperationalIntentReference
 from schemas.dss.constraints import QueryConstraintReferenceParameters
 from schemas.dss.operational_intents import QueryOperationalIntentReferenceParameters
-from schemas.response import Response, ResponseError
+from schemas.response import Response
 from schemas.uss.constraints import Constraint
 from services.dss.constraints import DSSConstraintsService
 from services.dss.operational_intents import DSSOperationalIntentsService
 from services.uss.operational_intents import USSOperationalIntentsService
 from services.uss.constraints import USSConstraintsService
-from schemas.uss.common import OperationalIntent, Constraint
+from schemas.uss.common import OperationalIntent
+from schemas.fetch import QueryVolumesResponse, QueryVolumesResponseData
 
 router = APIRouter()
 
@@ -100,15 +101,13 @@ async def get_constraints_volume(
 @router.post(
     "/",
     response_description="Query constraints and operational \
-    intents existingi in an area",
-    response_model=Response,
+    intents existing in an area",
+    response_model=QueryVolumesResponse,
     status_code=HTTPStatus.OK.value,
 )
 async def query_volumes(
     area_of_interest: Volume4D = Body(),
 ):
-    pprint(area_of_interest.model_dump(mode="json"))
-
     dss_constraints_service = DSSConstraintsService()
     query_constraints = await dss_constraints_service\
         .query_constraint_references(
@@ -118,13 +117,10 @@ async def query_volumes(
                 }
             )
         )
-    print(query_constraints.model_dump(mode="json"))
 
     constraints = await get_constraints_volume(
         query_constraints.constraint_references
     )
-
-    print(constraints)
 
     dss_operational_intents_service = DSSOperationalIntentsService()
     query_operational_intents = await dss_operational_intents_service\
@@ -136,15 +132,18 @@ async def query_volumes(
             )
         )
 
-    print(query_operational_intents.model_dump(mode="json"))
-
     operational_intents = await get_operational_intents_volume(
         query_operational_intents.operational_intent_references
     )
 
-    print(operational_intents)
+    response_data = QueryVolumesResponseData(
+        operational_intents=operational_intents,
+        constraints=constraints
+    )
 
-    return Response(
+    print(response_data.model_dump(mode="json"))
+
+    return QueryVolumesResponse(
         status=HTTPStatus.OK,
-        data={},
+        data=response_data,
     )
