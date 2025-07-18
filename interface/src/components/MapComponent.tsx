@@ -4,7 +4,7 @@ import * as Cesium from "cesium";
 import { Viewer, useCesium, Cesium3DTileset, ImageryLayer } from "resium";
 import { debounce } from "lodash-es";
 import type { Volume4D } from "@/schemas";
-import { dssOperationalIntentService } from "@/services";
+import { apiFetchService } from "@/services";
 
 const IonKey = import.meta.env.VITE_ION_KEY;
 
@@ -45,7 +45,6 @@ class ViewerController {
     //   },
     // });
 
-    // Debounce the data fetch function to avoid excessive API calls
     this.debouncedDataFetch = debounce(this.fetchDataForCurrentView, 500); // 500ms debounce delay
 
     viewer.camera.moveEnd.addEventListener(this.debouncedDataFetch);
@@ -88,6 +87,16 @@ class ViewerController {
           ],
         },
         // You can also specify altitude ranges if needed
+        altitude_lower: {
+          value: 0,
+          reference: "W84",
+          units: "M",
+        },
+        altitude_upper: {
+          value: 10000,
+          reference: "W84",
+          units: "M",
+        },
       },
       time_start: { value: startTime.toISOString(), format: "RFC3339" },
       time_end: { value: endTime.toISOString(), format: "RFC3339" },
@@ -95,13 +104,10 @@ class ViewerController {
 
     // Now you can use this boundingVolume to make an API request
     // Example using your dssOperationalIntentService
-    console.log("Fetching data for bounding volume:", boundingVolume);
-    const oirs =
-      await dssOperationalIntentService.queryOperationalIntentReferences({
-        area_of_interest: boundingVolume,
-      });
+    const volumes =
+      await apiFetchService.queryVolumes(boundingVolume);
 
-    console.log("Operational Intent References:", oirs);
+    console.log("Volumes Fetched:", volumes);
   };
 
   destroy() {
@@ -126,9 +132,9 @@ const ViewerManager = () => {
 
 export default class MapComponent extends Component {
   render() {
-    // Set the default access token for Cesium Ion  d
-
-    Ion.defaultAccessToken = IonKey;
+    if (IonKey) {
+      Ion.defaultAccessToken = IonKey;
+    }
 
     return (
       <div className="absolute inset-0">

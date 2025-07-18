@@ -41,14 +41,14 @@ export interface Circle {
 export interface Volume3D {
   outline_circle?: Circle;
   outline_polygon?: Polygon;
-  altitude_lower?: Altitude;
-  altitude_upper?: Altitude;
+  altitude_lower: Altitude;
+  altitude_upper: Altitude;
 }
 
 export interface Volume4D {
   volume: Volume3D;
-  time_start?: Time;
-  time_end?: Time;
+  time_start: Time;
+  time_end: Time;
 }
 
 export interface ErrorResponse {
