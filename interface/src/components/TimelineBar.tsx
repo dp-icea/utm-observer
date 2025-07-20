@@ -1,35 +1,36 @@
-import { useState } from "react";
+import {
+  format,
+  differenceInMinutes,
+  addMinutes,
+  differenceInHours,
+} from "date-fns";
+import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Calendar as CalendarIcon, Clock } from "lucide-react";
-import {
-  format,
-  differenceInHours,
-  differenceInMinutes,
-  addMinutes,
-} from "date-fns";
+import { useMap } from "@/contexts/MapContext";
 import { cn } from "@/lib/utils";
 
 export const TimelineBar = () => {
-  // Start date/time
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [startTime, setStartTime] = useState(format(new Date(), "HH:mm"));
-
-  // End date/time (default to 24 hours later)
-  const [endDate, setEndDate] = useState<Date>(
-    new Date(Date.now() + 24 * 60 * 60 * 1000),
-  );
-  const [endTime, setEndTime] = useState(
-    format(new Date(Date.now() + 24 * 60 * 60 * 1000), "HH:mm"),
-  );
+  const {
+    startDate,
+    setStartDate,
+    startTime,
+    setStartTime,
+    endDate,
+    setEndDate,
+    endTime,
+    setEndTime,
+    selectedMinutes,
+    setSelectedMinutes,
+  } = useMap();
 
   // Calculate datetime objects
   const startDateTime = new Date(
@@ -37,9 +38,8 @@ export const TimelineBar = () => {
   );
   const endDateTime = new Date(`${format(endDate, "yyyy-MM-dd")}T${endTime}`);
 
-  // Current selected time (starts at beginning)
+  // Current selected time
   const totalMinutes = differenceInMinutes(endDateTime, startDateTime);
-  const [selectedMinutes, setSelectedMinutes] = useState([0]);
   const selectedDateTime = addMinutes(startDateTime, selectedMinutes[0]);
 
   const formatDisplayTime = (date: Date) => {
@@ -207,14 +207,21 @@ export const TimelineBar = () => {
               <Calendar
                 mode="single"
                 selected={endDate}
-                onSelect={(date) => date && setEndDate(date)}
+                onSelect={(date) => {
+                  console.log("End date selected:", date);
+                  if (date) 
+                    setEndDate(date);
+                }}
               />
             </PopoverContent>
           </Popover>
           <Input
             type="time"
             value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
+            onChange={(e) => {
+              console.log("End time changed:", e.target.value);
+              setEndTime(e.target.value)
+            }}
             className="w-18 text-xs h-8"
           />
         </div>

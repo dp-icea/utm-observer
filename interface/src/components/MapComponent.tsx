@@ -1,29 +1,32 @@
-import { useRef, useEffect, Component, createRef } from "react";
-import { Matrix4, Cartesian3, Terrain, Ion, IonResource } from "cesium";
+import { useRef, useEffect, Component } from "react";
+import { Cartesian3, Terrain, Ion, IonResource } from "cesium";
 import * as Cesium from "cesium";
 import { Viewer, useCesium, Cesium3DTileset, ImageryLayer } from "resium";
 import { debounce } from "lodash-es";
+import { format } from "date-fns";
 import type { Volume4D } from "@/schemas";
 import { apiFetchService } from "@/services";
+import { useMap } from "@/contexts/MapContext";
 
 const IonKey = import.meta.env.VITE_ION_KEY;
 
 class ViewerController {
   private viewer: Cesium.Viewer;
   private debouncedDataFetch: () => void;
+  private getTimelineState: () => { startTime: Date; endTime: Date };
 
-  constructor(viewer: Cesium.Viewer) {
+  constructor(
+    viewer: Cesium.Viewer,
+    getTimelineState: () => { startTime: Date; endTime: Date },
+  ) {
     this.viewer = viewer;
-
-    console.log("ViewerControlller component was called");
+    this.getTimelineState = getTimelineState;
 
     this.viewer.cesiumWidget.creditContainer.remove();
 
-    console.log("Trying to obtain the user current location");
     navigator.geolocation.getCurrentPosition(
       (position: GeolocationPosition) => {
         const { latitude, longitude } = position.coords;
-        console.log("User's current location:", latitude, longitude);
         this.viewer.camera.setView({
           destination: Cartesian3.fromDegrees(longitude, latitude, 2000),
           orientation: {
@@ -35,34 +38,17 @@ class ViewerController {
       },
     );
 
-    // ICEA São Jose Coords for testing
-    // viewer.camera.setView({
-    //   destination: Cartesian3.fromDegrees(-45.873938, -23.212619, 2000),
-    //   orientation: {
-    //     heading: Cesium.Math.toRadians(0),
-    //     pitch: Cesium.Math.toRadians(-90),
-    //     roll: 0,
-    //   },
-    // });
-
-    this.debouncedDataFetch = debounce(this.fetchDataForCurrentView, 500); // 500ms debounce delay
-
+    this.debouncedDataFetch = debounce(this.fetchDataForCurrentView, 500);
     viewer.camera.moveEnd.addEventListener(this.debouncedDataFetch);
   }
 
   private fetchDataForCurrentView = async () => {
     const rectangle = this.viewer.camera.computeViewRectangle();
-
     if (!Cesium.defined(rectangle)) {
-      console.warn("Camera rectangle is not defined.");
       return;
     }
 
-    console.log("Camera Rectangle:", rectangle);
-
-    // You'll need to get the start and end times from your TimelineBar component's state
-    const startTime = new Date(); // Replace with actual start time
-    const endTime = new Date(startTime.getTime() + 24 * 60 * 60 * 1000); // Replace with actual end time
+    const { startTime, endTime } = this.getTimelineState();
 
     const boundingVolume: Volume4D = {
       volume: {
@@ -86,7 +72,6 @@ class ViewerController {
             },
           ],
         },
-        // You can also specify altitude ranges if needed
         altitude_lower: {
           value: 0,
           reference: "W84",
@@ -102,11 +87,7 @@ class ViewerController {
       time_end: { value: endTime.toISOString(), format: "RFC3339" },
     };
 
-    // Now you can use this boundingVolume to make an API request
-    // Example using your dssOperationalIntentService
-    const volumes =
-      await apiFetchService.queryVolumes(boundingVolume);
-
+    const volumes = await apiFetchService.queryVolumes(boundingVolume);
     console.log("Volumes Fetched:", volumes);
   };
 
@@ -116,17 +97,35 @@ class ViewerController {
 }
 
 const ViewerManager = () => {
+  const { startDate, startTime, endDate, endTime } = useMap();
   const controllerRef = useRef<ViewerController | null>(null);
-  if (!controllerRef.current) {
-    const { viewer } = useCesium();
+  const { viewer } = useCesium();
 
-    if (!Cesium.defined(viewer)) {
-      console.error("Viewer instance is not available.");
-      return;
+  const getTimelineState = () => {
+    const startDateTime = new Date(
+      `${format(startDate, "yyyy-MM-dd")}T${startTime}`,
+    );
+    const endDateTime = new Date(
+      `${format(endDate, "yyyy-MM-dd")}T${endTime}`,
+    );
+    return { startTime: startDateTime, endTime: endDateTime };
+  };
+
+  useEffect(() => {
+    if (viewer && !controllerRef.current) {
+      controllerRef.current = new ViewerController(viewer, getTimelineState);
     }
+    // No need to return a cleanup function that re-creates the controller on every date/time change
+    // as the getTimelineState function will always get the latest values from the context.
+  }, [viewer]);
 
-    controllerRef.current = new ViewerController(viewer);
-  }
+  useEffect(() => {
+    return () => {
+      controllerRef.current?.destroy();
+      controllerRef.current = null;
+    };
+  }, []);
+
   return null;
 };
 

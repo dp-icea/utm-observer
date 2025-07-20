@@ -12,17 +12,6 @@ export default defineConfig({
     host: "::",
     port: 8080,
     open: true,
-    proxy: {
-      // Proxy requests from /api/dss to the DSS server
-      "/token": {
-        target: "http://api.dev.br-utm.org", // The actual DSS API URL
-        changeOrigin: true, // Needed for virtual hosted sites
-      },
-      "/dss/.*": {
-        target: "http://api.dev.br-utm.org", // The actual DSS API URL
-        changeOrigin: true, // Needed for virtual hosted sites
-      },
-    },
   },
   plugins: [react(), cesium()],
   resolve: {
@@ -33,7 +22,7 @@ export default defineConfig({
   define: {
     "process.env": {
       NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-      VITE_OBSERVER_API: process.env.VITE_OBSERVER_API || "http://localhost:8000",
+      VITE_OBSERVER_API_URL: process.env.VITE_OBSERVER_API_URL || "http://localhost:8000",
     },
   },
 });
