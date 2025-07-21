@@ -175,10 +175,33 @@ class ViewerController {
     return 2 * height; // Adjust as needed for visual representation
   }
 
-  private drawPolygon(volume: Volume3D) {
+  private drawPolygon(
+    volume: Volume3D,
+    color: Cesium.Color = Cesium.Color.GREY,
+  ) {
     if (!("outline_polygon" in volume)) {
       return;
     }
+
+    const minHeight = volume.altitude_lower.value;
+    const maxHeight = volume.altitude_upper.value;
+
+    const vertices = volume.outline_polygon.vertices.map(
+      (vertex) => new Cesium.Cartographic(vertex.lng, vertex.lat, minHeight),
+    );
+
+    this.viewer.entities.add({
+      polygon: {
+        hierarchy: new Cesium.PolygonHierarchy(
+          vertices.map((vertex) => Cesium.Cartographic.toCartesian(vertex)),
+        ),
+        material: color.withAlpha(0.5),
+        height: minHeight,
+        extrudedHeight: maxHeight,
+        outline: true,
+        outlineColor: color,
+      },
+    });
   }
 
   updateViewerVolumes() {
@@ -221,15 +244,15 @@ class ViewerController {
           continue;
         }
 
+        let color: Cesium.Color = Cesium.Color.GREY;
+        if ("state" in reference) {
+          color = OperationalIntentStateColor[reference["state"]];
+        }
+
         if (volume.volume["outline_circle"]) {
-          let color: Cesium.Color = Cesium.Color.GREY;
-          if ("state" in reference) {
-            color = OperationalIntentStateColor[reference["state"]];
-          }
-          console.log("Drawing with color:", color);
           this.drawCylinder(volume.volume, color);
         } else if (volume.volume["outline_polygon"]) {
-          this.drawPolygon(volume.volume);
+          this.drawPolygon(volume.volume, color);
         }
       }
     });
