@@ -209,8 +209,7 @@ export const TimelineBar = () => {
                 selected={endDate}
                 onSelect={(date) => {
                   console.log("End date selected:", date);
-                  if (date) 
-                    setEndDate(date);
+                  if (date) setEndDate(date);
                 }}
               />
             </PopoverContent>
@@ -220,7 +219,7 @@ export const TimelineBar = () => {
             value={endTime}
             onChange={(e) => {
               console.log("End time changed:", e.target.value);
-              setEndTime(e.target.value)
+              setEndTime(e.target.value);
             }}
             className="w-18 text-xs h-8"
           />

@@ -1,3 +1,5 @@
+import * as Cesium from "cesium";
+
 import type {
   Polygon,
   EntityID,
@@ -23,6 +25,13 @@ export type OperationalIntentState =
   | "Activated"
   | "Nonconforming"
   | "Contingent";
+
+export const OperationalIntentStateColor: Record<string, Cesium.Color> = {
+  Accepted: Cesium.Color.YELLOW,
+  Activated: Cesium.Color.GREEN,
+  Nonconforming: Cesium.Color.RED,
+  Contingent: Cesium.Color.ORANGE,
+};
 export type Priority = number;
 
 export interface OperationalIntentReference {
