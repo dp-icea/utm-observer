@@ -134,14 +134,13 @@ export const InterfaceHook = () => {
     });
   };
 
-  const fetchAndUpdateVolumes = async () => {
+  const triggerFetchVolumes = async () => {
     if (!controller.current) return;
 
     const viewRectangle = controller.current.getViewRectangle();
     const timeRange = getTimeRange();
     if (viewRectangle) {
       await fetchVolumes(viewRectangle, timeRange);
-      updateVolumes();
     }
   };
 
@@ -158,19 +157,26 @@ export const InterfaceHook = () => {
     controller.current = new ViewerController(viewer);
 
     controller.current.addMoveEndCallback(() => {
-      fetchAndUpdateVolumes();
+      console.log("Viewer moved, fetching and updating volumes...");
+      triggerFetchVolumes();
     });
 
-    fetchAndUpdateVolumes();
+    triggerFetchVolumes();
   };
 
   const onTimeRangeChange: React.EffectCallback = () => {
     if (!controller.current) return;
 
-    fetchAndUpdateVolumes();
+    triggerFetchVolumes();
   };
 
   const onTimePointChange: React.EffectCallback = () => {
+    if (!controller.current) return;
+
+    updateVolumes();
+  };
+
+  const onVolumesChange: React.EffectCallback = () => {
     if (!controller.current) return;
 
     updateVolumes();
@@ -180,6 +186,7 @@ export const InterfaceHook = () => {
   useEffect(onViewerChange, [viewer]);
   useEffect(onTimeRangeChange, [startDate, startTime, endDate, endTime]);
   useEffect(onTimePointChange, [selectedMinutes]);
+  useEffect(onVolumesChange, [volumes]);
 
   // Destroy routine
   useEffect(() => {

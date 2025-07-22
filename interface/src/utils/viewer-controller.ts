@@ -88,7 +88,7 @@ export class ViewerController {
     const center = new Cesium.Cartographic(
       volume.outline_circle.center.lng,
       volume.outline_circle.center.lat,
-      volume.altitude_lower.value + height,
+      volume.altitude_lower.value + height / 2,
     );
 
     this.viewer.entities.add({
