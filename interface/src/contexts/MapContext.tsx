@@ -15,6 +15,8 @@ interface IMapContext {
   setSelectedMinutes: (minutes: number[]) => void;
   volumes: Array<Constraint | OperationalIntent>;
   setVolumes: (volumes: Array<Constraint | OperationalIntent>) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 const MapContext = createContext<IMapContext | undefined>(undefined);
@@ -34,6 +36,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     [],
   );
 
+  // TODO: Change this to false. Just used this for testing
+  const [loading, setLoading] = useState<boolean>(false);
+
   return (
     <MapContext.Provider
       value={{
@@ -49,6 +54,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setSelectedMinutes,
         volumes,
         setVolumes,
+        loading,
+        setLoading,
       }}
     >
       {children}

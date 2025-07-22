@@ -33,6 +33,7 @@ export const InterfaceHook = () => {
     selectedMinutes,
     volumes,
     setVolumes,
+    setLoading,
   } = useMap();
 
   const getTimeRange: () => TimeRange = () => {
@@ -137,11 +138,13 @@ export const InterfaceHook = () => {
   const triggerFetchVolumes = async () => {
     if (!controller.current) return;
 
+    setLoading(true);
     const viewRectangle = controller.current.getViewRectangle();
     const timeRange = getTimeRange();
     if (viewRectangle) {
       await fetchVolumes(viewRectangle, timeRange);
     }
+    setLoading(false);
   };
 
   const updateVolumes = () => {

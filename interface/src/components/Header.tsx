@@ -1,9 +1,13 @@
-import { Binoculars, Settings, Bell, User, Wifi } from "lucide-react";
+import { Settings, Bell, User, Wifi } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import IconBRUTM from "@/assets/icon-br-utm.svg";
+import { useMap } from "@/contexts/MapContext";
+import { MaterialProgress } from "@/components/ui/material-progress"; // Make sure you have this import
 
 export const Header = () => {
+  const { loading } = useMap();
+
   return (
     <header className="h-16 bg-gray-800 border-gray-700 border-b flex items-center justify-between px-4 relative z-30">
       <div className="flex items-center space-x-4">
@@ -50,6 +54,11 @@ export const Header = () => {
           </Button>
         </div>
       </div>
+      {loading && (
+        <div className="absolute bottom-0 left-0 w-full">
+          <MaterialProgress />
+        </div>
+      )}
     </header>
   );
 };

@@ -85,10 +85,24 @@ const config: Config = {
             height: "0",
           },
         },
+        "indeterminate-long": {
+          "0%": { left: "-35%", right: "100%" },
+          "60%": { left: "100%", right: "-90%" },
+          "100%": { left: "100%", right: "-90%" },
+        },
+        "indeterminate-short": {
+          "0%": { left: "-200%", right: "100%" },
+          "60%": { left: "107%", right: "-8%" },
+          "100%": { left: "107%", right: "-8%" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "indeterminate-long":
+          "indeterminate-long 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite",
+        "indeterminate-short":
+          "indeterminate-short 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite",
       },
     },
   },
