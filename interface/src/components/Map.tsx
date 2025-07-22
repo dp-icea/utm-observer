@@ -2,9 +2,9 @@ import { Component } from "react";
 import { Terrain, IonResource } from "cesium";
 import * as Cesium from "cesium";
 import { Viewer, Cesium3DTileset, ImageryLayer } from "resium";
-import { MapHook } from "@/utils/map";
+import { InterfaceHook } from "@/utils/interface-hook";
 
-export default class MapComponent extends Component {
+export default class Map extends Component {
   render() {
     return (
       <div className="absolute inset-0">
@@ -22,7 +22,7 @@ export default class MapComponent extends Component {
           baseLayerPicker={false}
           style={{ width: "100%", height: "100%" }}
         >
-          <MapHook />
+          <InterfaceHook />
           <ImageryLayer
             imageryProvider={
               new Cesium.OpenStreetMapImageryProvider({

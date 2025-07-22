@@ -4,7 +4,7 @@ import { Header } from "@/components/Header";
 import { Sidebar } from "@/components/Sidebar";
 import { TimelineBar } from "@/components/TimelineBar";
 
-import MapComponent from "@/components/MapComponent";
+import Map from "@/components/Map";
 
 const Index = () => {
   return (
@@ -15,7 +15,7 @@ const Index = () => {
 
         <main className="flex-1 flex flex-col relative">
           <div className="flex-1 relative">
-            <MapComponent />
+            <Map />
           </div>
           <TimelineBar />
         </main>

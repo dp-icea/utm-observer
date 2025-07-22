@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, ReactNode } from "react";
-import { format } from "date-fns";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { format } from "date-fns";
+import type { Constraint, OperationalIntent } from "@/schemas";
 
 interface IMapContext {
   startDate: Date;
@@ -12,6 +13,8 @@ interface IMapContext {
   setEndTime: (time: string) => void;
   selectedMinutes: number[];
   setSelectedMinutes: (minutes: number[]) => void;
+  volumes: Array<Constraint | OperationalIntent>;
+  setVolumes: (volumes: Array<Constraint | OperationalIntent>) => void;
 }
 
 const MapContext = createContext<IMapContext | undefined>(undefined);
@@ -27,6 +30,10 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
   );
   const [selectedMinutes, setSelectedMinutes] = useState([0]);
 
+  const [volumes, setVolumes] = useState<Array<Constraint | OperationalIntent>>(
+    [],
+  );
+
   return (
     <MapContext.Provider
       value={{
@@ -40,6 +47,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setEndTime,
         selectedMinutes,
         setSelectedMinutes,
+        volumes,
+        setVolumes,
       }}
     >
       {children}
