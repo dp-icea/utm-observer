@@ -32,12 +32,15 @@ export class ViewerController {
 
     navigator.geolocation.getCurrentPosition(
       (position: GeolocationPosition) => {
-        const { latitude, longitude } = position.coords;
+        const { latitude, longitude, altitude } = position.coords;
+        
+        const cameraAltitude = altitude ? altitude + 1000 : 2000;
+
         this.viewer.camera.setView({
-          destination: Cartesian3.fromDegrees(longitude, latitude, 2000),
+          destination: Cartesian3.fromDegrees(longitude, latitude, cameraAltitude),
           orientation: {
             heading: Cesium.Math.toRadians(0),
-            pitch: Cesium.Math.toRadians(-90),
+            pitch: Cesium.Math.toRadians(-45),
             roll: 0,
           },
         });
@@ -70,8 +73,6 @@ export class ViewerController {
   }
 
   displayRegions(regions: Array<Constraint | OperationalIntent>) {
-    console.log("Drawing regions:", regions);
-
     // Clearning RegionIds that are not in regions
     Object.keys(this.displayedEntities).forEach((regionId) => {
       if (!regions.some((region) => region.reference.id === regionId)) {
@@ -87,12 +88,10 @@ export class ViewerController {
       const { volumes }: { volumes: Volume4D[] } = details;
 
       if (!volumes || volumes.length === 0) {
-        console.warn("No volumes to display for:", reference.id);
         return;
       }
 
       if (!("id" in reference && "ovn" in reference)) {
-        console.warn("Reference does not have an id or ovn:", reference);
         return;
       }
 
@@ -100,9 +99,6 @@ export class ViewerController {
         reference.id in this.displayedEntities &&
         this.displayedEntities[reference.id].ovn === reference.ovn
       ) {
-        console.log(
-          `Skipping drawing for ${reference.id} as it is already displayed with the same OVN.`,
-        );
         return;
       }
 
@@ -155,7 +151,6 @@ export class ViewerController {
     volume: Volume3D,
     color: Cesium.Color = Cesium.Color.GREY,
   ): Cesium.Entity | undefined {
-    console.log("Drawing cylinder for volume:", volume);
 
     if (!("outline_circle" in volume)) {
       return;

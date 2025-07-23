@@ -13,7 +13,7 @@ import type { Volume4D } from "../schemas/common";
  * Format a timestamp for display
  */
 const formatTimestamp = (timestamp: string): string => {
-  return format(new Date(timestamp), "yyyy-MM-dd HH:mm:ss");
+  return format(new Date(timestamp), "dd/MM/yyyy HH:mm:ss");
 };
 
 /**
@@ -38,8 +38,12 @@ const getVolumeDetailsHtml = (volumes: Volume4D[] | undefined): string => {
       <div class="volume-item">
         <strong>Volume #${idx + 1}:</strong>
         <div class="volume-details">
-          <div>Time: ${formatTimestamp(vol.time_start.value)} to ${formatTimestamp(vol.time_end.value)}</div>
-          <div>Altitude: ${altitudeLower} to ${altitudeUpper}</div>
+          <div>Time Start: ${formatTimestamp(vol.time_start.value)}</div>
+          <div>Time End: ${formatTimestamp(vol.time_end.value)}</div>
+          <div>Altitude Min: ${parseFloat(altitudeLower).toFixed(2)} </div>
+          <div>Altitude Max: ${parseFloat(altitudeUpper).toFixed(2)}</div>
+          <div>Height: ${altitudeUpper !== "unlimited" && altitudeLower !== "ground" ? `${(parseFloat(altitudeUpper) - parseFloat(altitudeLower)).toFixed(2)} ${vol.volume.altitude_upper.units}` : "N/A"}</div>
+          ${ vol.volume["outline_polygon"] ? "<div>Base Polygon: " + vol.volume.outline_polygon?.vertices.length + " vertices</div>" : ""}
         </div>
       </div>
     `;
@@ -70,7 +74,8 @@ export const formatConstraintDetails = (constraint: Constraint): string => {
         <div class="entity-field"><strong>Manager:</strong> ${reference.manager}</div>
         <div class="entity-field"><strong>Availability:</strong> <span class="availability-${reference.uss_availability}">${reference.uss_availability}</span></div>
         <div class="entity-field"><strong>Version:</strong> ${reference.version}${reference.ovn ? ` <span class="ovn">(OVN: ${reference.ovn})</span>` : ""}</div>
-        <div class="entity-field"><strong>Time Range:</strong> <span class="time-range">${formatTimestamp(reference.time_start.value)} to ${formatTimestamp(reference.time_end.value)}</span></div>
+        <div class="entity-field"><strong>Time Start:</strong> <span class="time-range">${formatTimestamp(reference.time_start.value)}</span></div>
+        <div class="entity-field"><strong>Time End:</strong> <span class="time-range">${formatTimestamp(reference.time_end.value)}</span></div>
         <div class="entity-field"><strong>USS Base URL:</strong> <a href="${reference.uss_base_url}" target="_blank">${reference.uss_base_url}</a></div>
       </div>
       
@@ -118,7 +123,8 @@ export const formatOperationalIntentDetails = (
         <div class="entity-field"><strong>Manager:</strong> ${reference.manager}</div>
         <div class="entity-field"><strong>Availability:</strong> <span class="availability-${reference.uss_availability}">${reference.uss_availability}</span></div>
         <div class="entity-field"><strong>Version:</strong> ${reference.version}${reference.ovn ? ` <span class="ovn">(OVN: ${reference.ovn})</span>` : ""}</div>
-        <div class="entity-field"><strong>Time Range:</strong> <span class="time-range">${formatTimestamp(reference.time_start.value)} to ${formatTimestamp(reference.time_end.value)}</span></div>
+        <div class="entity-field"><strong>Time Start:</strong> <span class="time-range">${formatTimestamp(reference.time_start.value)}</span></div>
+        <div class="entity-field"><strong>Time End:</strong> <span class="time-range">${formatTimestamp(reference.time_end.value)}</span></div>
         <div class="entity-field"><strong>USS Base URL:</strong> <a href="${reference.uss_base_url}" target="_blank">${reference.uss_base_url}</a></div>
         <div class="entity-field"><strong>Subscription ID:</strong> ${reference.subscription_id}</div>
       </div>

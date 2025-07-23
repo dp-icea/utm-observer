@@ -51,10 +51,6 @@ export const InterfaceHook = () => {
   ) => {
     const { startTime, endTime } = timeRange;
 
-    console.log("Fetching data for rectangle:", rectangle);
-    console.log("Start Time:", startTime);
-    console.log("End Time:", endTime);
-
     const boundingVolume: Volume4D = {
       volume: {
         outline_polygon: {
@@ -93,7 +89,6 @@ export const InterfaceHook = () => {
     };
 
     const res = await apiFetchService.queryVolumes(boundingVolume);
-    console.log("Volumes Fetched:", res);
 
     const fetchedVolumes: Array<OperationalIntent | Constraint> = [
       ...res.constraints,
@@ -101,8 +96,6 @@ export const InterfaceHook = () => {
     ];
 
     setVolumes(fetchedVolumes);
-
-    console.log("Updated Volumes:", volumes);
   };
 
   const getFilteredRegions = (
@@ -156,7 +149,6 @@ export const InterfaceHook = () => {
     controller.current = new ViewerController(viewer);
 
     controller.current.addMoveEndCallback(() => {
-      console.log("Viewer moved, fetching and updating volumes...");
       triggerFetchVolumes();
     });
 
@@ -165,6 +157,7 @@ export const InterfaceHook = () => {
         const volume = volumes.find((v) => v.reference.id === regionId);
 
         if (volume) {
+          console.log("Trying to display inforamtion from", volume);
           pickedEntity.description = formatEntityDetails(volume);
         }
       },

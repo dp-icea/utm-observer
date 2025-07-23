@@ -208,7 +208,6 @@ export const TimelineBar = () => {
                 mode="single"
                 selected={endDate}
                 onSelect={(date) => {
-                  console.log("End date selected:", date);
                   if (date) setEndDate(date);
                 }}
               />
@@ -218,7 +217,6 @@ export const TimelineBar = () => {
             type="time"
             value={endTime}
             onChange={(e) => {
-              console.log("End time changed:", e.target.value);
               setEndTime(e.target.value);
             }}
             className="w-18 text-xs h-8"
