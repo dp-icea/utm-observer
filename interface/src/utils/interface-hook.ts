@@ -193,7 +193,12 @@ export const InterfaceHook = () => {
 
   // Destroy routine
   useEffect(() => {
+    const interval = setInterval(() => {
+      triggerFetchVolumes();
+    }, 10000);
+
     return () => {
+      clearInterval(interval);
       controller.current = null;
     };
   }, []);

@@ -36,7 +36,6 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     [],
   );
 
-  // TODO: Change this to false. Just used this for testing
   const [loading, setLoading] = useState<boolean>(false);
 
   return (
