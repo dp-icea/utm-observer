@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { format } from "date-fns";
 import type { Constraint, OperationalIntent } from "@/schemas";
+import type { FilterCategory } from "@/components/sidebar/OperationalFilters";
 
 interface IMapContext {
   startDate: Date;
@@ -17,6 +18,8 @@ interface IMapContext {
   setVolumes: (volumes: Array<Constraint | OperationalIntent>) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  filters: FilterCategory[];
+  setFilters: (filters: FilterCategory[]) => void;
 }
 
 const MapContext = createContext<IMapContext | undefined>(undefined);
@@ -38,6 +41,15 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
+  const [filters, setFilters] = useState<FilterCategory[]>([
+    {
+      id: "operational-intents",
+      label: "Operational Intents",
+      enabled: true,
+    },
+    { id: "constraints", label: "Constraints", enabled: true },
+  ]);
+
   return (
     <MapContext.Provider
       value={{
@@ -55,6 +67,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setVolumes,
         loading,
         setLoading,
+        filters,
+        setFilters,
       }}
     >
       {children}

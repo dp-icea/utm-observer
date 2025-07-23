@@ -2,28 +2,20 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Filter } from "lucide-react";
+import { useMap } from "@/contexts/MapContext";
 
-interface FilterCategory {
+export interface FilterCategory {
   id: string;
   label: string;
-  count: number;
   enabled: boolean;
 }
 
-const initialFilters: FilterCategory[] = [
-  {
-    id: "operational-intents",
-    label: "Operational Intents",
-    count: 12,
-    enabled: true,
-  },
-  { id: "subscriptions", label: "Subscriptions", count: 8, enabled: true },
-  { id: "utm-zones", label: "UTM Zones", count: 5, enabled: false },
-  { id: "constraints", label: "Constraints", count: 3, enabled: true },
-];
-
 export const OperationalFilters = () => {
-  const [filters, setFilters] = useState<FilterCategory[]>(initialFilters);
+  const {
+    filters,
+    setFilters,
+    volumes,
+  } = useMap();
 
   const toggleFilter = (id: string) => {
     setFilters(
@@ -32,6 +24,17 @@ export const OperationalFilters = () => {
       ),
     );
   };
+
+  const countVolumes = (filterId: string) => {
+    return volumes.filter((volume) => {
+      if (filterId === "operational-intents") {
+        return "flight_type" in volume.reference;
+      } else if (filterId === "constraints") {
+        return !("flight_type" in volume.reference);
+      }
+      return false;
+    }).length;
+  }
 
   const enabledCount = filters.filter((f) => f.enabled).length;
 
@@ -67,7 +70,7 @@ export const OperationalFilters = () => {
               variant={filter.enabled ? "default" : "outline"}
               className="text-xs px-2 py-0"
             >
-              {filter.count}
+              {countVolumes(filter.id)}
             </Badge>
           </div>
         ))}

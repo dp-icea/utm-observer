@@ -16,6 +16,14 @@ import {
   type Volume4D,
 } from "@/schemas";
 
+function isOperationalIntent(region: OperationalIntent | Constraint): region is OperationalIntent {
+  return "flight_type" in region.reference;
+}
+
+function isConstraint(region: OperationalIntent | Constraint): region is Constraint {
+  return !isOperationalIntent(region);
+}
+
 export interface TimeRange {
   startTime: Date;
   endTime: Date;
@@ -35,6 +43,7 @@ export const InterfaceHook = () => {
     volumes,
     setVolumes,
     setLoading,
+    filters,
   } = useMap();
 
   const getTimeRange: () => TimeRange = () => {
@@ -109,6 +118,19 @@ export const InterfaceHook = () => {
         return false;
       }
 
+      // Verify filters
+      if (filters.length > 0) {
+        const filterIds = filters.filter((f) => f.enabled).map((f) => f.id);
+        if (
+          (isOperationalIntent(region) && !filterIds.includes("operational-intents")) ||
+          (isConstraint(region) && !filterIds.includes("constraints"))
+        ) {
+          return false;
+        }
+      } 
+      
+
+      // Verify timeline intersection
       const { startTime } = getTimeRange();
       const selectedTime = addMinutes(startTime, minutesOffset);
 
@@ -143,7 +165,7 @@ export const InterfaceHook = () => {
     controller.current.displayRegions(filteredVolumes);
   };
 
-  const onViewerChange: React.EffectCallback = () => {
+  const onViewerStart: React.EffectCallback = () => {
     if (!viewer || controller.current) return;
 
     controller.current = new ViewerController(viewer);
@@ -172,23 +194,17 @@ export const InterfaceHook = () => {
     triggerFetchVolumes();
   };
 
-  const onTimePointChange: React.EffectCallback = () => {
+  const onInterfaceUpdate: React.EffectCallback = () => {
     if (!controller.current) return;
 
     updateVolumes();
   };
 
-  const onVolumesChange: React.EffectCallback = () => {
-    if (!controller.current) return;
-
-    updateVolumes();
-  };
 
   // Object state on the dynamic input
-  useEffect(onViewerChange, [viewer]);
+  useEffect(onViewerStart, [viewer]);
   useEffect(onTimeRangeChange, [startDate, startTime, endDate, endTime]);
-  useEffect(onTimePointChange, [selectedMinutes]);
-  useEffect(onVolumesChange, [volumes]);
+  useEffect(onInterfaceUpdate, [selectedMinutes, volumes, filters]);
 
   // Destroy routine
   useEffect(() => {
