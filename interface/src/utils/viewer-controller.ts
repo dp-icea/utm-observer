@@ -23,6 +23,7 @@ interface DisplayedEntity {
 export class ViewerController {
   private viewer: Cesium.Viewer;
   private displayedEntities: Record<RegionId, DisplayedEntity> = {};
+  private handler: Cesium.ScreenSpaceEventHandler;
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -42,10 +43,30 @@ export class ViewerController {
         });
       },
     );
+
+    this.handler = new Cesium.ScreenSpaceEventHandler(viewer.canvas);
   }
 
   addMoveEndCallback(callback: () => void) {
     this.viewer.camera.moveEnd.addEventListener(callback);
+  }
+
+  addEntityClickCallback(
+    callback: (entity: Cesium.Entity, regionId: RegionId) => void,
+  ) {
+    this.handler.setInputAction(
+      (event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+        const pickedObject = this.viewer.scene.pick(event.position);
+        if (Cesium.defined(pickedObject) && Cesium.defined(pickedObject.id)) {
+          const pickedEntity = pickedObject.id as Cesium.Entity;
+          const regionId = Object.keys(this.displayedEntities).find((id) =>
+            this.displayedEntities[id].entityIds.includes(pickedEntity.id),
+          );
+          callback(pickedEntity, regionId as RegionId);
+        }
+      },
+      Cesium.ScreenSpaceEventType.LEFT_CLICK,
+    );
   }
 
   displayRegions(regions: Array<Constraint | OperationalIntent>) {

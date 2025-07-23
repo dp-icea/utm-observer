@@ -11,7 +11,7 @@ export default class Map extends Component {
         <Viewer
           terrain={Terrain.fromWorldTerrain()}
           selectionIndicator={false}
-          infoBox={false}
+          infoBox={true}
           animation={false}
           timeline={false}
           homeButton={false}

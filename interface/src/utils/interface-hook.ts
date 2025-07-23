@@ -5,6 +5,7 @@ import { useMap } from "@/contexts/MapContext";
 import { ViewerController } from "@/utils/viewer-controller";
 import { parseISO, addMinutes, isBefore, isAfter } from "date-fns";
 import { apiFetchService } from "@/services";
+import { formatEntityDetails } from "@/utils/formatters";
 
 import throttle from "lodash-es/throttle";
 import {
@@ -99,16 +100,7 @@ export const InterfaceHook = () => {
       ...res.operational_intents,
     ];
 
-    const fetchedVolumesIds = new Set(
-      fetchedVolumes.map((v) => v.reference.id),
-    );
-    const remainingVolumes = volumes.filter(
-      (v) => !fetchedVolumesIds.has(v.reference.id),
-    );
-
-    // TODO: This should update the values with the same Id but with different OVNs
-    // Test this out
-    setVolumes(fetchedVolumes.concat(remainingVolumes));
+    setVolumes(fetchedVolumes);
 
     console.log("Updated Volumes:", volumes);
   };
@@ -121,7 +113,7 @@ export const InterfaceHook = () => {
       const volumes = region.details.volumes;
 
       if (!volumes) {
-        return false; // Skip if time range is not defined
+        return false;
       }
 
       const { startTime } = getTimeRange();
@@ -167,6 +159,16 @@ export const InterfaceHook = () => {
       console.log("Viewer moved, fetching and updating volumes...");
       triggerFetchVolumes();
     });
+
+    controller.current.addEntityClickCallback(
+      (pickedEntity: Cesium.Entity, regionId: string) => {
+        const volume = volumes.find((v) => v.reference.id === regionId);
+
+        if (volume) {
+          pickedEntity.description = formatEntityDetails(volume);
+        }
+      },
+    );
 
     triggerFetchVolumes();
   };
