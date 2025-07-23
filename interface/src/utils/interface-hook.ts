@@ -99,12 +99,16 @@ export const InterfaceHook = () => {
       ...res.operational_intents,
     ];
 
-    const existingVolumeIds = new Set(volumes.map((v) => v.reference.id));
-    const uniqueNewVolumes = fetchedVolumes.filter(
-      (v) => !existingVolumeIds.has(v.reference.id),
+    const fetchedVolumesIds = new Set(
+      fetchedVolumes.map((v) => v.reference.id),
+    );
+    const remainingVolumes = volumes.filter(
+      (v) => !fetchedVolumesIds.has(v.reference.id),
     );
 
-    setVolumes(volumes.concat(uniqueNewVolumes));
+    // TODO: This should update the values with the same Id but with different OVNs
+    // Test this out
+    setVolumes(fetchedVolumes.concat(remainingVolumes));
 
     console.log("Updated Volumes:", volumes);
   };
@@ -151,7 +155,7 @@ export const InterfaceHook = () => {
     if (!controller.current) return;
 
     const filteredVolumes = getFilteredRegions(volumes);
-    controller.current.drawRegions(filteredVolumes);
+    controller.current.displayRegions(filteredVolumes);
   };
 
   const onViewerChange: React.EffectCallback = () => {

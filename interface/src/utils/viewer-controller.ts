@@ -11,8 +11,18 @@ import {
 import { apiFetchService } from "@/services";
 import type { TimeRange } from "@/utils/interface-hook";
 
+type EntityId = string;
+type RegionId = string;
+type RegionOvn = string;
+
+interface DisplayedEntity {
+  ovn: RegionOvn;
+  entityIds: RegionId[];
+}
+
 export class ViewerController {
   private viewer: Cesium.Viewer;
+  private displayedEntities: Record<RegionId, DisplayedEntity> = {};
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -38,10 +48,18 @@ export class ViewerController {
     this.viewer.camera.moveEnd.addEventListener(callback);
   }
 
-  drawRegions(regions: Array<Constraint | OperationalIntent>) {
+  displayRegions(regions: Array<Constraint | OperationalIntent>) {
     console.log("Drawing regions:", regions);
 
-    this.viewer.entities.removeAll();
+    // Clearning RegionIds that are not in regions
+    Object.keys(this.displayedEntities).forEach((regionId) => {
+      if (!regions.some((region) => region.reference.id === regionId)) {
+        this.displayedEntities[regionId].entityIds.forEach((entityId) => {
+          this.viewer.entities.removeById(entityId);
+        });
+        delete this.displayedEntities[regionId];
+      }
+    });
 
     regions.forEach((region) => {
       const { reference, details } = region;
@@ -52,6 +70,39 @@ export class ViewerController {
         return;
       }
 
+      if (!("id" in reference && "ovn" in reference)) {
+        console.warn("Reference does not have an id or ovn:", reference);
+        return;
+      }
+
+      if (
+        reference.id in this.displayedEntities &&
+        this.displayedEntities[reference.id].ovn === reference.ovn
+      ) {
+        console.log(
+          `Skipping drawing for ${reference.id} as it is already displayed with the same OVN.`,
+        );
+        return;
+      }
+
+      if (!(reference.id in this.displayedEntities)) {
+        this.displayedEntities[reference.id] = {
+          ovn: reference.ovn || "",
+          entityIds: [],
+        };
+      }
+
+      if (
+        reference.id in this.displayedEntities &&
+        this.displayedEntities[reference.id].ovn !== reference.ovn
+      ) {
+        this.displayedEntities[reference.id].entityIds.forEach((entityId) => {
+          this.viewer.entities.removeById(entityId);
+        });
+        this.displayedEntities[reference.id].entityIds = [];
+        this.displayedEntities[reference.id].ovn = reference.ovn || "";
+      }
+
       for (const volume of volumes) {
         let color: Cesium.Color = Cesium.Color.GREY;
         if ("state" in reference) {
@@ -59,9 +110,17 @@ export class ViewerController {
         }
 
         if (volume.volume["outline_circle"]) {
-          this.drawCylinder(volume.volume, color);
+          const entity = this.drawCylinder(volume.volume, color);
+
+          if (entity) {
+            this.displayedEntities[reference.id].entityIds.push(entity.id);
+          }
         } else if (volume.volume["outline_polygon"]) {
-          this.drawPolygon(volume.volume, color);
+          const entity = this.drawPolygon(volume.volume, color);
+
+          if (entity) {
+            this.displayedEntities[reference.id].entityIds.push(entity.id);
+          }
         }
       }
     });
@@ -74,7 +133,7 @@ export class ViewerController {
   private drawCylinder(
     volume: Volume3D,
     color: Cesium.Color = Cesium.Color.GREY,
-  ) {
+  ): Cesium.Entity | undefined {
     console.log("Drawing cylinder for volume:", volume);
 
     if (!("outline_circle" in volume)) {
@@ -91,7 +150,7 @@ export class ViewerController {
       volume.altitude_lower.value + height / 2,
     );
 
-    this.viewer.entities.add({
+    return this.viewer.entities.add({
       position: Cesium.Cartographic.toCartesian(center),
       cylinder: {
         length: height,
@@ -104,14 +163,10 @@ export class ViewerController {
     });
   }
 
-  private getCylinderLength(height: number): number {
-    return 2 * height; // Adjust as needed for visual representation
-  }
-
   private drawPolygon(
     volume: Volume3D,
     color: Cesium.Color = Cesium.Color.GREY,
-  ) {
+  ): Cesium.Entity | undefined {
     if (!("outline_polygon" in volume)) {
       return;
     }
@@ -123,7 +178,7 @@ export class ViewerController {
       (vertex) => new Cesium.Cartographic(vertex.lng, vertex.lat, minHeight),
     );
 
-    this.viewer.entities.add({
+    return this.viewer.entities.add({
       polygon: {
         hierarchy: new Cesium.PolygonHierarchy(
           vertices.map((vertex) => Cesium.Cartographic.toCartesian(vertex)),
