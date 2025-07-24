@@ -44,6 +44,7 @@ export const InterfaceHook = () => {
     setVolumes,
     setLoading,
     filters,
+    managerFilter,
   } = useMap();
 
   const getTimeRange: () => TimeRange = () => {
@@ -129,6 +130,9 @@ export const InterfaceHook = () => {
         }
       }
 
+      if (!managerFilter.includes(region.reference.manager)) {
+        return false;
+      }
 
       // Verify timeline intersection
       const { startTime } = getTimeRange();
@@ -204,7 +208,7 @@ export const InterfaceHook = () => {
   // Object state on the dynamic input
   useEffect(onViewerStart, [viewer]);
   useEffect(onTimeRangeChange, [startDate, startTime, endDate, endTime]);
-  useEffect(onInterfaceUpdate, [selectedMinutes, volumes, filters]);
+  useEffect(onInterfaceUpdate, [selectedMinutes, volumes, filters, managerFilter]);
 
   // Destroy routine
   useEffect(() => {

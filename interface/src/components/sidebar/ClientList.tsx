@@ -30,23 +30,24 @@ export const ClientList = () => {
   useEffect(() => {
     const clientMap: Record<string, Client> = {};
 
-    volumes.forEach((volume) => {
-      const name = volume.reference.manager || "Unknown Client";
-      if (!clientMap[name]) {
-        clientMap[name] = {
-          name,
-          active: true,
-          operationalIntents: 0,
-          constraints: 0,
-        };
-      }
-
-      if (isOperationalIntent(volume)) {
-        clientMap[name].operationalIntents += 1;
-      } else if (isConstraint(volume)) {
-        clientMap[name].constraints += 1;
-      }
+    const volumeManagers: Set<string> = new Set();
+    clients.forEach((client) => {
+      volumeManagers.add(client.name);
     });
+
+    const newManagers: Set<string> = new Set()
+    volumes.forEach((volume) => {
+      if (volume.reference.manager) {
+        newManagers.add(volume.reference.manager);
+      }
+    }
+
+    setClients(clients.filter(client => {
+      if (volumeManagers.has(client.name)) {
+        return true;
+      }
+      return false;
+    }));
 
     setClients(Object.values(clientMap));
     setManagerFilter(Object.keys(clientMap));
