@@ -20,46 +20,57 @@ export const ClientList = () => {
     "all" | "active" | "inactive"
   >("all");
 
-  const {
-    volumes,
-    setManagerFilter,
-  } = useMap();
+  const { volumes, setManagerFilter } = useMap();
 
   const [clients, setClients] = useState<Client[]>([]);
 
-  useEffect(() => {
-    const clientMap: Record<string, Client> = {};
+  const onVolumesUpdate: React.EffectCallback = () => {
+    const currentClients: Record<string, Client> = {};
 
-    const volumeManagers: Set<string> = new Set();
     clients.forEach((client) => {
-      volumeManagers.add(client.name);
+      currentClients[client.name] = {
+        ...client,
+        operationalIntents: 0,
+        constraints: 0,
+      };
     });
 
-    const newManagers: Set<string> = new Set()
-    volumes.forEach((volume) => {
-      if (volume.reference.manager) {
-        newManagers.add(volume.reference.manager);
+    volumes.forEach((volumes) => {
+      if (volumes.reference.manager) {
+        const clientName = volumes.reference.manager;
+        if (!currentClients[clientName]) {
+          currentClients[clientName] = {
+            name: clientName,
+            active: true,
+            operationalIntents: 0,
+            constraints: 0,
+          };
+        }
+
+        if (isOperationalIntent(volumes)) {
+          currentClients[clientName].operationalIntents += 1;
+        } else if (isConstraint(volumes)) {
+          currentClients[clientName].constraints += 1;
+        }
       }
-    }
+    });
 
-    setClients(clients.filter(client => {
-      if (volumeManagers.has(client.name)) {
-        return true;
-      }
-      return false;
-    }));
+    const newClients = Object.values(currentClients);
 
-    setClients(Object.values(clientMap));
-    setManagerFilter(Object.keys(clientMap));
-  }, [volumes]);
-
+    setClients(newClients);
+    setManagerFilter(
+      newClients.filter((client) => client.active).map((client) => client.name),
+    );
+  };
 
   const filteredClients = clients.filter((client) => {
     const matchesSearch = client.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || (statusFilter === "active" && client.active) || (statusFilter === "inactive" && !client.active);
+      statusFilter === "all" ||
+      (statusFilter === "active" && client.active) ||
+      (statusFilter === "inactive" && !client.active);
     return matchesSearch && matchesStatus;
   });
 
@@ -71,11 +82,15 @@ export const ClientList = () => {
       }
       return client;
     });
-    
+
     setClients(newClients);
 
-    setManagerFilter(newClients.map(client => client.name));
-  }
+    setManagerFilter(
+      newClients.filter((client) => client.active).map((client) => client.name),
+    );
+  };
+
+  useEffect(onVolumesUpdate, [volumes]);
 
   if (clients.length === 0) {
     return null;
