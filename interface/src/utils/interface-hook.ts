@@ -16,11 +16,11 @@ import {
   type Volume4D,
 } from "@/schemas";
 
-function isOperationalIntent(region: OperationalIntent | Constraint): region is OperationalIntent {
+export const isOperationalIntent = (region: OperationalIntent | Constraint): region is OperationalIntent => {
   return "flight_type" in region.reference;
 }
 
-function isConstraint(region: OperationalIntent | Constraint): region is Constraint {
+export const isConstraint = (region: OperationalIntent | Constraint): region is Constraint => {
   return !isOperationalIntent(region);
 }
 
@@ -127,8 +127,8 @@ export const InterfaceHook = () => {
         ) {
           return false;
         }
-      } 
-      
+      }
+
 
       // Verify timeline intersection
       const { startTime } = getTimeRange();

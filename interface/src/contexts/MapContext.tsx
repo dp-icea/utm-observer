@@ -2,6 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import { format } from "date-fns";
 import type { Constraint, OperationalIntent } from "@/schemas";
 import type { FilterCategory } from "@/components/sidebar/OperationalFilters";
+import type { FilterClient } from "@/components/sidebar/ClientList";
 
 interface IMapContext {
   startDate: Date;
@@ -20,6 +21,8 @@ interface IMapContext {
   setLoading: (loading: boolean) => void;
   filters: FilterCategory[];
   setFilters: (filters: FilterCategory[]) => void;
+  managerFilter: string[];
+  setManagerFilter: (filter: string[]) => void;
 }
 
 const MapContext = createContext<IMapContext | undefined>(undefined);
@@ -50,6 +53,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     { id: "constraints", label: "Constraints", enabled: true },
   ]);
 
+  const [managerFilter, setManagerFilter] = useState<string[]>([]);
+
   return (
     <MapContext.Provider
       value={{
@@ -69,6 +74,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setLoading,
         filters,
         setFilters,
+        managerFilter,
+        setManagerFilter,
       }}
     >
       {children}

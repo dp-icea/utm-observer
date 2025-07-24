@@ -1,62 +1,84 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
+import { useMap } from "@/contexts/MapContext";
+import { isOperationalIntent, isConstraint } from "@/utils/interface-hook";
 
 interface Client {
-  id: string;
   name: string;
-  status: "active" | "inactive";
-  lastSeen: string;
+  active: boolean;
   operationalIntents: number;
+  constraints: number;
 }
-
-const mockClients: Client[] = [
-  {
-    id: "1",
-    name: "SkyDrone Corp",
-    status: "active",
-    lastSeen: "2 min ago",
-    operationalIntents: 3,
-  },
-  {
-    id: "2",
-    name: "AeroTech Solutions",
-    status: "active",
-    lastSeen: "5 min ago",
-    operationalIntents: 1,
-  },
-  {
-    id: "3",
-    name: "FlightPath LLC",
-    status: "inactive",
-    lastSeen: "2 hours ago",
-    operationalIntents: 0,
-  },
-  {
-    id: "4",
-    name: "DroneLogistics",
-    status: "active",
-    lastSeen: "1 min ago",
-    operationalIntents: 2,
-  },
-];
 
 export const ClientList = () => {
   const [searchTerm, setSearchTerm] = useState("");
+
   const [statusFilter, setStatusFilter] = useState<
     "all" | "active" | "inactive"
   >("all");
 
-  const filteredClients = mockClients.filter((client) => {
+  const {
+    volumes,
+    setManagerFilter,
+  } = useMap();
+
+  const [clients, setClients] = useState<Client[]>([]);
+
+  useEffect(() => {
+    const clientMap: Record<string, Client> = {};
+
+    volumes.forEach((volume) => {
+      const name = volume.reference.manager || "Unknown Client";
+      if (!clientMap[name]) {
+        clientMap[name] = {
+          name,
+          active: true,
+          operationalIntents: 0,
+          constraints: 0,
+        };
+      }
+
+      if (isOperationalIntent(volume)) {
+        clientMap[name].operationalIntents += 1;
+      } else if (isConstraint(volume)) {
+        clientMap[name].constraints += 1;
+      }
+    });
+
+    setClients(Object.values(clientMap));
+    setManagerFilter(Object.keys(clientMap));
+  }, [volumes]);
+
+
+  const filteredClients = clients.filter((client) => {
     const matchesSearch = client.name
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesStatus =
-      statusFilter === "all" || client.status === statusFilter;
+      statusFilter === "all" || (statusFilter === "active" && client.active) || (statusFilter === "inactive" && !client.active);
     return matchesSearch && matchesStatus;
   });
+
+  const toggleClient = (clientName: string) => {
+    // Placeholder for toggling client status
+    const newClients = clients.map((client) => {
+      if (client.name === clientName) {
+        return { ...client, active: !client.active };
+      }
+      return client;
+    });
+    
+    setClients(newClients);
+
+    setManagerFilter(newClients.map(client => client.name));
+  }
+
+  if (clients.length === 0) {
+    return null;
+  }
 
   return (
     <div className="space-y-3">
@@ -107,25 +129,28 @@ export const ClientList = () => {
       <div className="space-y-2 max-h-40 overflow-y-auto">
         {filteredClients.map((client) => (
           <div
-            key={client.id}
+            key={client.name}
             className="p-2 rounded-lg border bg-gray-750 border-gray-600 hover:bg-gray-700 transition-colors cursor-pointer"
+            onClick={() => {
+              toggleClient(client.name);
+            }}
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-white">
                 {client.name}
               </span>
               <Badge
-                variant={client.status === "active" ? "default" : "secondary"}
+                variant={client.active ? "default" : "secondary"}
                 className="text-xs px-2 py-0"
               >
-                {client.status}
+                {client.active ? "Active" : "Inactive"}
               </Badge>
             </div>
-            <div className="text-xs text-gray-400">
-              Last seen: {client.lastSeen}
+            <div className="text-xs text-gray-400 text-start">
+              Operational Intents: {client.operationalIntents}
             </div>
-            <div className="text-xs text-gray-400">
-              Intents: {client.operationalIntents}
+            <div className="text-xs text-gray-400 text-start">
+              Constraints: {client.constraints}
             </div>
           </div>
         ))}

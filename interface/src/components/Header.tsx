@@ -31,27 +31,9 @@ export const Header = () => {
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-1">
             <Wifi className="h-4 w-4 text-green-500" />
+            {/* Make a state variable to verify if there are errors or is currently offline */}
             <span className="text-sm text-gray-300">Online</span>
           </div>
-          <Badge variant="secondary" className="text-xs">
-            24 Active
-          </Badge>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="sm">
-            <Bell className="h-4 w-4" />
-            <Badge variant="destructive" className="ml-1 text-xs">
-              3
-            </Badge>
-          </Button>
-          <Button variant="ghost" size="sm">
-            <Settings className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm">
-            <User className="h-4 w-4" />
-          </Button>
         </div>
       </div>
       {loading && (
