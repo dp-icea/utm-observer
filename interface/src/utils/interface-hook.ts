@@ -16,13 +16,17 @@ import {
   type Volume4D,
 } from "@/schemas";
 
-export const isOperationalIntent = (region: OperationalIntent | Constraint): region is OperationalIntent => {
+export const isOperationalIntent = (
+  region: OperationalIntent | Constraint,
+): region is OperationalIntent => {
   return "flight_type" in region.reference;
-}
+};
 
-export const isConstraint = (region: OperationalIntent | Constraint): region is Constraint => {
+export const isConstraint = (
+  region: OperationalIntent | Constraint,
+): region is Constraint => {
   return !isOperationalIntent(region);
-}
+};
 
 export interface TimeRange {
   startTime: Date;
@@ -123,7 +127,8 @@ export const InterfaceHook = () => {
       if (filters.length > 0) {
         const filterIds = filters.filter((f) => f.enabled).map((f) => f.id);
         if (
-          (isOperationalIntent(region) && !filterIds.includes("operational-intents")) ||
+          (isOperationalIntent(region) &&
+            !filterIds.includes("operational-intents")) ||
           (isConstraint(region) && !filterIds.includes("constraints"))
         ) {
           return false;
@@ -155,6 +160,7 @@ export const InterfaceHook = () => {
 
     setLoading(true);
     const viewRectangle = controller.current.getViewRectangle();
+
     const timeRange = getTimeRange();
     if (viewRectangle) {
       await fetchVolumes(viewRectangle, timeRange);
@@ -183,7 +189,6 @@ export const InterfaceHook = () => {
         const volume = volumes.find((v) => v.reference.id === regionId);
 
         if (volume) {
-          console.log("Trying to display inforamtion from", volume);
           pickedEntity.description = formatEntityDetails(volume);
         }
       },
@@ -204,11 +209,15 @@ export const InterfaceHook = () => {
     updateVolumes();
   };
 
-
   // Object state on the dynamic input
   useEffect(onViewerStart, [viewer]);
   useEffect(onTimeRangeChange, [startDate, startTime, endDate, endTime]);
-  useEffect(onInterfaceUpdate, [selectedMinutes, volumes, filters, managerFilter]);
+  useEffect(onInterfaceUpdate, [
+    selectedMinutes,
+    volumes,
+    filters,
+    managerFilter,
+  ]);
 
   // Destroy routine
   useEffect(() => {
