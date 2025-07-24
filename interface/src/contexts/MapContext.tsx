@@ -3,6 +3,8 @@ import { format } from "date-fns";
 import type { Constraint, OperationalIntent } from "@/schemas";
 import type { FilterCategory } from "@/components/sidebar/OperationalFilters";
 import type { FilterClient } from "@/components/sidebar/ClientList";
+import { MapState } from "@/schemas/context";
+
 
 interface IMapContext {
   startDate: Date;
@@ -23,6 +25,8 @@ interface IMapContext {
   setFilters: (filters: FilterCategory[]) => void;
   managerFilter: string[];
   setManagerFilter: (filter: string[]) => void;
+  mapState: MapState;
+  setMapState: (state: MapState) => void;
 }
 
 const MapContext = createContext<IMapContext | undefined>(undefined);
@@ -55,6 +59,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
   const [managerFilter, setManagerFilter] = useState<string[]>([]);
 
+  const [mapState, setMapState] = useState<MapState>(MapState.ONLINE);
+
   return (
     <MapContext.Provider
       value={{
@@ -76,6 +82,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setFilters,
         managerFilter,
         setManagerFilter,
+        mapState,
+        setMapState,
       }}
     >
       {children}

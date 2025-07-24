@@ -6,8 +6,8 @@ import { ViewerController } from "@/utils/viewer-controller";
 import { parseISO, addMinutes, isBefore, isAfter } from "date-fns";
 import { apiFetchService } from "@/services";
 import { formatEntityDetails } from "@/utils/formatters";
+import { MapState } from "@/schemas/context";
 
-import throttle from "lodash-es/throttle";
 import {
   OperationalIntentStateColor,
   type Constraint,
@@ -15,6 +15,7 @@ import {
   type Volume3D,
   type Volume4D,
 } from "@/schemas";
+import type { AxiosError } from "axios";
 
 export const isOperationalIntent = (
   region: OperationalIntent | Constraint,
@@ -49,6 +50,7 @@ export const InterfaceHook = () => {
     setLoading,
     filters,
     managerFilter,
+    setMapState,
   } = useMap();
 
   const getTimeRange: () => TimeRange = () => {
@@ -102,14 +104,23 @@ export const InterfaceHook = () => {
       time_end: { value: endTime.toISOString(), format: "RFC3339" },
     };
 
-    const res = await apiFetchService.queryVolumes(boundingVolume);
+    try {
+      const res = await apiFetchService.queryVolumes(boundingVolume);
 
-    const fetchedVolumes: Array<OperationalIntent | Constraint> = [
-      ...res.constraints,
-      ...res.operational_intents,
-    ];
+      const fetchedVolumes: Array<OperationalIntent | Constraint> = [
+        ...res.constraints,
+        ...res.operational_intents,
+      ];
 
-    setVolumes(fetchedVolumes);
+      setVolumes(fetchedVolumes);
+      setMapState(MapState.ONLINE);
+    } catch (e) {
+      if (e.code === "ERR_NETWORK") {
+        setMapState(MapState.OFFLINE);
+      } else {
+        setMapState(MapState.ERROR);
+      }
+    }
   };
 
   const getFilteredRegions = (
