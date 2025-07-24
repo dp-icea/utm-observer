@@ -11,6 +11,10 @@ import {
 import { apiFetchService } from "@/services";
 import type { TimeRange } from "@/utils/interface-hook";
 
+function sum(arr: number[]): number {
+  return arr.reduce((acc, val) => acc + val, 0);
+}
+
 type EntityId = string;
 type RegionId = string;
 type RegionOvn = string;
@@ -73,6 +77,16 @@ export class ViewerController {
   }
 
   displayRegions(regions: Array<Constraint | OperationalIntent>) {
+    // If there was an error of syncronization. Clear all then display again
+    if (this.viewer.entities.values.length !== sum(
+      Object.values(this.displayedEntities).map(
+        (entity) => entity.entityIds.length,
+      ),
+    )) {
+      this.viewer.entities.removeAll();
+      this.displayedEntities = {};
+    }
+
     // Clearning RegionIds that are not in regions
     Object.keys(this.displayedEntities).forEach((regionId) => {
       if (!regions.some((region) => region.reference.id === regionId)) {
