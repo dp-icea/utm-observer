@@ -5,7 +5,6 @@ import type { FilterCategory } from "@/components/sidebar/OperationalFilters";
 import type { FilterClient } from "@/components/sidebar/ClientList";
 import { MapState } from "@/schemas/context";
 
-
 interface IMapContext {
   startDate: Date;
   setStartDate: (date: Date) => void;
@@ -27,6 +26,8 @@ interface IMapContext {
   setManagerFilter: (filter: string[]) => void;
   mapState: MapState;
   setMapState: (state: MapState) => void;
+  isLive: boolean;
+  setIsLive: (isLive: boolean) => void;
 }
 
 const MapContext = createContext<IMapContext | undefined>(undefined);
@@ -41,13 +42,10 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     format(new Date(Date.now() + 24 * 60 * 60 * 1000), "HH:mm"),
   );
   const [selectedMinutes, setSelectedMinutes] = useState([0]);
-
   const [volumes, setVolumes] = useState<Array<Constraint | OperationalIntent>>(
     [],
   );
-
   const [loading, setLoading] = useState<boolean>(false);
-
   const [filters, setFilters] = useState<FilterCategory[]>([
     {
       id: "operational-intents",
@@ -56,10 +54,11 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     },
     { id: "constraints", label: "Constraints", enabled: true },
   ]);
-
   const [managerFilter, setManagerFilter] = useState<string[]>([]);
-
   const [mapState, setMapState] = useState<MapState>(MapState.ONLINE);
+
+  // This is default false to allow backup values in the timeline
+  const [isLive, setIsLive] = useState<boolean>(false);
 
   return (
     <MapContext.Provider
@@ -84,6 +83,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setManagerFilter,
         mapState,
         setMapState,
+        isLive,
+        setIsLive,
       }}
     >
       {children}

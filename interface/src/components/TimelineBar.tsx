@@ -4,6 +4,7 @@ import {
   addMinutes,
   differenceInHours,
 } from "date-fns";
+import { useRef } from "react";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -17,6 +18,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useMap } from "@/contexts/MapContext";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 export const TimelineBar = () => {
   const {
@@ -30,7 +32,17 @@ export const TimelineBar = () => {
     setEndTime,
     selectedMinutes,
     setSelectedMinutes,
+    isLive,
+    setIsLive,
   } = useMap();
+
+  const liveInterval = useRef<NodeJS.Timeout | null>(null);
+
+  const previousStartDate = useRef<Date | null>(null);
+  const previousEndDate = useRef<Date | null>(null);
+  const previousStartTime = useRef<string>("");
+  const previousEndTime = useRef<string>("");
+  const previousSelectedMinutes = useRef<number[]>([0]);
 
   // Calculate datetime objects
   const startDateTime = new Date(
@@ -91,8 +103,85 @@ export const TimelineBar = () => {
     setSelectedMinutes(value);
   };
 
+  useEffect(() => {
+    if (isLive) {
+      console.log("Live mode enabled");
+
+      if (liveInterval.current !== null) {
+        console.log("Clearing existing live interval");
+        clearInterval(liveInterval.current);
+        liveInterval.current = null;
+      }
+
+      console.log("Setting new live interval");
+
+      // Save the previous values
+      previousStartDate.current = startDate;
+      previousEndDate.current = endDate;
+      previousStartTime.current = startTime;
+      previousEndTime.current = endTime;
+
+      liveInterval.current = setInterval(() => {
+        // Change the time range for live updates
+        const now = new Date();
+        const newStartDateTime = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          0,
+          0,
+        );
+        const newEndDateTime = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          23,
+          59,
+        );
+        setStartDate(newStartDateTime);
+        setEndDate(newEndDateTime);
+        setStartTime(format(now, "HH:mm"));
+        setEndTime(format(addMinutes(now, 1), "HH:mm")); // 1 minute later
+        setSelectedMinutes([0]);
+      }, 10000);
+
+      console.log(liveInterval.current);
+    } else {
+      console.log("Live mode disabled");
+      if (liveInterval.current !== null) {
+        console.log("Clearing live interval");
+        clearInterval(liveInterval.current);
+        liveInterval.current = null;
+      }
+    }
+  }, [isLive]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLive) {
+      interval = setInterval(() => {
+        const now = new Date();
+        const newSelectedMinutes = differenceInMinutes(now, startDateTime);
+        if (newSelectedMinutes >= 0 && newSelectedMinutes <= totalMinutes) {
+          setSelectedMinutes([newSelectedMinutes]);
+        }
+      }, 1000);
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+      }
+    };
+  }, [isLive, startDateTime, totalMinutes, setSelectedMinutes]);
+
   return (
-    <div className="h-32 bg-gray-800 border-gray-700 border-t flex flex-col px-6 py-4 space-y-4">
+    <div
+      className={cn(
+        "h-32 bg-gray-800 border-gray-700 border-t flex flex-col px-6 py-4 space-y-4 transition-opacity",
+        isLive && "opacity-50 grayscale cursor-not-allowed",
+      )}
+    >
       {/* Top Row - Interactive Timeline (moved to top) */}
       <div className="flex items-center space-x-4">
         {/* Start Time Label */}
@@ -140,6 +229,7 @@ export const TimelineBar = () => {
               min={0}
               step={1}
               className="w-full h-8"
+              disabled={isLive}
             />
           </div>
         </div>
@@ -166,6 +256,7 @@ export const TimelineBar = () => {
                   "w-[110px] justify-start text-left font-normal text-xs h-8",
                   !startDate && "text-muted-foreground",
                 )}
+                disabled={isLive}
               >
                 <CalendarIcon className="mr-1 h-3 w-3" />
                 {startDate ? format(startDate, "MMM dd") : "Pick date"}
@@ -184,6 +275,7 @@ export const TimelineBar = () => {
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
             className="w-18 text-xs h-8"
+            disabled={isLive}
           />
         </div>
 
@@ -198,6 +290,7 @@ export const TimelineBar = () => {
                   "w-[110px] justify-start text-left font-normal text-xs h-8",
                   !endDate && "text-muted-foreground",
                 )}
+                disabled={isLive}
               >
                 <CalendarIcon className="mr-1 h-3 w-3" />
                 {endDate ? format(endDate, "MMM dd") : "Pick date"}
@@ -220,6 +313,7 @@ export const TimelineBar = () => {
               setEndTime(e.target.value);
             }}
             className="w-18 text-xs h-8"
+            disabled={isLive}
           />
         </div>
 

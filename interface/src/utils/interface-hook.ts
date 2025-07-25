@@ -54,6 +54,7 @@ export const InterfaceHook = () => {
     filters,
     managerFilter,
     setMapState,
+    isLive,
   } = useMap();
 
   const getTimeRange: () => TimeRange = () => {
@@ -199,10 +200,11 @@ export const InterfaceHook = () => {
       triggerFetchVolumes();
     });
 
-
     controller.current.addEntityClickCallback(
       (pickedEntity: Cesium.Entity, regionId: string) => {
-        const volume = localVolumes.current.find((v) => v.reference.id === regionId);
+        const volume = localVolumes.current.find(
+          (v) => v.reference.id === regionId,
+        );
 
         if (volume) {
           pickedEntity.description = formatEntityDetails(volume);

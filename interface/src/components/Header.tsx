@@ -1,4 +1,13 @@
-import { Settings, Bell, User, Wifi, WifiOff, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Settings,
+  Bell,
+  User,
+  Wifi,
+  WifiOff,
+  AlertCircle,
+  Loader2,
+  Radio,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import IconBRUTM from "@/assets/icon-br-utm.svg";
@@ -6,10 +15,9 @@ import { useMap } from "@/contexts/MapContext";
 import { MaterialProgress } from "@/components/ui/material-progress";
 import { MapState } from "@/schemas/context";
 
-
 export const Header = () => {
-  const { loading, mapState } = useMap();
-  
+  const { loading, mapState, isLive, setIsLive } = useMap();
+
   const getConnectionIcon = () => {
     switch (mapState) {
       case MapState.ONLINE:
@@ -28,15 +36,15 @@ export const Header = () => {
   const getConnectionText = () => {
     switch (mapState) {
       case MapState.ONLINE:
-        return 'Online';
+        return "Online";
       case MapState.ERROR:
-        return 'Error';
+        return "Error";
       case MapState.LOADING:
-        return 'Connecting...';
+        return "Connecting...";
       case MapState.OFFLINE:
-        return 'Offline';
+        return "Offline";
       default:
-        return 'Unknown';
+        return "Unknown";
     }
   };
 
@@ -63,9 +71,25 @@ export const Header = () => {
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-1">
             {getConnectionIcon()}
-            <span className="text-sm text-gray-300">{getConnectionText()}</span>
+            <span className="text-sm text-gray-300 ml-4">
+              {getConnectionText()}
+            </span>
           </div>
         </div>
+
+        {/* Live Button */}
+        <Button
+          variant="ghost"
+          onClick={() => setIsLive(!isLive)}
+          className="flex items-center"
+        >
+          <Radio
+            className={`h-4 w-4 ${isLive ? "text-green-500" : "text-gray-400"}`}
+          />
+          <span className="text-sm font-normal text-gray-300 hover:text-gray-100">
+            Live
+          </span>
+        </Button>
       </div>
       {loading && (
         <div className="absolute bottom-0 left-0 w-full">
