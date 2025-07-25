@@ -37,9 +37,6 @@ export interface TimeRange {
 export const InterfaceHook = () => {
   const controller = useRef<ViewerController | null>(null);
 
-  // This was created because of caching problems in the map provider context
-  const localVolumes = useRef<Array<OperationalIntent | Constraint>>([]);
-
   const { viewer } = useCesium();
 
   const {
@@ -115,7 +112,6 @@ export const InterfaceHook = () => {
         ...res.operational_intents,
       ];
 
-      localVolumes.current = fetchedVolumes.slice();
       setVolumes(fetchedVolumes);
       setMapState(MapState.ONLINE);
     } catch (e) {
@@ -199,10 +195,9 @@ export const InterfaceHook = () => {
       triggerFetchVolumes();
     });
 
-
     controller.current.addEntityClickCallback(
       (pickedEntity: Cesium.Entity, regionId: string) => {
-        const volume = localVolumes.current.find((v) => v.reference.id === regionId);
+        const volume = volumes.find((v) => v.reference.id === regionId);
 
         if (volume) {
           pickedEntity.description = formatEntityDetails(volume);
@@ -240,6 +235,11 @@ export const InterfaceHook = () => {
     const interval = setInterval(() => {
       triggerFetchVolumes();
     }, 10000);
+
+    return () => {
+      clearInterval(interval);
+      controller.current = null;
+    };
   }, []);
 
   return null;

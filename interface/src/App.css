@@ -39,3 +39,123 @@
 .read-the-docs {
   color: #888;
 }
+
+/***************************************************************/
+/* Custom Info Box */
+.cesium-infoBox {
+  display: block;
+  position: absolute;
+  top: 45px;
+  right: 0.5rem;
+  width: 40%;
+  max-width: 480px;
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+  border-right: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  box-shadow: none;
+  transform: translate(100%, 0);
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    visibility 0s 0.2s,
+    opacity 0.2s ease-in,
+    transform 0.2s ease-in;
+}
+
+.cesium-infoBox-visible {
+  transform: translate(0, 0);
+  visibility: visible;
+  opacity: 1;
+  transition:
+    opacity 0.2s ease-out,
+    transform 0.2s ease-out;
+}
+
+.cesium-infoBox-title {
+  display: block;
+  padding: 0.75rem 2.5rem; /* 12px 40px */
+  height: 3rem;
+  background: hsl(var(--secondary));
+  border-top-left-radius: var(--radius);
+  text-align: center;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.cesium-infoBox-bodyless .cesium-infoBox-title {
+  border-bottom-left-radius: var(--radius);
+}
+
+button.cesium-infoBox-camera {
+  display: none !important;
+  position: absolute;
+  top: 0.5rem; /* 8px */
+  left: 0.5rem; /* 8px */
+  width: 2rem; /* 32px */
+  height: 2rem; /* 32px */
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0;
+  margin: 0;
+  color: hsl(var(--secondary-foreground));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button.cesium-infoBox-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0.5rem; /* 8px */
+  right: 0.5rem; /* 8px */
+  width: 2rem; /* 32px */
+  height: 2rem; /* 32px */
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1.25rem; /* 20px */
+  padding: 0;
+  margin: 0;
+  color: hsl(var(--secondary-foreground));
+  cursor: pointer;
+}
+
+button.cesium-infoBox-camera:focus,
+button.cesium-infoBox-close:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--ring));
+}
+
+button.cesium-infoBox-camera:hover,
+button.cesium-infoBox-close:hover {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.cesium-infoBox-bodyless .cesium-infoBox-iframe {
+  display: none;
+}
+
+.cesium-infoBox-iframe {
+  border: none;
+  width: 100%;
+  height: auto; /* Adjust as needed */
+  min-height: 150px; /* Example minimum height */
+}
+
+/* Customizations for the content inside the iframe */
+.cesium-infoBox-iframe body {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  padding: 1rem;
+  font-family: sans-serif;
+}
