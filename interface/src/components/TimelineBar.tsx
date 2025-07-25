@@ -122,6 +122,8 @@ export const TimelineBar = () => {
       previousEndTime.current = endTime;
 
       liveInterval.current = setInterval(() => {
+        console.log("Live interval tick");
+
         // Change the time range for live updates
         const now = new Date();
         const newStartDateTime = new Date(
@@ -143,7 +145,7 @@ export const TimelineBar = () => {
         setStartTime(format(now, "HH:mm"));
         setEndTime(format(addMinutes(now, 1), "HH:mm")); // 1 minute later
         setSelectedMinutes([0]);
-      }, 10000);
+      }, 5000);
 
       console.log(liveInterval.current);
     } else {
@@ -152,34 +154,32 @@ export const TimelineBar = () => {
         console.log("Clearing live interval");
         clearInterval(liveInterval.current);
         liveInterval.current = null;
+
+        // Restore previous values when exiting live mode
+        if (previousStartDate.current) {
+          setStartDate(previousStartDate.current);
+        }
+        if (previousEndDate.current) {
+          setEndDate(previousEndDate.current);
+        }
+        if (previousStartTime.current != "") {
+          setStartTime(previousStartTime.current);
+        }
+        if (previousEndTime.current != "") {
+          setEndTime(previousEndTime.current);
+        }
       }
     }
   }, [isLive]);
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isLive) {
-      interval = setInterval(() => {
-        const now = new Date();
-        const newSelectedMinutes = differenceInMinutes(now, startDateTime);
-        if (newSelectedMinutes >= 0 && newSelectedMinutes <= totalMinutes) {
-          setSelectedMinutes([newSelectedMinutes]);
-        }
-      }, 1000);
-    }
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-        interval = null;
-      }
-    };
-  }, [isLive, startDateTime, totalMinutes, setSelectedMinutes]);
+  if (isLive) {
+    return null;
+  }
 
   return (
     <div
       className={cn(
         "h-32 bg-gray-800 border-gray-700 border-t flex flex-col px-6 py-4 space-y-4 transition-opacity",
-        isLive && "opacity-50 grayscale cursor-not-allowed",
       )}
     >
       {/* Top Row - Interactive Timeline (moved to top) */}
@@ -229,7 +229,6 @@ export const TimelineBar = () => {
               min={0}
               step={1}
               className="w-full h-8"
-              disabled={isLive}
             />
           </div>
         </div>
@@ -256,7 +255,6 @@ export const TimelineBar = () => {
                   "w-[110px] justify-start text-left font-normal text-xs h-8",
                   !startDate && "text-muted-foreground",
                 )}
-                disabled={isLive}
               >
                 <CalendarIcon className="mr-1 h-3 w-3" />
                 {startDate ? format(startDate, "MMM dd") : "Pick date"}
@@ -275,7 +273,6 @@ export const TimelineBar = () => {
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
             className="w-18 text-xs h-8"
-            disabled={isLive}
           />
         </div>
 
@@ -290,7 +287,6 @@ export const TimelineBar = () => {
                   "w-[110px] justify-start text-left font-normal text-xs h-8",
                   !endDate && "text-muted-foreground",
                 )}
-                disabled={isLive}
               >
                 <CalendarIcon className="mr-1 h-3 w-3" />
                 {endDate ? format(endDate, "MMM dd") : "Pick date"}
@@ -313,7 +309,6 @@ export const TimelineBar = () => {
               setEndTime(e.target.value);
             }}
             className="w-18 text-xs h-8"
-            disabled={isLive}
           />
         </div>
 
