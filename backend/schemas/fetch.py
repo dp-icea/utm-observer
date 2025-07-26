@@ -1,5 +1,3 @@
-# backend-ec/schemas/fetch.py
-
 from pydantic import BaseModel
 from typing import List
 from .response import Response
