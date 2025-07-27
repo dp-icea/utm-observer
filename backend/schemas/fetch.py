@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from typing import List
+
+from schemas.common.geo import Volume4D
 from .response import Response
 from .uss.common import OperationalIntent, Constraint
 
@@ -10,6 +12,7 @@ class QueryVolumesResponseData(BaseModel):
     """
     operational_intents: List[OperationalIntent]
     constraints: List[Constraint]
+    identification_service_areas: List[Volume4D]
 
 
 class QueryVolumesResponse(Response):

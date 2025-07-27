@@ -18,8 +18,8 @@ from schemas.dss.remoteid import (
 )
 
 
-ID_SERVICE_AREAS_PATH = "/dss/identification_service_areas"
-SUBSCRIPTIONS_PATH = "/dss/subscriptions"
+ID_SERVICE_AREAS_PATH = "/rid/v2/dss/identification_service_areas"
+SUBSCRIPTIONS_PATH = "/rid/v2/dss/subscriptions"
 
 
 class DSSRemoteIDService:
@@ -36,7 +36,11 @@ class DSSRemoteIDService:
         response = await self.client.request(
             "GET",
             ID_SERVICE_AREAS_PATH,
-            params={"area": area, "earliest_time": earliest_time, "latest_time": latest_time},
+            params={
+                "area": area,
+                "earliest_time": earliest_time,
+                "latest_time": latest_time
+            },
             scope=RIDAuthority.DISPLAY_PROVIDER,
         )
         return SearchIdentificationServiceAreasResponse.model_validate(response.json())

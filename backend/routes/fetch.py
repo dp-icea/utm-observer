@@ -5,13 +5,15 @@ from typing import List
 from fastapi import APIRouter, Body
 from pydantic import HttpUrl
 from datetime import datetime
+from pprint import pprint
 
-from schemas.common.geo import Volume4D
+from schemas.common.geo import Volume3D, Volume4D
 from schemas.common.base import Time
 from schemas.common.enums import TimeFormat
 from schemas.dss.common import ConstraintReference, OperationalIntentReference
 from schemas.dss.constraints import QueryConstraintReferenceParameters
 from schemas.dss.operational_intents import QueryOperationalIntentReferenceParameters
+from schemas.dss.remoteid import IdentificationServiceArea
 from schemas.flights import QueryFlightsRequest, QueryFlightsResponse
 from schemas.response import Response
 from schemas.uss.constraints import Constraint
@@ -20,6 +22,8 @@ from services.dss.operational_intents import DSSOperationalIntentsService
 from services.uss.operational_intents import USSOperationalIntentsService
 from services.uss.constraints import USSConstraintsService
 from services.flights import FlightsService
+from services.dss.remoteid import DSSRemoteIDService
+from services.uss.remoteid import USSRemoteIDService
 from schemas.uss.common import OperationalIntent
 from schemas.fetch import QueryVolumesResponse, QueryVolumesResponseData
 
@@ -104,6 +108,39 @@ async def get_constraints_volume(
 
     return constraints
 
+async def get_identification_service_areas_volume(
+    service_areas: List[IdentificationServiceArea]
+) -> List[Volume4D]:
+    """
+    Extracts the identification service areas from a list of service areas.
+    """
+    identification_service_areas: List[Volume4D] = []
+
+    for service_area in service_areas:
+        try:
+            if not service_area.uss_base_url:
+                continue
+
+            uss_remoteid_service = USSRemoteIDService(
+                base_url=HttpUrl(service_area.uss_base_url),
+            )
+
+            if not service_area.id:
+                print(f"Service area {service_area.id} has no ID.")
+                continue
+
+            service_area_response = await uss_remoteid_service\
+                .get_identification_service_area_details(service_area.id)
+
+            identification_service_areas.append(
+                service_area_response.extents)
+
+        except Exception:
+            print(f"Error fetching service area details: {service_area.id}")
+            continue
+
+    return identification_service_areas
+
 
 @router.post(
     "/",
@@ -143,10 +180,25 @@ async def query_volumes(
         query_operational_intents.operational_intent_references
     )
 
+    identification_service_areas = []
+
+    if "outline_polygon" in area_of_interest.volume.model_dump(mode="json"):
+        dss_remoteid_service = DSSRemoteIDService()
+        query_identification_service_areas = await dss_remoteid_service\
+            .search_identification_service_areas(
+                area=",".join([f"{vertice.lat},{vertice.lng}" for vertice in area_of_interest.volume.outline_polygon.vertices]),
+                earliest_time=area_of_interest.time_start.value.isoformat('T').replace("+00:00", "") + 'Z',
+                latest_time=area_of_interest.time_end.value.isoformat('T').replace("+00:00", "") + 'Z',
+            )
+
+        identification_service_areas = await get_identification_service_areas_volume(
+            query_identification_service_areas.service_areas
+        )
 
     response_data = QueryVolumesResponseData(
         operational_intents=operational_intents,
-        constraints=constraints
+        constraints=constraints,
+        identification_service_areas=identification_service_areas,
     )
 
     print(response_data.model_dump(mode="json"))

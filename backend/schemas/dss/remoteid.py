@@ -17,7 +17,7 @@ class IdentificationServiceArea(BaseModel):
     time_start: Time
     time_end: Time
     version: str
-    id: UUID
+    id: str
 
 
 class Subscription(BaseModel):
@@ -77,7 +77,7 @@ class SearchIdentificationServiceAreasResponse(BaseModel):
     """
     Response to DSS query for Identification Service Areas in an area of interest.
     """
-    service_areas: Optional[List[IdentificationServiceArea]] = []
+    service_areas: List[IdentificationServiceArea] = []
 
 
 class CreateSubscriptionParameters(BaseModel):
