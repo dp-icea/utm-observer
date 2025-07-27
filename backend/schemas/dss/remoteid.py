@@ -7,6 +7,13 @@ from ..common.geo import Volume4D
 from .common import SubscriberToNotify, SubscriptionState
 
 
+class IdentificationServiceAreaDetails(BaseModel):
+    volumes: List[Volume4D] = Field(..., min_items=1)
+
+class IdentificationServiceAreaFull(BaseModel):
+    reference: IdentificationServiceArea
+    details: IdentificationServiceAreaDetails
+
 class IdentificationServiceArea(BaseModel):
     """
     An Identification Service Area (area in which remote ID services are being provided).
