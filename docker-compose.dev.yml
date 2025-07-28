@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=dev
+  interface:
+    build: ./interface
+    ports:
+      - "8080:80"
+    environment:
+      - ENV=dev
