@@ -61,12 +61,10 @@ export const DroneTracking = () => {
 
   const { isLive, flights } = useMap();
 
-  const providers = Array.from(new Set(drones.map((d) => d.provider)));
+  const providers = Array.from(new Set(mockDrones.map((d) => d.provider)));
   const filteredDrones = drones.filter((d) =>
     selectedProviders.includes(d.provider),
   );
-
-  console.log("Flights", flights);
 
   const toggleDroneSelection = (id: string) => {
     setDrones(

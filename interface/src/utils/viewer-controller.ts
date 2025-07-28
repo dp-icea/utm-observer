@@ -101,9 +101,6 @@ export class ViewerController {
   }
 
   displayFlights(flights: Array<RIDFlight>) {
-    console.log("Removing flights", this.flights);
-    console.log("Adding flights", flights);
-
     // For each entity in the flights set. Remove it and add the new flights
     this.clearFlights();
 
@@ -164,8 +161,6 @@ export class ViewerController {
     });
 
     regions.forEach((region) => {
-      console.log("=== Drawing Region ===", region);
-
       const { reference, details } = region;
       const { volumes }: { volumes: Volume4D[] } = details;
 
@@ -205,14 +200,12 @@ export class ViewerController {
       }
 
       for (const volume of volumes) {
-        console.log("=== Drawing Volume ===", volume);
         let color: Cesium.Color = Cesium.Color.GREY;
         if (isOperationalIntent(region)) {
           color = OperationalIntentStateColor[reference["state"]];
         } else if (isConstraint(region)) {
           color = Cesium.Color.RED;
         } else if (isIdentificationServiceArea(region)) {
-          console.log("Drawing Identification Service Area", region);
           color = Cesium.Color.BLUE;
         }
 

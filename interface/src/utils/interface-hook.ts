@@ -157,7 +157,6 @@ export const InterfaceHook = () => {
 
       localVolumes.current = fetchedVolumes.slice();
       setVolumes(fetchedVolumes);
-      console.log("Volumes length", volumes.length);
       setMapState(MapState.ONLINE);
     } catch (e) {
       if (e.code === "ERR_NETWORK") {
@@ -289,8 +288,6 @@ export const InterfaceHook = () => {
   };
 
   const onFlightsUpdate: React.EffectCallback = () => {
-    console.log("On flight UPdate");
-
     if (!controller.current) return;
 
     const filteredFlights = getFilteredFlights(flights);
@@ -304,7 +301,6 @@ export const InterfaceHook = () => {
     if (isLive) {
       if (liveInterval.current) return;
 
-      console.log("Starting live updates on the hook");
       liveInterval.current = setInterval(() => {
         triggerFetchFlights();
       }, 500);
@@ -312,7 +308,6 @@ export const InterfaceHook = () => {
       if (liveInterval.current) {
         // Clear the interval if it exists
         controller.current.clearFlights();
-        console.log("Stopping live updates on the hook");
         clearInterval(liveInterval.current);
         liveInterval.current = null;
       }

@@ -105,15 +105,10 @@ export const TimelineBar = () => {
 
   useEffect(() => {
     if (isLive) {
-      console.log("Live mode enabled");
-
       if (liveInterval.current !== null) {
-        console.log("Clearing existing live interval");
         clearInterval(liveInterval.current);
         liveInterval.current = null;
       }
-
-      console.log("Setting new live interval");
 
       // Save the previous values
       previousStartDate.current = startDate;
@@ -122,8 +117,6 @@ export const TimelineBar = () => {
       previousEndTime.current = endTime;
 
       liveInterval.current = setInterval(() => {
-        console.log("Live interval tick");
-
         // Change the time range for live updates
         const now = new Date();
         const newStartDateTime = new Date(
@@ -146,12 +139,8 @@ export const TimelineBar = () => {
         setEndTime(format(addMinutes(now, 1), "HH:mm")); // 1 minute later
         setSelectedMinutes([0]);
       }, 5000);
-
-      console.log(liveInterval.current);
     } else {
-      console.log("Live mode disabled");
       if (liveInterval.current !== null) {
-        console.log("Clearing live interval");
         clearInterval(liveInterval.current);
         liveInterval.current = null;
 

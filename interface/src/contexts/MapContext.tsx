@@ -76,7 +76,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
   const [mapState, setMapState] = useState<MapState>(MapState.ONLINE);
 
   // This is default false to allow backup values in the timeline
-  const [isLive, setIsLive] = useState<boolean>(false);
+  const [isLive, setIsLive] = useState<boolean>(true);
 
   const [flights, setFlights] = useState<RIDFlight[]>([]);
 
