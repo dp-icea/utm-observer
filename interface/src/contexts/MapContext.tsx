@@ -1,6 +1,11 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { format } from "date-fns";
-import type { Constraint, IdentificationServiceAreaFull, OperationalIntent, RIDFlight } from "@/schemas";
+import type {
+  Constraint,
+  IdentificationServiceAreaFull,
+  OperationalIntent,
+  RIDFlight,
+} from "@/schemas";
 import type { FilterCategory } from "@/components/sidebar/OperationalFilters";
 import type { FilterClient } from "@/components/sidebar/ClientList";
 import { MapState } from "@/schemas/context";
@@ -16,8 +21,14 @@ interface IMapContext {
   setEndTime: (time: string) => void;
   selectedMinutes: number[];
   setSelectedMinutes: (minutes: number[]) => void;
-  volumes: Array<Constraint | OperationalIntent | IdentificationServiceAreaFull>;
-  setVolumes: (volumes: Array<Constraint | OperationalIntent | IdentificationServiceAreaFull>) => void;
+  volumes: Array<
+    Constraint | OperationalIntent | IdentificationServiceAreaFull
+  >;
+  setVolumes: (
+    volumes: Array<
+      Constraint | OperationalIntent | IdentificationServiceAreaFull
+    >,
+  ) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   filters: FilterCategory[];
@@ -44,9 +55,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     format(new Date(Date.now() + 24 * 60 * 60 * 1000), "HH:mm"),
   );
   const [selectedMinutes, setSelectedMinutes] = useState([0]);
-  const [volumes, setVolumes] = useState<Array<Constraint | OperationalIntent | IdentificationServiceAreaFull>>(
-    [],
-  );
+  const [volumes, setVolumes] = useState<
+    Array<Constraint | OperationalIntent | IdentificationServiceAreaFull>
+  >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [filters, setFilters] = useState<FilterCategory[]>([
     {
@@ -55,6 +66,11 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
       enabled: true,
     },
     { id: "constraints", label: "Constraints", enabled: true },
+    {
+      id: "identification-service-areas",
+      label: "Identification Service Areas",
+      enabled: false,
+    },
   ]);
   const [managerFilter, setManagerFilter] = useState<string[]>([]);
   const [mapState, setMapState] = useState<MapState>(MapState.ONLINE);

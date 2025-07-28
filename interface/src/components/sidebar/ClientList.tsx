@@ -4,7 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
 import { useMap } from "@/contexts/MapContext";
-import { isOperationalIntent, isConstraint, isIdentificationServiceArea } from "@/utils/interface-hook";
+import {
+  isOperationalIntent,
+  isConstraint,
+  isIdentificationServiceArea,
+} from "@/utils/interface-hook";
 
 interface Client {
   name: string;
@@ -33,11 +37,13 @@ export const ClientList = () => {
         ...client,
         operationalIntents: 0,
         constraints: 0,
+        identificationServiceAreas: 0,
       };
     });
 
     volumes.forEach((volumes) => {
-      const clientName = volumes.reference?.manager || volumes.reference?.owner || "";
+      const clientName =
+        volumes.reference?.manager || volumes.reference?.owner || "";
 
       if (clientName) {
         if (!currentClients[clientName]) {
@@ -158,7 +164,7 @@ export const ClientList = () => {
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-white">
-                {client.name}
+                {client.name.toUpperCase()}
               </span>
               <Badge
                 variant={client.active ? "default" : "secondary"}
@@ -172,6 +178,9 @@ export const ClientList = () => {
             </div>
             <div className="text-xs text-gray-400 text-start">
               Constraints: {client.constraints}
+            </div>
+            <div className="text-xs text-gray-400 text-start">
+              Identification Service Areas: {client.identificationServiceAreas}
             </div>
           </div>
         ))}

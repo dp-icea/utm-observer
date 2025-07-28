@@ -11,7 +11,12 @@ import {
   type Volume4D,
 } from "@/schemas";
 import { apiFetchService } from "@/services";
-import { isConstraint, isIdentificationServiceArea, isOperationalIntent, type TimeRange } from "@/utils/interface-hook";
+import {
+  isConstraint,
+  isIdentificationServiceArea,
+  isOperationalIntent,
+  type TimeRange,
+} from "@/utils/interface-hook";
 
 function sum(arr: number[]): number {
   return arr.reduce((acc, val) => acc + val, 0);
@@ -44,7 +49,11 @@ export class ViewerController {
         const cameraAltitude = altitude ? altitude + 1000 : 2000;
 
         this.viewer.camera.setView({
-          destination: Cartesian3.fromDegrees(longitude, latitude, cameraAltitude),
+          destination: Cartesian3.fromDegrees(
+            longitude,
+            latitude,
+            cameraAltitude,
+          ),
           orientation: {
             heading: Cesium.Math.toRadians(0),
             pitch: Cesium.Math.toRadians(-45),
@@ -79,16 +88,24 @@ export class ViewerController {
     );
   }
 
-  displayFlights(flights: Array<RIDFlight>) {
-    console.log("Removing flights", this.flights);
-    console.log("Adding flights", flights);
+  clearFlights() {
+    if (this.flights.size === 0) {
+      return;
+    }
 
-    // For each entity in the flights set. Remove it and add the new flights
     this.flights.forEach((entityId) => {
       this.viewer.entities.removeById(entityId);
     });
 
     this.flights.clear();
+  }
+
+  displayFlights(flights: Array<RIDFlight>) {
+    console.log("Removing flights", this.flights);
+    console.log("Adding flights", flights);
+
+    // For each entity in the flights set. Remove it and add the new flights
+    this.clearFlights();
 
     flights.forEach((flight) => {
       const { current_state, id } = flight;
@@ -105,8 +122,8 @@ export class ViewerController {
         ),
         point: {
           pixelSize: 10,
-          color: Cesium.Color.RED,
-          outlineColor: Cesium.Color.RED,
+          color: Cesium.Color.BLACK,
+          outlineColor: Cesium.Color.BLACK,
           outlineWidth: 2,
         },
         description: `Flight ID: ${id}<br>Status: ${operational_status}`,
@@ -116,14 +133,22 @@ export class ViewerController {
     });
   }
 
-  displayRegions(regions: Array<Constraint | OperationalIntent | IdentificationServiceAreaFull>) {
+  displayRegions(
+    regions: Array<
+      Constraint | OperationalIntent | IdentificationServiceAreaFull
+    >,
+  ) {
     // If there was an error of syncronization. Clear all then display again
     // TODO: Verify if this is really needed
-    if (this.viewer.entities.values.length !== (sum(
-      Object.values(this.displayedEntities).map(
-        (entity) => entity.entityIds.length,
-      ),
-    ) + this.flights.size)) {
+    if (
+      this.viewer.entities.values.length !==
+      sum(
+        Object.values(this.displayedEntities).map(
+          (entity) => entity.entityIds.length,
+        ),
+      ) +
+      this.flights.size
+    ) {
       this.viewer.entities.removeAll();
       this.displayedEntities = {};
     }
@@ -139,6 +164,8 @@ export class ViewerController {
     });
 
     regions.forEach((region) => {
+      console.log("=== Drawing Region ===", region);
+
       const { reference, details } = region;
       const { volumes }: { volumes: Volume4D[] } = details;
 
@@ -146,43 +173,47 @@ export class ViewerController {
         return;
       }
 
-      if (!("id" in reference && "ovn" in reference)) {
+      if (!("id" in reference)) {
         return;
       }
 
+      const ovn = "ovn" in reference ? reference!.ovn : "";
+
       if (
         reference.id in this.displayedEntities &&
-        this.displayedEntities[reference.id].ovn === reference.ovn
+        this.displayedEntities[reference.id].ovn === ovn
       ) {
         return;
       }
 
       if (!(reference.id in this.displayedEntities)) {
         this.displayedEntities[reference.id] = {
-          ovn: reference.ovn || "",
+          ovn: ovn!,
           entityIds: [],
         };
       }
 
       if (
         reference.id in this.displayedEntities &&
-        this.displayedEntities[reference.id].ovn !== reference.ovn
+        this.displayedEntities[reference.id].ovn !== ovn
       ) {
         this.displayedEntities[reference.id].entityIds.forEach((entityId) => {
           this.viewer.entities.removeById(entityId);
         });
         this.displayedEntities[reference.id].entityIds = [];
-        this.displayedEntities[reference.id].ovn = reference.ovn || "";
+        this.displayedEntities[reference.id].ovn = ovn!;
       }
 
       for (const volume of volumes) {
+        console.log("=== Drawing Volume ===", volume);
         let color: Cesium.Color = Cesium.Color.GREY;
         if (isOperationalIntent(region)) {
           color = OperationalIntentStateColor[reference["state"]];
         } else if (isConstraint(region)) {
-          color = Cesium.Color.GREY;
+          color = Cesium.Color.RED;
         } else if (isIdentificationServiceArea(region)) {
-          color = Cesium.Color.BLUE.withAlpha(0.1);
+          console.log("Drawing Identification Service Area", region);
+          color = Cesium.Color.BLUE;
         }
 
         if (volume.volume["outline_circle"]) {
@@ -210,7 +241,6 @@ export class ViewerController {
     volume: Volume3D,
     color: Cesium.Color = Cesium.Color.GREY,
   ): Cesium.Entity | undefined {
-
     if (!("outline_circle" in volume)) {
       return;
     }

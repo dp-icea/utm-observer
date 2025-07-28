@@ -5,15 +5,15 @@ from schemas.flights import (
     Flight
 )
 from schemas.common.base import (
-        Time
+    Time
 )
 from schemas.common.enums import (
-        HorizontalAccuracy,
-        RIDOperationalStatus,
-        SpeedAccuracy,
-        TimeFormat,
-        UAType,
-        VerticalAccuracy
+    HorizontalAccuracy,
+    RIDOperationalStatus,
+    SpeedAccuracy,
+    TimeFormat,
+    UAType,
+    VerticalAccuracy
 )
 from uuid import UUID
 from datetime import datetime
@@ -43,12 +43,13 @@ FLIGHT_UUIDS = [
     UUID("38183a90-bcf5-4624-b6db-2858328cdca9"),
 ]
 
+
 def generate_flight_mock_data() -> List[RIDFlight]:
     global flight_data_store
 
     # Time-based seed for smooth variations
     noise = Noise()
-    t = time.time() * 0.1
+    t = time.time() * 0.05
 
     flights = []
     for i, base in enumerate(BASE_COORDS):

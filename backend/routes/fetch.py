@@ -108,6 +108,7 @@ async def get_constraints_volume(
 
     return constraints
 
+
 async def get_identification_service_areas_volume(
     service_areas: List[IdentificationServiceArea]
 ) -> List[IdentificationServiceAreaFull]:
@@ -141,7 +142,8 @@ async def get_identification_service_areas_volume(
 
             identification_service_areas.append(identification_service_area)
 
-        except Exception:
+        except Exception as e:
+            print(e)
             print(f"Error fetching service area details: {service_area.id}")
             continue
 
@@ -192,10 +194,17 @@ async def query_volumes(
         dss_remoteid_service = DSSRemoteIDService()
         query_identification_service_areas = await dss_remoteid_service\
             .search_identification_service_areas(
-                area=",".join([f"{vertice.lat},{vertice.lng}" for vertice in area_of_interest.volume.outline_polygon.vertices]),
-                earliest_time=area_of_interest.time_start.value.isoformat('T').replace("+00:00", "") + 'Z',
-                latest_time=area_of_interest.time_end.value.isoformat('T').replace("+00:00", "") + 'Z',
+                area=",".join(
+                    [f"{vertice.lat},{vertice.lng}" for vertice in area_of_interest.volume.outline_polygon.vertices]),
+                earliest_time=area_of_interest.time_start.value.isoformat(
+                    'T').replace("+00:00", "") + 'Z',
+                latest_time=area_of_interest.time_end.value.isoformat(
+                    'T').replace("+00:00", "") + 'Z',
             )
+
+        print("===== Querying identification service areas: =====")
+        pprint(query_identification_service_areas)
+        print("===================================================")
 
         identification_service_areas = await get_identification_service_areas_volume(
             query_identification_service_areas.service_areas
@@ -213,6 +222,7 @@ async def query_volumes(
         message="Query requested successfully",
         data=response_data,
     )
+
 
 @router.post(
     "/flights",
@@ -240,4 +250,3 @@ async def query_flights(
         message="Live flight data requested",
         data=res,
     )
-

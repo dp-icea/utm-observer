@@ -11,11 +11,7 @@ export interface FilterCategory {
 }
 
 export const OperationalFilters = () => {
-  const {
-    filters,
-    setFilters,
-    volumes,
-  } = useMap();
+  const { filters, setFilters, volumes } = useMap();
 
   const toggleFilter = (id: string) => {
     setFilters(
@@ -34,7 +30,7 @@ export const OperationalFilters = () => {
       }
       return false;
     }).length;
-  }
+  };
 
   const enabledCount = filters.filter((f) => f.enabled).length;
 
@@ -62,7 +58,7 @@ export const OperationalFilters = () => {
             />
             <label
               htmlFor={filter.id}
-              className="flex-1 text-sm cursor-pointer text-gray-300"
+              className="flex-1 text-sm cursor-pointer text-gray-300 text-start"
             >
               {filter.label}
             </label>

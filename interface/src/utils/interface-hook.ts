@@ -47,7 +47,11 @@ export const InterfaceHook = () => {
   const controller = useRef<ViewerController | null>(null);
 
   // This was created because of caching problems in the map provider context
-  const localVolumes = useRef<Array<OperationalIntent | Constraint | IdentificationServiceAreaFull>>([]);
+  const localVolumes = useRef<
+    Array<OperationalIntent | Constraint | IdentificationServiceAreaFull>
+  >([]);
+
+  const liveInterval = useRef<NodeJS.Timeout | null>(null);
 
   const { viewer } = useCesium();
 
@@ -82,7 +86,7 @@ export const InterfaceHook = () => {
       south: rectangle.south,
       east: rectangle.east,
       west: rectangle.west,
-    }
+    };
 
     try {
       const res = await apiFetchService.queryFlights(area);
@@ -95,7 +99,7 @@ export const InterfaceHook = () => {
         setMapState(MapState.ERROR);
       }
     }
-  }
+  };
 
   const fetchVolumes = async (
     rectangle: Cesium.Rectangle,
@@ -143,14 +147,17 @@ export const InterfaceHook = () => {
     try {
       const res = await apiFetchService.queryVolumes(boundingVolume);
 
-      const fetchedVolumes: Array<OperationalIntent | Constraint | IdentificationServiceAreaFull> = [
-        ...res.constraints,
-        ...res.operational_intents,
-        ...res.identification_service_areas
-      ];
+      const fetchedVolumes: Array<
+        OperationalIntent | Constraint | IdentificationServiceAreaFull
+      > = [
+          ...res.constraints,
+          ...res.operational_intents,
+          ...res.identification_service_areas,
+        ];
 
       localVolumes.current = fetchedVolumes.slice();
       setVolumes(fetchedVolumes);
+      console.log("Volumes length", volumes.length);
       setMapState(MapState.ONLINE);
     } catch (e) {
       if (e.code === "ERR_NETWORK") {
@@ -162,7 +169,9 @@ export const InterfaceHook = () => {
   };
 
   const getFilteredRegions = (
-    regions: Array<OperationalIntent | Constraint | IdentificationServiceAreaFull>,
+    regions: Array<
+      OperationalIntent | Constraint | IdentificationServiceAreaFull
+    >,
   ): Array<OperationalIntent | Constraint | IdentificationServiceAreaFull> => {
     const minutesOffset = selectedMinutes[0] || 0;
     return regions.filter((region) => {
@@ -178,15 +187,18 @@ export const InterfaceHook = () => {
         if (
           (isOperationalIntent(region) &&
             !filterIds.includes("operational-intents")) ||
-          (isConstraint(region) && !filterIds.includes("constraints"))
+          (isConstraint(region) && !filterIds.includes("constraints")) ||
+          (isIdentificationServiceArea(region) &&
+            !filterIds.includes("identification-service-areas"))
         ) {
           return false;
         }
       }
 
-      if (!managerFilter.includes(region.reference.manager)) {
-        return false;
-      }
+      // I dont remember why I did this, but it doesnt work with ISA. If problem => solve later
+      // if (!managerFilter.includes(region.reference.manager)) {
+      //   return false;
+      // }
 
       // Verify timeline intersection
       const { startTime } = getTimeRange();
@@ -274,7 +286,7 @@ export const InterfaceHook = () => {
   const getFilteredFlights = (flights: Array<RIDFlight>): Array<RIDFlight> => {
     // TODO: Implement the logic based on the filters
     return flights;
-  }
+  };
 
   const onFlightsUpdate: React.EffectCallback = () => {
     console.log("On flight UPdate");
@@ -284,7 +296,28 @@ export const InterfaceHook = () => {
     const filteredFlights = getFilteredFlights(flights);
 
     controller.current.displayFlights(filteredFlights);
-  }
+  };
+
+  const onLiveToggle: React.EffectCallback = () => {
+    if (!controller.current) return;
+
+    if (isLive) {
+      if (liveInterval.current) return;
+
+      console.log("Starting live updates on the hook");
+      liveInterval.current = setInterval(() => {
+        triggerFetchFlights();
+      }, 500);
+    } else {
+      if (liveInterval.current) {
+        // Clear the interval if it exists
+        controller.current.clearFlights();
+        console.log("Stopping live updates on the hook");
+        clearInterval(liveInterval.current);
+        liveInterval.current = null;
+      }
+    }
+  };
 
   // Object state on the dynamic input
   useEffect(onViewerStart, [viewer]);
@@ -297,15 +330,13 @@ export const InterfaceHook = () => {
   ]);
   useEffect(onFlightsUpdate, [flights]);
 
+  useEffect(onLiveToggle, [isLive]);
+
   // Destroy routine
   useEffect(() => {
     setInterval(() => {
       triggerFetchVolumes();
     }, 10000);
-
-    setInterval(() => {
-      triggerFetchFlights();
-    }, 3000);
   }, []);
 
   return null;

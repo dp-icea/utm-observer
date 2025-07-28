@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Radio, MapPin, Battery, Signal } from "lucide-react";
+import { useMap } from "@/contexts/MapContext";
 
 interface DroneInfo {
   id: string;
@@ -58,13 +59,14 @@ export const DroneTracking = () => {
     "DroneLogistics",
   ]);
 
+  const { isLive, flights } = useMap();
+
   const providers = Array.from(new Set(drones.map((d) => d.provider)));
   const filteredDrones = drones.filter((d) =>
     selectedProviders.includes(d.provider),
   );
-  const activeDrones = filteredDrones.filter(
-    (d) => d.status === "active",
-  ).length;
+
+  console.log("Flights", flights);
 
   const toggleDroneSelection = (id: string) => {
     setDrones(
@@ -105,6 +107,14 @@ export const DroneTracking = () => {
     return "text-red-500";
   };
 
+  const onFlightsUpdate = () => { };
+
+  useEffect(onFlightsUpdate, [flights]);
+
+  if (flights.length === 0 || !isLive) {
+    return null;
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -115,7 +125,7 @@ export const DroneTracking = () => {
           </span>
         </div>
         <Badge variant="default" className="text-xs">
-          {activeDrones} active
+          {flights.length} active
         </Badge>
       </div>
 
