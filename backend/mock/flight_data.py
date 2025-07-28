@@ -8,23 +8,31 @@ from schemas.common.base import (
         Time
 )
 from schemas.common.enums import (
-        TimeFormat
+        HorizontalAccuracy,
+        RIDOperationalStatus,
+        SpeedAccuracy,
+        TimeFormat,
+        UAType,
+        VerticalAccuracy
 )
 from uuid import UUID
 from datetime import datetime
 from random import random
+from typing import List
 from vnoise import Noise  # Perlin noise library
 import time
+
+from schemas.uss.remoteid import RIDAircraftPosition, RIDAircraftState, RIDFlight
 
 # In-memory storage for flight data
 flight_data_store = {}
 
 # Base coordinates for smooth variations
 BASE_COORDS = [
-    {"lat": -0.4039612815972356, "lng": -0.8012530716265216, "alt": 2000.0},
-    {"lat": -0.4039612815972356, "lng": -0.8012530716265316, "alt": 2000.0},
-    {"lat": -0.4039612815972456, "lng": -0.8012530716265216, "alt": 2000.0},
-    {"lat": -0.4039612815972456, "lng": -0.8012530716265316, "alt": 2000.0},
+    {"lat": -0.40506734768146335, "lng": -0.800573957258482, "alt": 650.0},
+    {"lat": -0.40506734768146335, "lng": -0.800573957258482, "alt": 650.0},
+    {"lat": -0.40506734768146335, "lng": -0.800573957258482, "alt": 650.0},
+    {"lat": -0.40506734768146335, "lng": -0.800573957258482, "alt": 650.0},
 ]
 
 # UUIDs for the flights
@@ -35,7 +43,7 @@ FLIGHT_UUIDS = [
     UUID("38183a90-bcf5-4624-b6db-2858328cdca9"),
 ]
 
-def generate_flight_mock_data():
+def generate_flight_mock_data() -> List[RIDFlight]:
     global flight_data_store
 
     # Time-based seed for smooth variations
@@ -47,44 +55,40 @@ def generate_flight_mock_data():
         uuid = FLIGHT_UUIDS[i]
 
         # Generate smooth variations using Perlin noise
-        lat_variation = noise.noise1(t + i) * 0.00000001
-        lng_variation = noise.noise1(t + i + 10) * 0.00000001
-        alt_variation = noise.noise1(t + i + 20) * 10
+        lat_variation = noise.noise1(t + i) * 0.00005
+        lng_variation = noise.noise1(t + i + 10) * 0.00005
+        alt_variation = noise.noise1(t + i + 20) * 15
 
         # Updated position
-        position = Position(
+        position = RIDAircraftPosition(
             lat=base["lat"] + lat_variation,
             lng=base["lng"] + lng_variation,
             alt=base["alt"] + alt_variation,
-            accuracy_h="HAUnknown",
-            accuracy_v="VAUnknown",
+            accuracy_h=HorizontalAccuracy.HAUnknown,
+            accuracy_v=VerticalAccuracy.VAUnknown,
             extrapolated=False,
             pressure_altitude=-1000.0,
-            height=Height(
-                distance=0.0,
-                reference="TakeoffLocation",
-            )
         )
 
         # Current state
-        current_state = CurrentState(
+        current_state = RIDAircraftState(
             timestamp=Time(
                 value=datetime.now(),
                 format=TimeFormat.RFC3339,
             ),
             timestamp_accuracy=0.0,
-            operational_status="Undeclared",
+            operational_status=RIDOperationalStatus.Undeclared,
             position=position,
             track=0.0,
             speed=0.0,
-            speed_accuracy="SAUnknown",
+            speed_accuracy=SpeedAccuracy.SAUnknown,
             vertical_speed=0.0,
         )
 
         # Flight object
-        flight = Flight(
+        flight = RIDFlight(
             id=str(uuid),
-            aircraft_type="Helicopter",
+            aircraft_type=UAType.Ornithopter,
             current_state=current_state,
             operating_area=None,
             simulated=False,

@@ -4,6 +4,8 @@ export type EntityID = UUIDv4Format;
 export type EntityOVN = string;
 export type EntityVersion = number;
 export type Key = EntityOVN[];
+export type URL = string;
+export type Version = string;
 
 export interface Time {
   value: string; // RFC3339-formatted time/date string
@@ -36,6 +38,13 @@ export interface Polygon {
 export interface Circle {
   center: LatLngPoint;
   radius: Radius;
+}
+
+export interface Rectangle {
+  north: number;
+  south: number;
+  east: number;
+  west: number;
 }
 
 export interface Volume3D {

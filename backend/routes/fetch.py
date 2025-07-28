@@ -13,7 +13,7 @@ from schemas.common.enums import TimeFormat
 from schemas.dss.common import ConstraintReference, OperationalIntentReference
 from schemas.dss.constraints import QueryConstraintReferenceParameters
 from schemas.dss.operational_intents import QueryOperationalIntentReferenceParameters
-from schemas.dss.remoteid import IdentificationServiceArea
+from schemas.dss.remoteid import IdentificationServiceArea, IdentificationServiceAreaDetails, IdentificationServiceAreaFull
 from schemas.flights import QueryFlightsRequest, QueryFlightsResponse
 from schemas.response import Response
 from schemas.uss.constraints import Constraint
@@ -110,11 +110,11 @@ async def get_constraints_volume(
 
 async def get_identification_service_areas_volume(
     service_areas: List[IdentificationServiceArea]
-) -> List[Volume4D]:
+) -> List[IdentificationServiceAreaFull]:
     """
     Extracts the identification service areas from a list of service areas.
     """
-    identification_service_areas: List[Volume4D] = []
+    identification_service_areas: List[IdentificationServiceAreaFull] = []
 
     for service_area in service_areas:
         try:
@@ -132,8 +132,14 @@ async def get_identification_service_areas_volume(
             service_area_response = await uss_remoteid_service\
                 .get_identification_service_area_details(service_area.id)
 
-            identification_service_areas.append(
-                service_area_response.extents)
+            identification_service_area = IdentificationServiceAreaFull(
+                reference=service_area,
+                details=IdentificationServiceAreaDetails(
+                    volumes=[service_area_response.extents]
+                ),
+            )
+
+            identification_service_areas.append(identification_service_area)
 
         except Exception:
             print(f"Error fetching service area details: {service_area.id}")
@@ -217,7 +223,7 @@ async def query_volumes(
 async def query_flights(
         area: QueryFlightsRequest
 ):
-    flights_service = FlightsService()
+    # flights_service = FlightsService()
 
     # res = await flights_service.query_flights(area)
     res = QueryFlightsResponse(
@@ -230,7 +236,6 @@ async def query_flights(
         )
     )
 
-    
     return Response(
         message="Live flight data requested",
         data=res,

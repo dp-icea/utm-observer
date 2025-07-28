@@ -4,12 +4,14 @@ import { debounce } from "lodash-es";
 import {
   OperationalIntentStateColor,
   type Constraint,
+  type IdentificationServiceAreaFull,
   type OperationalIntent,
+  type RIDFlight,
   type Volume3D,
   type Volume4D,
 } from "@/schemas";
 import { apiFetchService } from "@/services";
-import type { TimeRange } from "@/utils/interface-hook";
+import { isConstraint, isIdentificationServiceArea, isOperationalIntent, type TimeRange } from "@/utils/interface-hook";
 
 function sum(arr: number[]): number {
   return arr.reduce((acc, val) => acc + val, 0);
@@ -28,6 +30,7 @@ export class ViewerController {
   private viewer: Cesium.Viewer;
   private displayedEntities: Record<RegionId, DisplayedEntity> = {};
   private handler: Cesium.ScreenSpaceEventHandler;
+  private flights = new Set<EntityId>();
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -37,7 +40,7 @@ export class ViewerController {
     navigator.geolocation.getCurrentPosition(
       (position: GeolocationPosition) => {
         const { latitude, longitude, altitude } = position.coords;
-        
+
         const cameraAltitude = altitude ? altitude + 1000 : 2000;
 
         this.viewer.camera.setView({
@@ -76,13 +79,51 @@ export class ViewerController {
     );
   }
 
-  displayRegions(regions: Array<Constraint | OperationalIntent>) {
+  displayFlights(flights: Array<RIDFlight>) {
+    console.log("Removing flights", this.flights);
+    console.log("Adding flights", flights);
+
+    // For each entity in the flights set. Remove it and add the new flights
+    this.flights.forEach((entityId) => {
+      this.viewer.entities.removeById(entityId);
+    });
+
+    this.flights.clear();
+
+    flights.forEach((flight) => {
+      const { current_state, id } = flight;
+      const { position, operational_status } = current_state;
+
+      if (!position || !position.lat || !position.lng) {
+        return;
+      }
+
+      const entity = this.viewer.entities.add({
+        id: id,
+        position: Cesium.Cartographic.toCartesian(
+          new Cesium.Cartographic(position.lng, position.lat, position.alt),
+        ),
+        point: {
+          pixelSize: 10,
+          color: Cesium.Color.RED,
+          outlineColor: Cesium.Color.RED,
+          outlineWidth: 2,
+        },
+        description: `Flight ID: ${id}<br>Status: ${operational_status}`,
+      });
+
+      this.flights.add(entity.id);
+    });
+  }
+
+  displayRegions(regions: Array<Constraint | OperationalIntent | IdentificationServiceAreaFull>) {
     // If there was an error of syncronization. Clear all then display again
-    if (this.viewer.entities.values.length !== sum(
+    // TODO: Verify if this is really needed
+    if (this.viewer.entities.values.length !== (sum(
       Object.values(this.displayedEntities).map(
         (entity) => entity.entityIds.length,
       ),
-    )) {
+    ) + this.flights.size)) {
       this.viewer.entities.removeAll();
       this.displayedEntities = {};
     }
@@ -136,8 +177,12 @@ export class ViewerController {
 
       for (const volume of volumes) {
         let color: Cesium.Color = Cesium.Color.GREY;
-        if ("state" in reference) {
+        if (isOperationalIntent(region)) {
           color = OperationalIntentStateColor[reference["state"]];
+        } else if (isConstraint(region)) {
+          color = Cesium.Color.GREY;
+        } else if (isIdentificationServiceArea(region)) {
+          color = Cesium.Color.BLUE.withAlpha(0.1);
         }
 
         if (volume.volume["outline_circle"]) {

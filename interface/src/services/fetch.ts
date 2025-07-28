@@ -1,4 +1,4 @@
-import type { QueryVolumesResponse, Volume4D } from "@/schemas";
+import type { QueryVolumesResponse, Volume4D, Rectangle, QueryFlightsResponse } from "@/schemas";
 import { api } from "@/services/api";
 
 const RESOURCE_PATH = "/fetch";
@@ -8,4 +8,9 @@ export const apiFetchService = {
     const res = await api.post(`${RESOURCE_PATH}`, params);
     return res.data.data;
   },
+
+  queryFlights: async (params: Rectangle): Promise<QueryFlightsResponse> => {
+    const res = await api.post(`${RESOURCE_PATH}/flights`, params);
+    return res.data.data;
+  }
 };

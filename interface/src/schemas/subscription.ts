@@ -1,6 +1,7 @@
-import type { EntityID, Time, UssBaseURL, Volume4D } from "./common";
+import type { EntityID, Time, UssBaseURL, Version, Volume4D } from "./common";
 import type { ConstraintReference } from "./constraint";
 import type { OperationalIntentReference } from "./operational-intent";
+import type { IdentificationServiceArea } from "./identification-service-area";
 
 export type SubscriptionID = string;
 export type SubscriptionNotificationIndex = number;
@@ -18,7 +19,7 @@ export interface SubscriberToNotify {
 
 export interface Subscription {
   id: SubscriptionID;
-  version: string;
+  version: Version;
   notification_index: SubscriptionNotificationIndex;
   time_start?: Time;
   time_end?: Time;
@@ -52,6 +53,7 @@ export interface PutSubscriptionResponse {
   subscription: Subscription;
   operational_intent_references?: OperationalIntentReference[];
   constraint_references?: ConstraintReference[];
+  service_areas?: IdentificationServiceArea[];
 }
 
 export interface DeleteSubscriptionResponse {

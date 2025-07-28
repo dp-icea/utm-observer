@@ -8,3 +8,5 @@ export * from "./subscription";
 export * from "./uss";
 export * from "./scope";
 export * from "./fetch";
+export * from "./identification-service-area";
+export * from "./flight";

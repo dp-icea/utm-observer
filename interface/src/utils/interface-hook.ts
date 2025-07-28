@@ -11,22 +11,31 @@ import { MapState } from "@/schemas/context";
 import {
   OperationalIntentStateColor,
   type Constraint,
+  type IdentificationServiceAreaFull,
   type OperationalIntent,
+  type Rectangle,
+  type RIDFlight,
   type Volume3D,
   type Volume4D,
 } from "@/schemas";
 import type { AxiosError } from "axios";
 
 export const isOperationalIntent = (
-  region: OperationalIntent | Constraint,
+  region: OperationalIntent | Constraint | IdentificationServiceAreaFull,
 ): region is OperationalIntent => {
   return "flight_type" in region.reference;
 };
 
 export const isConstraint = (
-  region: OperationalIntent | Constraint,
+  region: OperationalIntent | Constraint | IdentificationServiceAreaFull,
 ): region is Constraint => {
-  return !isOperationalIntent(region);
+  return "geozone" in region.details;
+};
+
+export const isIdentificationServiceArea = (
+  region: OperationalIntent | Constraint | IdentificationServiceAreaFull,
+): region is IdentificationServiceAreaFull => {
+  return "owner" in region.reference;
 };
 
 export interface TimeRange {
@@ -38,7 +47,7 @@ export const InterfaceHook = () => {
   const controller = useRef<ViewerController | null>(null);
 
   // This was created because of caching problems in the map provider context
-  const localVolumes = useRef<Array<OperationalIntent | Constraint>>([]);
+  const localVolumes = useRef<Array<OperationalIntent | Constraint | IdentificationServiceAreaFull>>([]);
 
   const { viewer } = useCesium();
 
@@ -55,6 +64,8 @@ export const InterfaceHook = () => {
     managerFilter,
     setMapState,
     isLive,
+    flights,
+    setFlights,
   } = useMap();
 
   const getTimeRange: () => TimeRange = () => {
@@ -64,6 +75,27 @@ export const InterfaceHook = () => {
     const endDateTime = new Date(`${format(endDate, "yyyy-MM-dd")}T${endTime}`);
     return { startTime: startDateTime, endTime: endDateTime };
   };
+
+  const fetchFlights = async (rectangle: Cesium.Rectangle) => {
+    const area: Rectangle = {
+      north: rectangle.north,
+      south: rectangle.south,
+      east: rectangle.east,
+      west: rectangle.west,
+    }
+
+    try {
+      const res = await apiFetchService.queryFlights(area);
+      setFlights(res.flights);
+      setMapState(MapState.ONLINE);
+    } catch (e) {
+      if (e.code === "ERR_NETWORK") {
+        setMapState(MapState.OFFLINE);
+      } else {
+        setMapState(MapState.ERROR);
+      }
+    }
+  }
 
   const fetchVolumes = async (
     rectangle: Cesium.Rectangle,
@@ -111,9 +143,10 @@ export const InterfaceHook = () => {
     try {
       const res = await apiFetchService.queryVolumes(boundingVolume);
 
-      const fetchedVolumes: Array<OperationalIntent | Constraint> = [
+      const fetchedVolumes: Array<OperationalIntent | Constraint | IdentificationServiceAreaFull> = [
         ...res.constraints,
         ...res.operational_intents,
+        ...res.identification_service_areas
       ];
 
       localVolumes.current = fetchedVolumes.slice();
@@ -129,8 +162,8 @@ export const InterfaceHook = () => {
   };
 
   const getFilteredRegions = (
-    regions: Array<OperationalIntent | Constraint>,
-  ): Array<OperationalIntent | Constraint> => {
+    regions: Array<OperationalIntent | Constraint | IdentificationServiceAreaFull>,
+  ): Array<OperationalIntent | Constraint | IdentificationServiceAreaFull> => {
     const minutesOffset = selectedMinutes[0] || 0;
     return regions.filter((region) => {
       const volumes = region.details.volumes;
@@ -184,6 +217,17 @@ export const InterfaceHook = () => {
     setLoading(false);
   };
 
+  const triggerFetchFlights = async () => {
+    if (!controller.current) return;
+
+    setLoading(true);
+    const viewRectangle = controller.current.getViewRectangle();
+    if (viewRectangle) {
+      await fetchFlights(viewRectangle);
+    }
+    setLoading(false);
+  };
+
   const updateVolumes = () => {
     if (!controller.current) return;
 
@@ -227,6 +271,21 @@ export const InterfaceHook = () => {
     updateVolumes();
   };
 
+  const getFilteredFlights = (flights: Array<RIDFlight>): Array<RIDFlight> => {
+    // TODO: Implement the logic based on the filters
+    return flights;
+  }
+
+  const onFlightsUpdate: React.EffectCallback = () => {
+    console.log("On flight UPdate");
+
+    if (!controller.current) return;
+
+    const filteredFlights = getFilteredFlights(flights);
+
+    controller.current.displayFlights(filteredFlights);
+  }
+
   // Object state on the dynamic input
   useEffect(onViewerStart, [viewer]);
   useEffect(onTimeRangeChange, [startDate, startTime, endDate, endTime]);
@@ -236,12 +295,17 @@ export const InterfaceHook = () => {
     filters,
     managerFilter,
   ]);
+  useEffect(onFlightsUpdate, [flights]);
 
   // Destroy routine
   useEffect(() => {
-    const interval = setInterval(() => {
+    setInterval(() => {
       triggerFetchVolumes();
     }, 10000);
+
+    setInterval(() => {
+      triggerFetchFlights();
+    }, 3000);
   }, []);
 
   return null;

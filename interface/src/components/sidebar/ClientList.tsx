@@ -4,13 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Users } from "lucide-react";
 import { useMap } from "@/contexts/MapContext";
-import { isOperationalIntent, isConstraint } from "@/utils/interface-hook";
+import { isOperationalIntent, isConstraint, isIdentificationServiceArea } from "@/utils/interface-hook";
 
 interface Client {
   name: string;
   active: boolean;
   operationalIntents: number;
   constraints: number;
+  identificationServiceAreas: number;
 }
 
 export const ClientList = () => {
@@ -36,14 +37,16 @@ export const ClientList = () => {
     });
 
     volumes.forEach((volumes) => {
-      if (volumes.reference.manager) {
-        const clientName = volumes.reference.manager;
+      const clientName = volumes.reference?.manager || volumes.reference?.owner || "";
+
+      if (clientName) {
         if (!currentClients[clientName]) {
           currentClients[clientName] = {
             name: clientName,
             active: true,
             operationalIntents: 0,
             constraints: 0,
+            identificationServiceAreas: 0,
           };
         }
 
@@ -51,6 +54,8 @@ export const ClientList = () => {
           currentClients[clientName].operationalIntents += 1;
         } else if (isConstraint(volumes)) {
           currentClients[clientName].constraints += 1;
+        } else if (isIdentificationServiceArea(volumes)) {
+          currentClients[clientName].identificationServiceAreas += 1;
         }
       }
     });

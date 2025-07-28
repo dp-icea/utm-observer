@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from schemas.common.base import Time
+from schemas.uss.remoteid import RIDFlight
 from .response import Response
 from .uss.common import OperationalIntent, Constraint
 
@@ -86,7 +87,7 @@ class QueryFlightsResponse(BaseModel):
     """
     Response model for the query_volumes endpoint.
     """
-    flights: List
+    flights: List[RIDFlight]
     partial: bool
     errors: List[str]
     timestamp: Time
