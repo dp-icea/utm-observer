@@ -1,7 +1,11 @@
+from datetime import time
 from uuid import UUID
 from schemas.common.enums import Audition, Authority
 from config.config import Settings
 from httpx import AsyncClient
+from services.dss.remoteid import DSSRemoteIDService
+from services.uss.remoteid import USSRemoteIDService
+from datetime import datetime, timedelta
 
 from schemas.flights import (
         QueryFlightsRequest,
@@ -45,15 +49,53 @@ class FlightsService:
             "lng4": params.west,
         }
 
-        response = await self.client.request(
-            "GET",
-            f"{RESOURCES_PATH}",
-            params=query_params,  # Send as query parameters
+        # Query ISA
+
+        dssClient = DSSRemoteIDService()
+
+        area = query_params["lat1"] + "," + query_params["lng1"] + "," + \
+               query_params["lat2"] + "," + query_params["lng2"] + "," + \
+               query_params["lat3"] + "," + query_params["lng3"] + "," + \
+               query_params["lat4"] + "," + query_params["lng4"]
+
+        now = datetime.now(datetime.timezone.utc)
+        earliest_time = now.isoformat() + 'Z'
+        latest_time = (now + timedelta(seconds=10)).isoformat() + 'Z'
+
+        isas = dssClient.search_identification_service_areas(
+            area=area,
+            earliest_time=earliest_time,
+            latest_time=latest_time,
         )
 
-        if response.status_code != 200:
-            raise ValueError(
-                f"Error querying flights: {response.text}"
-            )
+        # Get Flights by ISA
+        flights = []
+        errors = []
+
+        for isa in isas.service_areas:
+            try:
+                ussClient = USSRemoteIDService(
+                    base_url=isa.uss_base_url
+                )
+                flight_response = await ussClient.search_flights(
+                    view=query_params["lat1"] + "," + query_params["lng1"] + "," +
+                        query_params["lat3"] + "," + query_params["lng3"],
+                        recent_positions_duration=0
+                )
+
+                flights.append(flight_response.flights)
+            except Exception as e:
+                errors.append({
+                    "error": str(e),
+                    "service_area": isa.uss_base_url
+                })
+        
+
+        response = QueryFlightsRequest(
+            flights=flights,
+            partial=False,
+            errors=[],
+            timestamp=now,
+        )
 
         return QueryFlightsResponse.model_validate(response.json())
