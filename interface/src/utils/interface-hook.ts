@@ -71,6 +71,10 @@ export const InterfaceHook = () => {
     isLive,
     flights,
     setFlights,
+    selectedFlights,
+    setSelectedFlights,
+    selectedProviders,
+    setSelectedProviders,
   } = useMap();
 
   const getTimeRange: () => TimeRange = () => {
@@ -91,7 +95,23 @@ export const InterfaceHook = () => {
 
     try {
       const res = await apiFetchService.queryFlights(area);
+
+      const existingFlightIds = new Set(flights.map((f) => f.id));
+      const newFlights: Array<Flight> = res.flights.filter(
+        (flight) => !existingFlightIds.has(flight.id),
+      );
+      const existingOwners = new Set(
+        flights.map((f) => f.identification_service_area.owner),
+      );
+      const newOwners = newFlights
+        .map((flight) => flight.identification_service_area.owner)
+        .filter((owner) => !existingOwners.has(owner));
+
       setFlights(res.flights);
+      setSelectedFlights(
+        selectedFlights.concat(newFlights.map((flight) => flight.id as string)),
+      );
+      setSelectedProviders(selectedProviders.concat(newOwners));
       setMapState(MapState.ONLINE);
     } catch (e) {
       if (e.code === "ERR_NETWORK") {
@@ -151,10 +171,10 @@ export const InterfaceHook = () => {
       const fetchedVolumes: Array<
         OperationalIntent | Constraint | IdentificationServiceAreaFull
       > = [
-          ...res.constraints,
-          ...res.operational_intents,
-          ...res.identification_service_areas,
-        ];
+        ...res.constraints,
+        ...res.operational_intents,
+        ...res.identification_service_areas,
+      ];
 
       localVolumes.current = fetchedVolumes.slice();
       setVolumes(fetchedVolumes);
@@ -284,8 +304,28 @@ export const InterfaceHook = () => {
   };
 
   const getFilteredFlights = (flights: Array<Flight>): Array<Flight> => {
-    // TODO: Implement the logic based on the filters
-    return flights;
+    // console.log("Selected Providers:", selectedProviders);
+    // console.log("Selected Flights:", selectedFlights);
+
+    return flights.filter((flight) => {
+      // Filter by selected providers
+      if (selectedProviders.length > 0) {
+        if (
+          !selectedProviders.includes(flight.identification_service_area.owner)
+        ) {
+          return false;
+        }
+      }
+
+      // Filter by selected flights
+      if (selectedFlights.length > 0) {
+        if (!selectedFlights.includes(flight.id as string)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
   };
 
   const onFlightsUpdate: React.EffectCallback = () => {

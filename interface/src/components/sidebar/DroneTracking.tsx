@@ -6,44 +6,41 @@ import { useMap } from "@/contexts/MapContext";
 import type { RIDAuthData, RIDOperationalStatus } from "@/schemas";
 
 export const DroneTracking = () => {
-  const { isLive, flights } = useMap();
-
-  console.log("Amount of flights:", flights.length);
-
-  // Will later become a context thing filter
-  const [selectedDrones, setSelectedDrones] = useState<string[]>(
-    flights.map((flight) => flight.id as string),
-  );
+  const {
+    isLive,
+    flights,
+    selectedFlights,
+    setSelectedFlights,
+    selectedProviders,
+    setSelectedProviders,
+  } = useMap();
 
   const providers = Array.from(
     new Set(flights.map((flight) => flight.identification_service_area.owner)),
   );
-  const [selectedProviders, setSelectedProviders] = useState<string[]>(
-    providers.slice(),
-  );
 
   const toggleDroneSelection = (id: string) => {
-    setSelectedDrones(() =>
-      selectedDrones.includes(id)
-        ? selectedDrones.filter((d) => d !== id)
-        : [...selectedDrones, id],
+    setSelectedFlights(
+      selectedFlights.includes(id)
+        ? selectedFlights.filter((d) => d !== id)
+        : [...selectedFlights, id],
     );
   };
 
   const toggleProvider = (provider: string) => {
-    setSelectedProviders((prev) =>
-      prev.includes(provider)
-        ? prev.filter((p) => p !== provider)
-        : [...prev, provider],
+    setSelectedProviders(
+      selectedProviders.includes(provider)
+        ? selectedProviders.filter((p) => p !== provider)
+        : [...selectedProviders, provider],
     );
   };
 
   const isProviderSelected = (provider: string) => {
-    return !selectedProviders.includes(provider);
+    return selectedProviders.includes(provider);
   };
 
   const isFlightSelected = (flightId: string) => {
-    return !selectedDrones.includes(flightId);
+    return selectedFlights.includes(flightId);
   };
 
   const getStatusColor = (status: RIDOperationalStatus) => {
@@ -63,7 +60,7 @@ export const DroneTracking = () => {
     }
   };
 
-  const onFlightsUpdate = () => { };
+  const onFlightsUpdate = () => {};
 
   useEffect(onFlightsUpdate, [flights]);
 
@@ -102,7 +99,7 @@ export const DroneTracking = () => {
                 htmlFor={provider}
                 className="text-xs cursor-pointer text-gray-300"
               >
-                {provider}
+                {provider.toUpperCase()}
               </label>
             </div>
           ))}
@@ -114,10 +111,11 @@ export const DroneTracking = () => {
         {flights.map((flight) => (
           <div
             key={flight.id}
-            className={`p-3 rounded-lg border transition-colors ${isFlightSelected(flight.id)
+            className={`p-3 rounded-lg border transition-colors ${
+              isFlightSelected(flight.id)
                 ? "bg-blue-900/30 border-blue-600"
                 : "bg-gray-750 border-gray-600 hover:bg-gray-700"
-              }`}
+            }`}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
