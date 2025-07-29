@@ -11,6 +11,7 @@ import { MapState } from "@/schemas/context";
 import {
   OperationalIntentStateColor,
   type Constraint,
+  type Flight,
   type IdentificationServiceAreaFull,
   type OperationalIntent,
   type Rectangle,
@@ -282,7 +283,7 @@ export const InterfaceHook = () => {
     updateVolumes();
   };
 
-  const getFilteredFlights = (flights: Array<RIDFlight>): Array<RIDFlight> => {
+  const getFilteredFlights = (flights: Array<Flight>): Array<Flight> => {
     // TODO: Implement the logic based on the filters
     return flights;
   };

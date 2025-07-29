@@ -2,3 +2,6 @@ __pycache__
 app.egg-info
 .DS_Store
 .venv
+.env
+.env.dev
+.env.prod

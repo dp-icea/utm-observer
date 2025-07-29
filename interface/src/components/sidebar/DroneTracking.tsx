@@ -3,76 +3,28 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Radio, MapPin, Battery, Signal } from "lucide-react";
 import { useMap } from "@/contexts/MapContext";
-
-interface DroneInfo {
-  id: string;
-  name: string;
-  provider: string;
-  status: "active" | "inactive" | "emergency";
-  position: { lat: number; lng: number; alt: number };
-  battery: number;
-  signal: number;
-  lastUpdate: string;
-  selected: boolean;
-}
-
-const mockDrones: DroneInfo[] = [
-  {
-    id: "1",
-    name: "Alpha-7",
-    provider: "SkyDrone Corp",
-    status: "active",
-    position: { lat: 40.7128, lng: -74.006, alt: 150 },
-    battery: 85,
-    signal: 95,
-    lastUpdate: "1 sec ago",
-    selected: true,
-  },
-  {
-    id: "2",
-    name: "Beta-3",
-    provider: "AeroTech Solutions",
-    status: "active",
-    position: { lat: 40.758, lng: -73.9855, alt: 200 },
-    battery: 67,
-    signal: 88,
-    lastUpdate: "3 sec ago",
-    selected: false,
-  },
-  {
-    id: "3",
-    name: "Gamma-1",
-    provider: "DroneLogistics",
-    status: "emergency",
-    position: { lat: 40.7282, lng: -74.0776, alt: 75 },
-    battery: 23,
-    signal: 45,
-    lastUpdate: "15 sec ago",
-    selected: true,
-  },
-];
+import type { RIDAuthData, RIDOperationalStatus } from "@/schemas";
 
 export const DroneTracking = () => {
-  const [drones, setDrones] = useState<DroneInfo[]>(mockDrones);
-  const [selectedProviders, setSelectedProviders] = useState<string[]>([
-    "SkyDrone Corp",
-    "DroneLogistics",
-  ]);
-
   const { isLive, flights } = useMap();
 
-  const providers = Array.from(new Set(mockDrones.map((d) => d.provider)));
-  const filteredDrones = drones.filter((d) =>
-    selectedProviders.includes(d.provider),
+  console.log("Amount of flights:", flights.length);
+
+  // Will later become a context thing filter
+  const [selectedDrones, setSelectedDrones] = useState<string[]>(
+    flights.map((flight => flight.id as string)),
   );
 
+  const providers = Array.from(new Set(flights.map((flight) => flight.identification_service_area.owner)));
+  const [selectedProviders, setSelectedProviders] = useState<string[]>(providers.slice());
+
   const toggleDroneSelection = (id: string) => {
-    setDrones(
-      drones.map((drone) =>
-        drone.id === id ? { ...drone, selected: !drone.selected } : drone,
-      ),
+    setSelectedDrones(() =>
+      selectedDrones.includes(id)
+        ? selectedDrones.filter((d) => d !== id)
+        : [...selectedDrones, id]
     );
-  };
+  }
 
   const toggleProvider = (provider: string) => {
     setSelectedProviders((prev) =>
@@ -82,27 +34,29 @@ export const DroneTracking = () => {
     );
   };
 
-  const getStatusColor = (status: DroneInfo["status"]) => {
+  const isProviderSelected = (provider: string) => {
+    return !selectedProviders.includes(provider);
+  }
+
+  const isFlightSelected = (flightId: string) => {
+    return !selectedDrones.includes(flightId);
+  }
+
+  const getStatusColor = (status: RIDOperationalStatus) => {
     switch (status) {
-      case "active":
+      case "Undeclared":
+        return "bg-gray-500";
+      case "Ground":
+        return "bg-gray-400";
+      case "Airborne":
         return "bg-green-500";
-      case "emergency":
+      case "Emergency":
         return "bg-red-500";
+      case "RemoteIDSystemFailure":
+        return "bg-yellow-500";
       default:
         return "bg-gray-500";
     }
-  };
-
-  const getBatteryColor = (battery: number) => {
-    if (battery > 50) return "text-green-500";
-    if (battery > 20) return "text-yellow-500";
-    return "text-red-500";
-  };
-
-  const getSignalColor = (signal: number) => {
-    if (signal > 70) return "text-green-500";
-    if (signal > 40) return "text-yellow-500";
-    return "text-red-500";
   };
 
   const onFlightsUpdate = () => { };
@@ -129,7 +83,7 @@ export const DroneTracking = () => {
 
       {/* Provider Selection */}
       <div className="space-y-2">
-        <span className="text-xs font-medium text-gray-300">
+        <span className="text-xs font-medium text-gray-300 justify-start">
           Select Providers:
         </span>
         <div className="space-y-1">
@@ -137,7 +91,7 @@ export const DroneTracking = () => {
             <div key={provider} className="flex items-center space-x-2">
               <Checkbox
                 id={provider}
-                checked={selectedProviders.includes(provider)}
+                checked={isProviderSelected(provider)}
                 onCheckedChange={() => toggleProvider(provider)}
               />
               <label
@@ -153,61 +107,69 @@ export const DroneTracking = () => {
 
       {/* Drone List */}
       <div className="space-y-2 max-h-80 overflow-y-auto">
-        {filteredDrones.map((drone) => (
+        {flights.map((flight) => (
           <div
-            key={drone.id}
-            className={`p-3 rounded-lg border transition-colors ${drone.selected
-                ? "bg-blue-900/30 border-blue-600"
-                : "bg-gray-750 border-gray-600 hover:bg-gray-700"
+            key={flight.id}
+            className={`p-3 rounded-lg border transition-colors ${isFlightSelected(flight.id)
+              ? "bg-blue-900/30 border-blue-600"
+              : "bg-gray-750 border-gray-600 hover:bg-gray-700"
               }`}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  checked={drone.selected}
-                  onCheckedChange={() => toggleDroneSelection(drone.id)}
+                  checked={isFlightSelected(flight.id)}
+                  onCheckedChange={() => toggleDroneSelection(flight.id)}
                 />
                 <span className="text-sm font-medium text-white">
-                  {drone.name}
+                  {flight.details.operator_id}
                 </span>
                 <div
-                  className={`w-2 h-2 rounded-full ${getStatusColor(drone.status)}`}
+                  className={`w-2 h-2 rounded-full ${getStatusColor(flight.current_state.operational_status)}`}
                 />
               </div>
               <Badge
                 variant={
-                  drone.status === "emergency" ? "destructive" : "secondary"
+                  flight.current_state.operational_status === "Emergency" ? "destructive" : "secondary"
                 }
                 className="text-xs px-2 py-0"
               >
-                {drone.status}
+                {flight.current_state.operational_status}
               </Badge>
             </div>
 
             <div className="text-xs text-gray-400 mb-2">
-              Provider: {drone.provider}
+              {flight.identification_service_area.owner}
+            </div>
+            <div className="text-xs text-gray-400 mb-2">
+              {flight.details.operation_description}
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center space-x-1">
-                <MapPin className="h-3 w-3" />
-                <span>Alt: {drone.position.alt}m</span>
+                {/* TODO: Add icon */}
+                <span>Type: {flight.aircraft_type}</span>
               </div>
               <div className="flex items-center space-x-1">
-                <Battery
-                  className={`h-3 w-3 ${getBatteryColor(drone.battery)}`}
-                />
-                <span>{drone.battery}%</span>
+                {/* TODO: Add icon */}
+                <span>Pressure: {flight.current_state.position.pressure_altitude}%</span>
               </div>
               <div className="flex items-center space-x-1">
-                <Signal className={`h-3 w-3 ${getSignalColor(drone.signal)}`} />
-                <span>{drone.signal}%</span>
+                <span>Speed: {flight.current_state.speed}</span>
               </div>
-              <div className="text-gray-500">{drone.lastUpdate}</div>
+              <div className="flex items-center space-x-1">
+                <span>V. Speed: {flight.current_state.vertical_speed}</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <span>Op. Loc: {flight.details.operator_location.lat.toFixed(2)}°, {flight.details.operator_location.lng.toFixed(2)}°</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <span>SISANT: {flight.details.uas_id.registration_id}</span>
+              </div>
             </div>
 
             <div className="text-xs mt-2 text-gray-500">
-              {drone.position.lat.toFixed(4)}°, {drone.position.lng.toFixed(4)}°
+              {flight.current_state.position.lat.toFixed(4)}°, {flight.current_state.position.lng.toFixed(4)}°
             </div>
           </div>
         ))}

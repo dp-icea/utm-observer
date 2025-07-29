@@ -48,6 +48,10 @@ export const Header = () => {
     }
   };
 
+  const getLoadingColor = () => {
+    return loading ? "bg-green-300" : "bg-green-500";
+  };
+
   return (
     <header className="h-16 bg-gray-800 border-gray-700 border-b flex items-center justify-between px-4 relative z-30">
       <div className="flex items-center space-x-4">
@@ -90,12 +94,12 @@ export const Header = () => {
             Live
           </span>
         </Button>
+
+        {/* Loading Indication Simbol */}
+        <div
+          className={`w-2 h-2 rounded-full ${getLoadingColor()}`}
+        />
       </div>
-      {loading && (
-        <div className="absolute bottom-0 left-0 w-full">
-          <MaterialProgress />
-        </div>
-      )}
     </header>
   );
 };

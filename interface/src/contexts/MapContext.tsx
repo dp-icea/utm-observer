@@ -2,6 +2,7 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 import { format } from "date-fns";
 import type {
   Constraint,
+  Flight,
   IdentificationServiceAreaFull,
   OperationalIntent,
   RIDFlight,
@@ -39,8 +40,8 @@ interface IMapContext {
   setMapState: (state: MapState) => void;
   isLive: boolean;
   setIsLive: (isLive: boolean) => void;
-  flights: RIDFlight[];
-  setFlights: (flights: RIDFlight[]) => void;
+  flights: Flight[];
+  setFlights: (flights: Flight[]) => void;
 }
 
 const MapContext = createContext<IMapContext | undefined>(undefined);
@@ -78,7 +79,7 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
   // This is default false to allow backup values in the timeline
   const [isLive, setIsLive] = useState<boolean>(true);
 
-  const [flights, setFlights] = useState<RIDFlight[]>([]);
+  const [flights, setFlights] = useState<Flight[]>([]);
 
   return (
     <MapContext.Provider

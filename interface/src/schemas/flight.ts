@@ -1,10 +1,12 @@
 import type {
   Altitude,
   Latitude,
+  LatLngPoint,
   Longitude,
   Time,
   Volume4D,
 } from "./common";
+import type { IdentificationServiceArea } from "./identification-service-area";
 
 export type RIDFlightID = string;
 
@@ -118,6 +120,11 @@ export interface RIDFlight {
   recent_positions: RIDRecentAircraftPosition[];
 }
 
+export interface Flight extends RIDFlight {
+  identification_service_area: IdentificationServiceArea;
+  details: RIDFlightDetails;
+}
+
 export interface UASID {
   registration_id: string;
 }
@@ -130,7 +137,7 @@ export interface RIDFlightDetails {
   id: string,
   uas_id: UASID,
   operator_id: string,
-  operator_location: OperatorLocation,
+  operator_location: LatLngPoint,
   operation_description: string,
   auth_data: RIDAuthData
 }

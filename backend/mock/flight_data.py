@@ -1,9 +1,10 @@
+from pydantic import HttpUrl
+from schemas.common.geo import LatLngPoint, Volume4D
+from schemas.dss.remoteid import IdentificationServiceArea
 from schemas.flights import (
-    Height,
-    Position,
-    CurrentState,
     Flight
 )
+from uuid import UUID, uuid4
 from schemas.common.base import (
     Time
 )
@@ -22,7 +23,7 @@ from typing import List
 from vnoise import Noise  # Perlin noise library
 import time
 
-from schemas.uss.remoteid import RIDAircraftPosition, RIDAircraftState, RIDFlight
+from schemas.uss.remoteid import UASID, OperatingArea, RIDAircraftPosition, RIDAircraftState, RIDAuthData, RIDFlight, RIDFlightDetails
 
 # In-memory storage for flight data
 flight_data_store = {}
@@ -44,7 +45,7 @@ FLIGHT_UUIDS = [
 ]
 
 
-def generate_flight_mock_data() -> List[RIDFlight]:
+def generate_flight_mock_data() -> List[Flight]:
     global flight_data_store
 
     # Time-based seed for smooth variations
@@ -86,14 +87,45 @@ def generate_flight_mock_data() -> List[RIDFlight]:
             vertical_speed=0.0,
         )
 
-        # Flight object
-        flight = RIDFlight(
+        flight = Flight(
             id=str(uuid),
             aircraft_type=UAType.Ornithopter,
             current_state=current_state,
-            operating_area=None,
+            operating_area=OperatingArea(
+                aircraft_count=1,
+                volumes=None
+            ),
             simulated=False,
             recent_positions=[],
+            identification_service_area=IdentificationServiceArea(
+                id=str(uuid4()),
+                uss_base_url=HttpUrl("https://example.com/remoteid"),
+                owner="Example Owner",
+                version="1.0",
+                time_end=Time(
+                    value=datetime.now(),
+                    format=TimeFormat.RFC3339,
+                ),
+                time_start=Time(
+                    value=datetime.now(),
+                    format=TimeFormat.RFC3339,
+                ),
+            ),
+            details=RIDFlightDetails(
+                id=str(uuid),
+                uas_id=UASID(
+                    registration_id=f"UA-{uuid.hex[:6].upper()}",
+                ),
+                operator_id="Operator123",
+                operator_location=LatLngPoint(
+                    lat=base["lat"],
+                    lng=base["lng"],
+                ),
+                auth_data=RIDAuthData(
+                    format=0,
+                    data="ExampleAuthData",
+                ),
+            )
         )
 
         # Store in memory
