@@ -233,18 +233,18 @@ async def query_volumes(
 async def query_flights(
         area: QueryFlightsRequest
 ):
-    # flights_service = FlightsService()
+    flights_service = FlightsService()
 
-    # res = await flights_service.query_flights(area)
-    res = QueryFlightsResponse(
-        flights=generate_flight_mock_data(),
-        partial=False,
-        errors=[],
-        timestamp=Time(
-            value=datetime.now(),
-            format=TimeFormat.RFC3339,
-        )
-    )
+    res = await flights_service.query_flights(area)
+    # res = QueryFlightsResponse(
+    #     flights=generate_flight_mock_data(),
+    #     partial=False,
+    #     errors=[],
+    #     timestamp=Time(
+    #         value=datetime.now(),
+    #         format=TimeFormat.RFC3339,
+    #     )
+    # )
 
     return Response(
         message="Live flight data requested",
