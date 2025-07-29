@@ -2,12 +2,12 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [dev]
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE_NAME: ${{ github.repository }}-prod-backend
-  INTERFACE_IMAGE_NAME: ${{ github.repository }}-prod-interface
+  BACKEND_IMAGE_NAME: ${{ github.repository }}-backend
+  INTERFACE_IMAGE_NAME: ${{ github.repository }}-interface
 
 jobs:
   build-and-push-api:

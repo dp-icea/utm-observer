@@ -6,8 +6,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  BACKEND_IMAGE_NAME: ${{ github.repository }}-dev-backend
-  INTERFACE_IMAGE_NAME: ${{ github.repository }}-dev-interface
+  BACKEND_IMAGE_NAME: ${{ github.repository }}-backend
+  INTERFACE_IMAGE_NAME: ${{ github.repository }}-interface
 
 jobs:
   build-and-push-api:
