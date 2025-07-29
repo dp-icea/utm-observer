@@ -2,6 +2,7 @@ from uuid import UUID
 from pydantic import HttpUrl
 from services.client import AuthAsyncClient
 from schemas.common.enums import RIDAuthority
+from pprint import pprint
 from schemas.uss.remoteid import (
     GetFlightsResponse,
     GetFlightDetailsResponse,
@@ -19,7 +20,8 @@ class USSRemoteIDService:
         self._aud = base_url.host
 
         if not self._base_url or not self._aud:
-            raise ValueError("Base URL and audience must be set for USS Remote ID Service.")
+            raise ValueError(
+                "Base URL and audience must be set for USS Remote ID Service.")
 
         self.client = AuthAsyncClient(
             base_url=self._base_url,
@@ -39,6 +41,9 @@ class USSRemoteIDService:
             params=params,
             scope=RIDAuthority.DISPLAY_PROVIDER,
         )
+
+        pprint(response.json())
+
         return GetFlightsResponse.model_validate(response.json())
 
     async def get_flight_details(self, flight_id: str) -> GetFlightDetailsResponse:

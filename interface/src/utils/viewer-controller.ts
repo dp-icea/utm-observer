@@ -100,7 +100,7 @@ export class ViewerController {
     this.flights.clear();
   }
 
-  displayFlights(flights: Array<RIDFlight>) {
+  displayFlights(flights: Array<Flight>) {
     // For each entity in the flights set. Remove it and add the new flights
     this.clearFlights();
 

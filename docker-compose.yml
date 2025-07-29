@@ -1,0 +1,29 @@
+services:
+  api:
+    image: "${RUNNER_ADDRESS}/dev/uss-api:latest"
+    ports:
+      - "8000:8000"
+    environment:
+      ENV: "prod"
+      AUTH_KEY: "${AUTH_KEY}"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  interface:
+    image: "${RUNNER_ADDRESS}/dev/uss-viewer:latest"
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    environment:
+      ENV: "prod"
+      ION_KEY: "${ION_KEY}"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  volumes:
+    data:

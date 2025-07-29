@@ -233,7 +233,7 @@ async def query_volumes(
 async def query_flights(
         area: QueryFlightsRequest
 ):
-    # flights_service = FlightsService()
+    flights_service = FlightsService()
 
     # res = await flights_service.query_flights(area)
     res = QueryFlightsResponse(
