@@ -1,3 +1,4 @@
+from typing import List
 from datetime import time
 from uuid import UUID
 from schemas.common.base import Time
@@ -10,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from pprint import pprint
 
 from schemas.flights import (
+    Flight,
     QueryFlightsRequest,
     QueryFlightsResponse,
 )
@@ -44,24 +46,24 @@ class FlightsService:
 
         query_params = {
             "apikey": apikey,
-            "lat1": params.north,
-            "lng1": params.west,
-            "lat2": params.north,
-            "lng2": params.east,
-            "lat3": params.south,
-            "lng3": params.east,
-            "lat4": params.south,
-            "lng4": params.west,
+            "lat1": str(params.north),
+            "lng1": str(params.west),
+            "lat2": str(params.north),
+            "lng2": str(params.east),
+            "lat3": str(params.south),
+            "lng3": str(params.east),
+            "lat4": str(params.south),
+            "lng4": str(params.west),
         }
 
         # Query ISA
 
         dssClient = DSSRemoteIDService()
 
-        area = str(query_params["lat1"]) + "," + str(query_params["lng1"]) + "," + \
-            str(query_params["lat2"]) + "," + str(query_params["lng2"]) + "," + \
-            str(query_params["lat3"]) + "," + str(query_params["lng3"]) + "," + \
-            str(query_params["lat4"]) + "," + str(query_params["lng4"])
+        area = query_params["lat1"] + "," + query_params["lng1"] + "," + \
+            query_params["lat2"] + "," + query_params["lng2"] + "," + \
+            query_params["lat3"] + "," + query_params["lng3"] + "," + \
+            query_params["lat4"] + "," + query_params["lng4"]
 
         now = datetime.now(timezone.utc)
         earliest_time = now.isoformat().replace("+00:00", "") + 'Z'
@@ -74,33 +76,50 @@ class FlightsService:
             latest_time=latest_time,
         )
 
-        pprint(isas)
-
         # Get Flights by ISA
-        flights = []
+        flights: List[Flight] = []
         errors = []
 
         for isa in isas.service_areas:
+            print("Trying to query flights for ISA: ", isa.uss_base_url)
+
             try:
                 ussClient = USSRemoteIDService(
                     base_url=isa.uss_base_url
                 )
+
                 flight_response = await ussClient.search_flights(
                     view=query_params["lat1"] + "," + query_params["lng1"] + "," +
                     query_params["lat3"] + "," + query_params["lng3"],
                     recent_positions_duration=0
                 )
 
-                flights.append(flight_response.flights)
+                if not flight_response.flights:
+                    continue
+
+                for flight in flight_response.flights:
+                    details_response = await ussClient.get_flight_details(flight.id)
+
+                    flight_obj = Flight(
+                        id=flight.id,
+                        aircraft_type=flight.aircraft_type,
+                        current_state=flight.current_state,
+                        operating_area=flight.operating_area,
+                        simulated=flight.simulated,
+                        recent_positions=flight.recent_positions,
+                        identification_service_area=isa,
+                        details=details_response.details
+                    )
+
+                    flights.append(flight_obj)
+
             except Exception as e:
                 errors.append({
                     "error": str(e),
                     "service_area": isa.uss_base_url
                 })
 
-        pprint(flights)
-
-        response = QueryFlightsResponse(
+        return QueryFlightsResponse(
             flights=flights,
             partial=False,
             errors=[],
@@ -109,5 +128,3 @@ class FlightsService:
                 format=TimeFormat.RFC3339,
             ),
         )
-
-        return response

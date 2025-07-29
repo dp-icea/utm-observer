@@ -12,19 +12,23 @@ export const DroneTracking = () => {
 
   // Will later become a context thing filter
   const [selectedDrones, setSelectedDrones] = useState<string[]>(
-    flights.map((flight => flight.id as string)),
+    flights.map((flight) => flight.id as string),
   );
 
-  const providers = Array.from(new Set(flights.map((flight) => flight.identification_service_area.owner)));
-  const [selectedProviders, setSelectedProviders] = useState<string[]>(providers.slice());
+  const providers = Array.from(
+    new Set(flights.map((flight) => flight.identification_service_area.owner)),
+  );
+  const [selectedProviders, setSelectedProviders] = useState<string[]>(
+    providers.slice(),
+  );
 
   const toggleDroneSelection = (id: string) => {
     setSelectedDrones(() =>
       selectedDrones.includes(id)
         ? selectedDrones.filter((d) => d !== id)
-        : [...selectedDrones, id]
+        : [...selectedDrones, id],
     );
-  }
+  };
 
   const toggleProvider = (provider: string) => {
     setSelectedProviders((prev) =>
@@ -36,11 +40,11 @@ export const DroneTracking = () => {
 
   const isProviderSelected = (provider: string) => {
     return !selectedProviders.includes(provider);
-  }
+  };
 
   const isFlightSelected = (flightId: string) => {
     return !selectedDrones.includes(flightId);
-  }
+  };
 
   const getStatusColor = (status: RIDOperationalStatus) => {
     switch (status) {
@@ -111,8 +115,8 @@ export const DroneTracking = () => {
           <div
             key={flight.id}
             className={`p-3 rounded-lg border transition-colors ${isFlightSelected(flight.id)
-              ? "bg-blue-900/30 border-blue-600"
-              : "bg-gray-750 border-gray-600 hover:bg-gray-700"
+                ? "bg-blue-900/30 border-blue-600"
+                : "bg-gray-750 border-gray-600 hover:bg-gray-700"
               }`}
           >
             <div className="flex items-center justify-between mb-2">
@@ -130,7 +134,9 @@ export const DroneTracking = () => {
               </div>
               <Badge
                 variant={
-                  flight.current_state.operational_status === "Emergency" ? "destructive" : "secondary"
+                  flight.current_state.operational_status === "Emergency"
+                    ? "destructive"
+                    : "secondary"
                 }
                 className="text-xs px-2 py-0"
               >
@@ -139,7 +145,7 @@ export const DroneTracking = () => {
             </div>
 
             <div className="text-xs text-gray-400 mb-2">
-              {flight.identification_service_area.owner}
+              {flight.identification_service_area.owner.toUpperCase()}
             </div>
             <div className="text-xs text-gray-400 mb-2">
               {flight.details.operation_description}
@@ -152,24 +158,32 @@ export const DroneTracking = () => {
               </div>
               <div className="flex items-center space-x-1">
                 {/* TODO: Add icon */}
-                <span>Pressure: {flight.current_state.position.pressure_altitude}%</span>
+                <span>
+                  Pressure: {flight.current_state.position.pressure_altitude}%
+                </span>
               </div>
               <div className="flex items-center space-x-1">
-                <span>Speed: {flight.current_state.speed}</span>
+                <span>Speed: {flight.current_state.speed.toFixed(3)}</span>
               </div>
               <div className="flex items-center space-x-1">
                 <span>V. Speed: {flight.current_state.vertical_speed}</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <span>Op. Loc: {flight.details.operator_location.lat.toFixed(2)}°, {flight.details.operator_location.lng.toFixed(2)}°</span>
-              </div>
+              {flight.details.operator_location && (
+                <div className="flex items-center space-x-1">
+                  <span>
+                    Op. Loc: {flight.details.operator_location.lat.toFixed(2)}°,{" "}
+                    {flight.details.operator_location.lng.toFixed(2)}°
+                  </span>
+                </div>
+              )}
               <div className="flex items-center space-x-1">
                 <span>SISANT: {flight.details.uas_id.registration_id}</span>
               </div>
             </div>
 
             <div className="text-xs mt-2 text-gray-500">
-              {flight.current_state.position.lat.toFixed(4)}°, {flight.current_state.position.lng.toFixed(4)}°
+              {flight.current_state.position.lat.toFixed(4)}°,{" "}
+              {flight.current_state.position.lng.toFixed(4)}°
             </div>
           </div>
         ))}

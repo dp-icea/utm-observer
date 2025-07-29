@@ -32,8 +32,13 @@ class USSRemoteIDService:
         self, view: str, recent_positions_duration: float | None = None
     ) -> GetFlightsResponse:
         params = {"view": view}
-        if recent_positions_duration is not None:
-            params["recent_positions_duration"] = recent_positions_duration
+
+        if recent_positions_duration:
+            params["recent_positions_duration"] = str(
+                recent_positions_duration)
+
+        print("Searching for flights with parameters:")
+        pprint(params)
 
         response = await self.client.request(
             "GET",
