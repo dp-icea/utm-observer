@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from routes.fetch import router as FetchRouter
 from routes.constraint_management import router as ConstraintManagementRouter
 
+from routes.health import router as HealthRouter
 from schemas.response import Response
 
 
@@ -50,3 +51,6 @@ app.include_router(FetchRouter, tags=[
                    "Fetch"], prefix="/fetch")
 app.include_router(ConstraintManagementRouter, tags=[
                    "Constraint Management"], prefix="/constraint_management")
+
+app.include_router(HealthRouter, tags=[
+                   "Health"], prefix="/api")
