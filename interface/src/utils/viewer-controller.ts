@@ -10,6 +10,7 @@ import {
   type Volume3D,
   type Rectangle,
   type Volume4D,
+  type Flight,
 } from "@/schemas";
 import { apiFetchService } from "@/services";
 import {
@@ -60,8 +61,8 @@ export class ViewerController {
             cameraAltitude,
           ),
           orientation: {
-            heading: radiansToDegrees(0),
-            pitch: radiansToDegrees(-45),
+            heading: Cesium.Math.toRadians(0),
+            pitch: Cesium.Math.toRadians(-45),
             roll: 0,
           },
         });
@@ -119,9 +120,7 @@ export class ViewerController {
 
       const entity = this.viewer.entities.add({
         id: id,
-        position: Cesium.Cartographic.toCartesian(
-          new Cesium.Cartographic(position.lng, position.lat, position.alt),
-        ),
+        position: Cesium.Cartesian3.fromDegrees(position.lng, position.lat, position.alt, Cesium.Ellipsoid.WGS84),
         point: {
           pixelSize: 10,
           color: Cesium.Color.BLACK,
@@ -262,14 +261,15 @@ export class ViewerController {
 
     const height = volume.altitude_upper.value - volume.altitude_lower.value;
 
-    const center = new Cesium.Cartographic(
+    const center = Cesium.Cartesian3.fromDegrees(
       volume.outline_circle.center.lng,
       volume.outline_circle.center.lat,
       volume.altitude_lower.value + height / 2,
+      Cesium.Ellipsoid.WGS84,
     );
 
     return this.viewer.entities.add({
-      position: Cesium.Cartographic.toCartesian(center),
+      position: center,
       cylinder: {
         length: height,
         topRadius: radius,
@@ -293,7 +293,8 @@ export class ViewerController {
     const maxHeight = volume.altitude_upper.value;
 
     const vertices = volume.outline_polygon.vertices.map(
-      (vertex) => new Cesium.Cartographic(vertex.lng, vertex.lat, minHeight),
+      // TODO: Validate this
+      (vertex) => Cesium.Cartesian3.fromDegrees(vertex.lng, vertex.lat, minHeight, Cesium.Ellipsoid.WGS84),
     );
 
     return this.viewer.entities.add({

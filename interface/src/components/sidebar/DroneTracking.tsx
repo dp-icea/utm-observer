@@ -7,6 +7,7 @@ import type { LatLngPoint, RIDAuthData, RIDOperationalStatus } from "@/schemas";
 
 interface FlightDetail {
   id: string;
+  uasId: string;
   operator: string;
   description: string;
   aircraftType: string;
@@ -17,7 +18,6 @@ interface FlightDetail {
   vertical_speed: number;
   pressure_altitude: number;
   owner: string;
-  uasId: string;
   active: boolean;
 }
 
@@ -202,8 +202,8 @@ export const DroneTracking = () => {
           <div
             key={flight.id}
             className={`p-3 rounded-lg border transition-colors ${flight.active
-                ? "bg-blue-900/30 border-blue-600"
-                : "bg-gray-750 border-gray-600 hover:bg-gray-700"
+              ? "bg-blue-900/30 border-blue-600"
+              : "bg-gray-750 border-gray-600 hover:bg-gray-700"
               }`}
           >
             <div className="flex items-center justify-between mb-2">
@@ -213,7 +213,7 @@ export const DroneTracking = () => {
                   onCheckedChange={() => toggleFlightDetail(flight.id)}
                 />
                 <span className="text-sm font-medium text-white">
-                  {flight.operator}
+                  {flight.uasId}
                 </span>
                 <div
                   className={`w-2 h-2 rounded-full ${getStatusColor(flight.status)}`}
@@ -229,6 +229,7 @@ export const DroneTracking = () => {
               </Badge>
             </div>
 
+            <div className="text-xs text-gray-400 mb-2">{flight.operator}</div>
             <div className="text-xs text-gray-400 mb-2">{flight.owner}</div>
             <div className="text-xs text-gray-400 mb-2">
               {flight.description}
@@ -250,14 +251,17 @@ export const DroneTracking = () => {
               {flight.operatorPosition && (
                 <div className="flex items-center space-x-1">
                   <span>
-                    Op. Loc: {flight.operatorPosition.lat.toFixed(2)}°,{" "}
-                    {flight.operatorPosition.lng.toFixed(2)}°
+                    Op. Lat: {flight.operatorPosition.lat.toFixed(2)}°
                   </span>
                 </div>
               )}
-              <div className="flex items-center space-x-1">
-                <span>SISANT: {flight.uasId}</span>
-              </div>
+              {flight.operatorPosition && (
+                <div className="flex items-center space-x-1">
+                  <span>
+                    Op. Lng: {flight.operatorPosition.lng.toFixed(2)}°
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="text-xs mt-2 text-gray-500">
