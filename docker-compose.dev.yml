@@ -7,9 +7,17 @@ services:
       - "8000:8000"
     environment:
       - ENV=dev
+    logging:
+      driver: fluentd
+      options:
+        tag: utm-observer-backend
   interface:
     build: ./interface
     ports:
       - "8080:80"
     environment:
       - ENV=dev
+    logging:
+      driver: fluentd
+      options:
+        tag: utm-observer-frontend
