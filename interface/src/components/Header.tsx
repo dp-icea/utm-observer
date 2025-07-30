@@ -62,7 +62,7 @@ export const Header = () => {
             className="h-10 w-10 rounded-full"
           />
           <div className="flex flex-col items-start">
-            <p className="text-xl font-bold text-white">BR-UTM Observer</p>
+            <p className="text-xl font-bold text-white">BR-UTM</p>
             <p className="text-sm text-gray-300">
               Real-time UTM Tracking System
             </p>
@@ -96,9 +96,7 @@ export const Header = () => {
         </Button>
 
         {/* Loading Indication Simbol */}
-        <div
-          className={`w-2 h-2 rounded-full ${getLoadingColor()}`}
-        />
+        <div className={`w-2 h-2 rounded-full ${getLoadingColor()}`} />
       </div>
     </header>
   );

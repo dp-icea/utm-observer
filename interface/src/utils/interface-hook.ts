@@ -171,10 +171,10 @@ export const InterfaceHook = () => {
       const fetchedVolumes: Array<
         OperationalIntent | Constraint | IdentificationServiceAreaFull
       > = [
-        ...res.constraints,
-        ...res.operational_intents,
-        ...res.identification_service_areas,
-      ];
+          ...res.constraints,
+          ...res.operational_intents,
+          ...res.identification_service_areas,
+        ];
 
       localVolumes.current = fetchedVolumes.slice();
       setVolumes(fetchedVolumes);
@@ -215,10 +215,12 @@ export const InterfaceHook = () => {
         }
       }
 
-      // I dont remember why I did this, but it doesnt work with ISA. If problem => solve later
-      // if (!managerFilter.includes(region.reference.manager)) {
-      //   return false;
-      // }
+      const manager = isIdentificationServiceArea(region)
+        ? region.reference.owner
+        : region.reference.manager;
+      if (!managerFilter.includes(manager)) {
+        return false;
+      }
 
       // Verify timeline intersection
       const { startTime } = getTimeRange();

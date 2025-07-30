@@ -164,7 +164,7 @@ export const ClientList = () => {
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-white">
-                {client.name.toUpperCase()}
+                {client.name}
               </span>
               <Badge
                 variant={client.active ? "default" : "secondary"}

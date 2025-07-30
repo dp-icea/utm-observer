@@ -236,6 +236,7 @@ async def query_flights(
     flights_service = FlightsService()
 
     res = await flights_service.query_flights(area)
+    res.flights += generate_flight_mock_data()
     # res = QueryFlightsResponse(
     #     flights=generate_flight_mock_data(),
     #     partial=False,
