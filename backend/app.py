@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
 from routes.fetch import router as FetchRouter
+from routes.health import router as HealthRouter
 from schemas.response import Response
 
 
@@ -45,3 +46,6 @@ app.add_middleware(
 
 app.include_router(FetchRouter, tags=[
                    "Fetch"], prefix="/fetch")
+
+app.include_router(HealthRouter, tags=[
+                   "Health"], prefix="/api")
