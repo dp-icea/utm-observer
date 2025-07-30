@@ -8,6 +8,7 @@ env:
   REGISTRY: ghcr.io
   BACKEND_IMAGE_NAME: ${{ github.repository }}-backend
   INTERFACE_IMAGE_NAME: ${{ github.repository }}-interface
+  VITE_OBSERVER_API_URL: https://observer-backend:8000
 
 jobs:
   build-and-push-api:
