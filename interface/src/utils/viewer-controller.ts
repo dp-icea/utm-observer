@@ -8,6 +8,7 @@ import {
   type OperationalIntent,
   type RIDFlight,
   type Volume3D,
+  type Rectangle,
   type Volume4D,
 } from "@/schemas";
 import { apiFetchService } from "@/services";
@@ -20,6 +21,10 @@ import {
 
 function sum(arr: number[]): number {
   return arr.reduce((acc, val) => acc + val, 0);
+}
+
+function radiansToDegrees(radians: number): number {
+  return radians * (180 / Math.PI);
 }
 
 type EntityId = string;
@@ -55,8 +60,8 @@ export class ViewerController {
             cameraAltitude,
           ),
           orientation: {
-            heading: Cesium.Math.toRadians(0),
-            pitch: Cesium.Math.toRadians(-45),
+            heading: radiansToDegrees(0),
+            pitch: radiansToDegrees(-45),
             roll: 0,
           },
         });
@@ -226,8 +231,23 @@ export class ViewerController {
     });
   }
 
-  getViewRectangle = (): Cesium.Rectangle | undefined => {
-    return this.viewer.camera.computeViewRectangle();
+  getViewRectangle = (): Rectangle | undefined => {
+    const rect = this.viewer.camera.computeViewRectangle();
+
+    if (!rect) {
+      return;
+    }
+
+    const ret: Rectangle = {
+      north: radiansToDegrees(rect.north),
+      east: radiansToDegrees(rect.east),
+      south: radiansToDegrees(rect.south),
+      west: radiansToDegrees(rect.west),
+    };
+
+    console.log("getViewRectangle", ret);
+
+    return ret;
   };
 
   private drawCylinder(

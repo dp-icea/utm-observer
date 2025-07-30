@@ -83,7 +83,7 @@ export const InterfaceHook = () => {
     return { startTime: startDateTime, endTime: endDateTime };
   };
 
-  const fetchFlights = async (rectangle: Cesium.Rectangle) => {
+  const fetchFlights = async (rectangle: Rectangle) => {
     const area: Rectangle = {
       north: rectangle.north,
       south: rectangle.south,
@@ -105,7 +105,7 @@ export const InterfaceHook = () => {
   };
 
   const fetchVolumes = async (
-    rectangle: Cesium.Rectangle,
+    rectangle: Rectangle,
     timeRange: TimeRange,
   ) => {
     const { startTime, endTime } = timeRange;
