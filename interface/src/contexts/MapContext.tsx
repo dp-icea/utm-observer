@@ -42,10 +42,10 @@ interface IMapContext {
   setIsLive: (isLive: boolean) => void;
   flights: Flight[];
   setFlights: (flights: Flight[]) => void;
-  selectedProviders: string[];
-  setSelectedProviders: (providers: string[]) => void;
-  selectedFlights: string[];
-  setSelectedFlights: (flights: string[]) => void;
+  flightsFilter: string[];
+  setFlightsFilter: (flights: string[]) => void;
+  flightProvidersFilter: string[];
+  setFlightProvidersFilter: (flights: string[]) => void;
 }
 
 const MapContext = createContext<IMapContext | undefined>(undefined);
@@ -85,11 +85,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
 
   const [flights, setFlights] = useState<Flight[]>([]);
 
-  const [selectedProviders, setSelectedProviders] = useState<string[]>(
-    flights.map((flight) => flight.id as string),
-  );
-  const [selectedFlights, setSelectedFlights] = useState<string[]>(
-    flights.map((flight) => flight.identification_service_area.owner),
+  const [flightsFilter, setFlightsFilter] = useState<string[]>([]);
+  const [flightProvidersFilter, setFlightProvidersFilter] = useState<string[]>(
+    [],
   );
 
   return (
@@ -119,10 +117,10 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setIsLive,
         flights,
         setFlights,
-        selectedProviders,
-        setSelectedProviders,
-        selectedFlights,
-        setSelectedFlights,
+        flightsFilter,
+        setFlightsFilter,
+        flightProvidersFilter,
+        setFlightProvidersFilter,
       }}
     >
       {children}

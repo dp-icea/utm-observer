@@ -71,10 +71,8 @@ export const InterfaceHook = () => {
     isLive,
     flights,
     setFlights,
-    selectedFlights,
-    setSelectedFlights,
-    selectedProviders,
-    setSelectedProviders,
+    flightsFilter,
+    flightProvidersFilter,
   } = useMap();
 
   const getTimeRange: () => TimeRange = () => {
@@ -95,23 +93,7 @@ export const InterfaceHook = () => {
 
     try {
       const res = await apiFetchService.queryFlights(area);
-
-      const existingFlightIds = new Set(flights.map((f) => f.id));
-      const newFlights: Array<Flight> = res.flights.filter(
-        (flight) => !existingFlightIds.has(flight.id),
-      );
-      const existingOwners = new Set(
-        flights.map((f) => f.identification_service_area.owner),
-      );
-      const newOwners = newFlights
-        .map((flight) => flight.identification_service_area.owner)
-        .filter((owner) => !existingOwners.has(owner));
-
       setFlights(res.flights);
-      setSelectedFlights(
-        selectedFlights.concat(newFlights.map((flight) => flight.id as string)),
-      );
-      setSelectedProviders(selectedProviders.concat(newOwners));
       setMapState(MapState.ONLINE);
     } catch (e) {
       if (e.code === "ERR_NETWORK") {
@@ -306,24 +288,19 @@ export const InterfaceHook = () => {
   };
 
   const getFilteredFlights = (flights: Array<Flight>): Array<Flight> => {
-    // console.log("Selected Providers:", selectedProviders);
-    // console.log("Selected Flights:", selectedFlights);
-
     return flights.filter((flight) => {
       // Filter by selected providers
-      if (selectedProviders.length > 0) {
-        if (
-          !selectedProviders.includes(flight.identification_service_area.owner)
-        ) {
-          return false;
-        }
+      if (
+        !flightProvidersFilter.includes(
+          flight.identification_service_area.owner,
+        )
+      ) {
+        return false;
       }
 
       // Filter by selected flights
-      if (selectedFlights.length > 0) {
-        if (!selectedFlights.includes(flight.id as string)) {
-          return false;
-        }
+      if (!flightsFilter.includes(flight.id)) {
+        return false;
       }
 
       return true;

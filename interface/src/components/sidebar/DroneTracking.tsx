@@ -3,44 +3,68 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Radio, MapPin, Battery, Signal } from "lucide-react";
 import { useMap } from "@/contexts/MapContext";
-import type { RIDAuthData, RIDOperationalStatus } from "@/schemas";
+import type { LatLngPoint, RIDAuthData, RIDOperationalStatus } from "@/schemas";
+
+interface FlightDetail {
+  id: string;
+  operator: string;
+  description: string;
+  aircraftType: string;
+  status: RIDOperationalStatus;
+  position: LatLngPoint;
+  operatorPosition?: LatLngPoint;
+  speed: number;
+  vertical_speed: number;
+  pressure_altitude: number;
+  owner: string;
+  uasId: string;
+  active: boolean;
+}
+
+interface FlightProvider {
+  name: string;
+  active: boolean;
+}
 
 export const DroneTracking = () => {
-  const {
-    isLive,
-    flights,
-    selectedFlights,
-    setSelectedFlights,
-    selectedProviders,
-    setSelectedProviders,
-  } = useMap();
+  const { isLive, flights, setFlightsFilter, setFlightProvidersFilter } =
+    useMap();
 
-  const providers = Array.from(
-    new Set(flights.map((flight) => flight.identification_service_area.owner)),
-  );
+  const [flightDetails, setFlightDetails] = useState<FlightDetail[]>([]);
+  const [flightProviders, setFlightProviders] = useState<FlightProvider[]>([]);
 
-  const toggleDroneSelection = (id: string) => {
-    setSelectedFlights(
-      selectedFlights.includes(id)
-        ? selectedFlights.filter((d) => d !== id)
-        : [...selectedFlights, id],
+  const toggleFlightDetail = (flightId: string) => {
+    const newFlightDetails = flightDetails.map((flight) => {
+      if (flight.id === flightId) {
+        return { ...flight, active: !flight.active };
+      }
+      return flight;
+    });
+
+    setFlightDetails(newFlightDetails);
+
+    setFlightsFilter(
+      newFlightDetails
+        .filter((flight) => flight.active)
+        .map((flight) => flight.id),
     );
   };
 
-  const toggleProvider = (provider: string) => {
-    setSelectedProviders(
-      selectedProviders.includes(provider)
-        ? selectedProviders.filter((p) => p !== provider)
-        : [...selectedProviders, provider],
+  const toggleProvider = (providerName: string) => {
+    const newFlightProviders = flightProviders.map((provider) => {
+      if (provider.name === providerName) {
+        return { ...provider, active: !provider.active };
+      }
+      return provider;
+    });
+
+    setFlightProviders(newFlightProviders);
+
+    setFlightProvidersFilter(
+      newFlightProviders
+        .filter((provider) => provider.active)
+        .map((provider) => provider.name),
     );
-  };
-
-  const isProviderSelected = (provider: string) => {
-    return selectedProviders.includes(provider);
-  };
-
-  const isFlightSelected = (flightId: string) => {
-    return selectedFlights.includes(flightId);
   };
 
   const getStatusColor = (status: RIDOperationalStatus) => {
@@ -60,7 +84,73 @@ export const DroneTracking = () => {
     }
   };
 
-  const onFlightsUpdate = () => {};
+  const onFlightsUpdate = () => {
+    const currentFlightProviders: Record<string, FlightProvider> = {};
+    const currentFlightDetails: Record<string, FlightDetail> = {};
+
+    flightProviders.forEach((provider) => {
+      currentFlightProviders[provider.name] = {
+        ...provider,
+      };
+    });
+
+    flightDetails.forEach((flight) => {
+      currentFlightDetails[flight.id] = {
+        ...flight,
+      };
+    });
+
+    const newFlightProviders: Record<string, FlightProvider> = {};
+    const newFlightDetails: Record<string, FlightDetail> = {};
+
+    flights.forEach((flight) => {
+      const providerName = flight.identification_service_area.owner;
+      if (currentFlightProviders[providerName]) {
+        newFlightProviders[providerName] = {
+          ...currentFlightProviders[providerName],
+        };
+      } else {
+        newFlightProviders[providerName] = {
+          name: providerName,
+          active: true,
+        };
+      }
+
+      if (currentFlightDetails[flight.id]) {
+        newFlightDetails[flight.id] = {
+          ...currentFlightDetails[flight.id],
+        };
+      } else {
+        newFlightDetails[flight.id] = {
+          id: flight.id,
+          operator: flight.details.operator_id,
+          description: flight.details.operation_description,
+          aircraftType: flight.aircraft_type,
+          status: flight.current_state.operational_status,
+          position: flight.current_state.position,
+          operatorPosition: flight.details.operator_location,
+          speed: flight.current_state.speed,
+          vertical_speed: flight.current_state.vertical_speed,
+          pressure_altitude: flight.current_state.position.pressure_altitude,
+          owner: flight.identification_service_area.owner,
+          uasId: flight.details.uas_id.registration_id,
+          active: true,
+        };
+      }
+    });
+
+    setFlightProviders(Object.values(newFlightProviders));
+    setFlightDetails(Object.values(newFlightDetails));
+
+    setFlightsFilter(
+      Object.keys(newFlightDetails).filter((id) => newFlightDetails[id].active),
+    );
+    setFlightProvidersFilter(
+      Object.keys(newFlightProviders).filter(
+        (name) => newFlightProviders[name].active,
+      ),
+    );
+  };
 
   useEffect(onFlightsUpdate, [flights]);
 
@@ -74,7 +164,7 @@ export const DroneTracking = () => {
         <div className="flex items-center space-x-2">
           <Radio className="h-4 w-4 text-gray-400" />
           <span className="text-sm font-medium text-white">
-            Live Drone Tracking
+            Live Flight Tracking
           </span>
         </div>
         <Badge variant="default" className="text-xs">
@@ -88,103 +178,126 @@ export const DroneTracking = () => {
           Select Providers:
         </span>
         <div className="space-y-1">
-          {providers.map((provider) => (
-            <div key={provider} className="flex items-center space-x-2">
+          {flightProviders.map((provider) => (
+            <div key={provider.name} className="flex items-center space-x-2">
               <Checkbox
-                id={provider}
-                checked={isProviderSelected(provider)}
-                onCheckedChange={() => toggleProvider(provider)}
+                id={provider.name}
+                checked={provider.active}
+                onCheckedChange={() => toggleProvider(provider.name)}
               />
               <label
-                htmlFor={provider}
+                htmlFor={provider.name}
                 className="text-xs cursor-pointer text-gray-300"
               >
-                {provider.toUpperCase()}
+                {provider.name.toUpperCase()}
               </label>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Drone List */}
+      {/* Flight List */}
       <div className="space-y-2 max-h-80 overflow-y-auto">
-        {flights.map((flight) => (
+        {flightDetails.map((flight) => (
           <div
             key={flight.id}
-            className={`p-3 rounded-lg border transition-colors ${
-              isFlightSelected(flight.id)
+            className={`p-3 rounded-lg border transition-colors ${flight.active
                 ? "bg-blue-900/30 border-blue-600"
                 : "bg-gray-750 border-gray-600 hover:bg-gray-700"
-            }`}
+              }`}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  checked={isFlightSelected(flight.id)}
-                  onCheckedChange={() => toggleDroneSelection(flight.id)}
+                  checked={flight.active}
+                  onCheckedChange={() => toggleFlightDetail(flight.id)}
                 />
                 <span className="text-sm font-medium text-white">
-                  {flight.details.operator_id}
+                  {flight.operator}
                 </span>
                 <div
-                  className={`w-2 h-2 rounded-full ${getStatusColor(flight.current_state.operational_status)}`}
+                  className={`w-2 h-2 rounded-full ${getStatusColor(flight.status)}`}
                 />
               </div>
               <Badge
                 variant={
-                  flight.current_state.operational_status === "Emergency"
-                    ? "destructive"
-                    : "secondary"
+                  flight.status === "Emergency" ? "destructive" : "secondary"
                 }
                 className="text-xs px-2 py-0"
               >
-                {flight.current_state.operational_status}
+                {flight.status}
               </Badge>
             </div>
 
+            <div className="text-xs text-gray-400 mb-2">{flight.owner}</div>
             <div className="text-xs text-gray-400 mb-2">
-              {flight.identification_service_area.owner.toUpperCase()}
-            </div>
-            <div className="text-xs text-gray-400 mb-2">
-              {flight.details.operation_description}
+              {flight.description}
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center space-x-1">
-                {/* TODO: Add icon */}
-                <span>Type: {flight.aircraft_type}</span>
+                <span>Type: {flight.aircraftType}</span>
               </div>
               <div className="flex items-center space-x-1">
-                {/* TODO: Add icon */}
-                <span>
-                  Pressure: {flight.current_state.position.pressure_altitude}%
-                </span>
+                <span>Pressure: {flight.pressure_altitude}%</span>
               </div>
               <div className="flex items-center space-x-1">
-                <span>Speed: {flight.current_state.speed.toFixed(3)}</span>
+                <span>Speed: {flight.speed.toFixed(3)}</span>
               </div>
               <div className="flex items-center space-x-1">
-                <span>V. Speed: {flight.current_state.vertical_speed}</span>
+                <span>V. Speed: {flight.vertical_speed}</span>
               </div>
-              {flight.details.operator_location && (
+              {flight.operatorPosition && (
                 <div className="flex items-center space-x-1">
                   <span>
-                    Op. Loc: {flight.details.operator_location.lat.toFixed(2)}°,{" "}
-                    {flight.details.operator_location.lng.toFixed(2)}°
+                    Op. Loc: {flight.operatorPosition.lat.toFixed(2)}°,{" "}
+                    {flight.operatorPosition.lng.toFixed(2)}°
                   </span>
                 </div>
               )}
               <div className="flex items-center space-x-1">
-                <span>SISANT: {flight.details.uas_id.registration_id}</span>
+                <span>SISANT: {flight.uasId}</span>
               </div>
             </div>
 
             <div className="text-xs mt-2 text-gray-500">
-              {flight.current_state.position.lat.toFixed(4)}°,{" "}
-              {flight.current_state.position.lng.toFixed(4)}°
+              {flight.position.lat.toFixed(4)}°,{" "}
+              {flight.position.lng.toFixed(4)}°
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="pt-2 border-t border-gray-600">
+        <div className="flex gap-2">
+          <button
+            onClick={() => {
+              const newFlightDetails = flightDetails.map((f) => ({
+                ...f,
+                active: true,
+              }));
+              setFlightDetails(newFlightDetails);
+              setFlightsFilter(newFlightDetails.map((f) => f.id));
+            }}
+            className="text-xs px-2 py-1 rounded text-blue-400 hover:bg-gray-700"
+          >
+            Select All
+          </button>
+          <button
+            onClick={() => {
+              const newFlightDetails = flightDetails.map((f) => ({
+                ...f,
+                active: false,
+              }));
+              setFlightDetails(newFlightDetails);
+              setFlightsFilter([]);
+            }}
+            className="text-xs px-2 py-1 rounded text-gray-400 hover:bg-gray-700"
+          >
+            Clear All
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -41,9 +41,10 @@ export const ClientList = () => {
       };
     });
 
-    volumes.forEach((volumes) => {
-      const clientName =
-        volumes.reference?.manager || volumes.reference?.owner || "";
+    volumes.forEach((volume) => {
+      const clientName = isIdentificationServiceArea(volume)
+        ? volume.reference.owner
+        : volume.reference.manager;
 
       if (clientName) {
         if (!currentClients[clientName]) {
@@ -56,17 +57,22 @@ export const ClientList = () => {
           };
         }
 
-        if (isOperationalIntent(volumes)) {
+        if (isOperationalIntent(volume)) {
           currentClients[clientName].operationalIntents += 1;
-        } else if (isConstraint(volumes)) {
+        } else if (isConstraint(volume)) {
           currentClients[clientName].constraints += 1;
-        } else if (isIdentificationServiceArea(volumes)) {
+        } else if (isIdentificationServiceArea(volume)) {
           currentClients[clientName].identificationServiceAreas += 1;
         }
       }
     });
 
-    const newClients = Object.values(currentClients);
+    const newClients = Object.values(currentClients).filter(
+      (client) =>
+        client.operationalIntents > 0 ||
+        client.constraints > 0 ||
+        client.identificationServiceAreas > 0,
+    );
 
     setClients(newClients);
     setManagerFilter(
