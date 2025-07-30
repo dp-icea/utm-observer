@@ -18,6 +18,7 @@ app = FastAPI(
     title="UTM Observer API",
     description="BR-UTM Observer Backend Service for managing for ecosystem interaction",
     version="1.0.0",
+    root_path="/api",
     lifespan=lifespan,
 )
 
@@ -30,8 +31,8 @@ async def catch_exceptions_middleware(request: Request, call_next):
         return JSONResponse(
             status_code=500,
             content=Response(
-                message = "Internal Server Error",
-                data = str(e),
+                message="Internal Server Error",
+                data=str(e),
             ).model_dump(mode="json")
         )
 
