@@ -250,3 +250,14 @@ async def query_flights(
         message="Live flight data requested",
         data=res,
     )
+
+
+@router.get(
+    "/api/healthy",
+    response_model=Response,
+    status_code=HTTPStatus.OK.value,
+)
+async def health_check():
+    return Response(
+        message="OK",
+    )
