@@ -150,10 +150,10 @@ export const InterfaceHook = () => {
       const fetchedVolumes: Array<
         OperationalIntent | Constraint | IdentificationServiceAreaFull
       > = [
-          ...res.constraints,
-          ...res.operational_intents,
-          ...res.identification_service_areas,
-        ];
+        ...res.constraints,
+        ...res.operational_intents,
+        ...res.identification_service_areas,
+      ];
 
       localVolumes.current = fetchedVolumes.slice();
       setVolumes(fetchedVolumes);
@@ -308,7 +308,6 @@ export const InterfaceHook = () => {
     if (!controller.current) return;
 
     const filteredFlights = getFilteredFlights(flights);
-
     controller.current.displayFlights(filteredFlights);
   };
 

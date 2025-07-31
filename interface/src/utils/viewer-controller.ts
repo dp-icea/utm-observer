@@ -42,6 +42,7 @@ export class ViewerController {
   private displayedEntities: Record<RegionId, DisplayedEntity> = {};
   private handler: Cesium.ScreenSpaceEventHandler;
   private flights: Record<string, Cesium.Entity[]> = {};
+  private volumes: Record<string, Cesium.Entity[]> = {};
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -111,6 +112,7 @@ export class ViewerController {
   displayFlights(newFlights: Array<Flight>) {
     // For each entity in the flights set. Remove it and add the new flights
     newFlights.forEach((newFlight) => {
+      // TODO: If flight stop displaying. What happens?
       const { current_state, id } = newFlight;
       const { position, operational_status } = current_state;
 
@@ -200,7 +202,6 @@ export class ViewerController {
       Constraint | OperationalIntent | IdentificationServiceAreaFull
     >,
   ) {
-    // If there was an error of syncronization. Clear all then display again
     // TODO: Verify if this is really needed
     if (
       this.viewer.entities.values.length !==
@@ -209,7 +210,7 @@ export class ViewerController {
           (entity) => entity.entityIds.length,
         ),
       ) +
-      Object.values(this.flights).flat().length
+        Object.values(this.flights).flat().length
     ) {
       this.viewer.entities.removeAll();
       this.displayedEntities = {};
@@ -274,13 +275,19 @@ export class ViewerController {
           color = Cesium.Color.BLUE;
         }
 
-        if (volume.volume["outline_circle"]) {
+        if (
+          "outline_circle" in volume.volume &&
+          volume.volume["outline_circle"]
+        ) {
           const entity = this.drawCylinder(volume.volume, color);
 
           if (entity) {
             this.displayedEntities[reference.id].entityIds.push(entity.id);
           }
-        } else if (volume.volume["outline_polygon"]) {
+        } else if (
+          "outline_polygon" in volume.volume &&
+          volume.volume["outline_polygon"]
+        ) {
           const entity = this.drawPolygon(volume.volume, color);
 
           if (entity) {
@@ -305,8 +312,6 @@ export class ViewerController {
       west: radiansToDegrees(rect.west),
     };
 
-    console.log("getViewRectangle", ret);
-
     return ret;
   };
 
@@ -314,7 +319,7 @@ export class ViewerController {
     volume: Volume3D,
     color: Cesium.Color = Cesium.Color.GREY,
   ): Cesium.Entity | undefined {
-    if (!("outline_circle" in volume)) {
+    if (!("outline_circle" in volume) || !volume.outline_circle) {
       return;
     }
 
@@ -350,25 +355,27 @@ export class ViewerController {
       return;
     }
 
-    const minHeight = volume.altitude_lower.value;
-    const maxHeight = volume.altitude_upper.value;
+    const minHeight = Math.min(
+      volume.altitude_lower.value,
+      volume.altitude_upper.value,
+    );
+    const maxHeight = Math.max(
+      volume.altitude_upper.value,
+      volume.altitude_lower.value,
+    );
 
-    const vertices = volume.outline_polygon.vertices.map(
-      // TODO: Validate this
-      (vertex) =>
-        Cesium.Cartesian3.fromDegrees(
-          vertex.lng,
-          vertex.lat,
-          minHeight,
-          Cesium.Ellipsoid.WGS84,
-        ),
+    const vertices = volume.outline_polygon.vertices.map((vertex) =>
+      Cesium.Cartesian3.fromDegrees(
+        vertex.lng,
+        vertex.lat,
+        minHeight,
+        Cesium.Ellipsoid.WGS84,
+      ),
     );
 
     return this.viewer.entities.add({
       polygon: {
-        hierarchy: new Cesium.PolygonHierarchy(
-          vertices.map((vertex) => Cesium.Cartographic.toCartesian(vertex)),
-        ),
+        hierarchy: new Cesium.PolygonHierarchy(vertices),
         material: color.withAlpha(0.5),
         height: minHeight,
         extrudedHeight: maxHeight,
