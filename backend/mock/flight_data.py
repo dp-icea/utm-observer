@@ -30,10 +30,10 @@ flight_data_store = {}
 
 # Base coordinates for smooth variations
 BASE_COORDS = [
-    {"lat": -0.40506734768146335, "lng": -0.800573957258482, "alt": 650.0},
-    {"lat": -0.40506734768146335, "lng": -0.800573957258482, "alt": 650.0},
-    {"lat": -0.40506734768146335, "lng": -0.800573957258482, "alt": 650.0},
-    {"lat": -0.40506734768146335, "lng": -0.800573957258482, "alt": 650.0},
+    {"lat": -23.208718442978252, "lng": -45.87002908222274, "alt": 650.0},
+    {"lat": -23.208718442978252, "lng": -45.87002908222274, "alt": 650.0},
+    {"lat": -23.208718442978252, "lng": -45.87002908222274, "alt": 650.0},
+    {"lat": -23.208718442978252, "lng": -45.87002908222274, "alt": 650.0},
 ]
 
 # UUIDs for the flights
@@ -57,8 +57,8 @@ def generate_flight_mock_data() -> List[Flight]:
         uuid = FLIGHT_UUIDS[i]
 
         # Generate smooth variations using Perlin noise
-        lat_variation = noise.noise1(t + i) * 0.00005
-        lng_variation = noise.noise1(t + i + 10) * 0.00005
+        lat_variation = noise.noise1(t + i) * 0.005
+        lng_variation = noise.noise1(t + i + 10) * 0.005
         alt_variation = noise.noise1(t + i + 20) * 15
 
         # Updated position
