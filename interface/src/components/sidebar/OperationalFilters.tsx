@@ -3,6 +3,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Filter } from "lucide-react";
 import { useMap } from "@/contexts/MapContext";
+import {
+  isConstraint,
+  isIdentificationServiceArea,
+  isOperationalIntent,
+} from "@/utils/interface-hook";
 
 export interface FilterCategory {
   id: string;
@@ -24,9 +29,11 @@ export const OperationalFilters = () => {
   const countVolumes = (filterId: string) => {
     return volumes.filter((volume) => {
       if (filterId === "operational-intents") {
-        return "flight_type" in volume.reference;
+        return isOperationalIntent(volume);
       } else if (filterId === "constraints") {
-        return !("flight_type" in volume.reference);
+        return isConstraint(volume);
+      } else if (filterId === "identification-service-areas") {
+        return isIdentificationServiceArea(volume);
       }
       return false;
     }).length;
