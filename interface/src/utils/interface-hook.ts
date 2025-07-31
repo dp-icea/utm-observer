@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useCesium } from "resium";
-import { format } from "date-fns";
+import { addSeconds, format } from "date-fns";
 import { useMap } from "@/contexts/MapContext";
 import { ViewerController } from "@/utils/viewer-controller";
 import { parseISO, addMinutes, isBefore, isAfter } from "date-fns";
@@ -114,7 +114,7 @@ export const InterfaceHook = () => {
 
     if (!timeRange.current) return;
 
-    const { startTime, endTime } = timeRange.current;
+    let { startTime, endTime } = timeRange.current;
 
     console.log("Using Start Time:", startTime);
     console.log("Using End Time:", endTime);
@@ -184,6 +184,10 @@ export const InterfaceHook = () => {
       OperationalIntent | Constraint | IdentificationServiceAreaFull
     >,
   ): Array<OperationalIntent | Constraint | IdentificationServiceAreaFull> => {
+    if (isLive) {
+      return regions;
+    }
+
     const minutesOffset = selectedMinutes[0] || 0;
     return regions.filter((region) => {
       const volumes = region.details.volumes;
@@ -256,6 +260,8 @@ export const InterfaceHook = () => {
 
   const updateVolumes = () => {
     if (!controller.current) return;
+
+    console.log("=== Updating volumes:", volumes);
 
     const filteredVolumes = getFilteredRegions(volumes);
     controller.current.displayRegions(filteredVolumes);
@@ -348,6 +354,7 @@ export const InterfaceHook = () => {
   const onInterfaceUpdate: React.EffectCallback = () => {
     if (!controller.current) return;
 
+    console.log("=== Updating the interface");
     updateVolumes();
   };
 
@@ -385,8 +392,10 @@ export const InterfaceHook = () => {
       if (liveInterval.current) return;
 
       liveInterval.current = setInterval(() => {
-        triggerFetchFlights();
-      }, 10000);
+        const startTime = new Date();
+        const endTime = addSeconds(startTime, 10);
+        timeRange.current = { startTime, endTime };
+      }, 5000);
     } else {
       if (liveInterval.current) {
         // Clear the interval if it exists
