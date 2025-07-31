@@ -116,9 +116,6 @@ export const InterfaceHook = () => {
 
     let { startTime, endTime } = timeRange.current;
 
-    console.log("Using Start Time:", startTime);
-    console.log("Using End Time:", endTime);
-
     const boundingVolume: Volume4D = {
       volume: {
         outline_polygon: {
@@ -162,10 +159,10 @@ export const InterfaceHook = () => {
       const fetchedVolumes: Array<
         OperationalIntent | Constraint | IdentificationServiceAreaFull
       > = [
-        ...res.constraints,
-        ...res.operational_intents,
-        ...res.identification_service_areas,
-      ];
+          ...res.constraints,
+          ...res.operational_intents,
+          ...res.identification_service_areas,
+        ];
 
       localVolumes.current = fetchedVolumes.slice();
       setVolumes(fetchedVolumes);
@@ -261,17 +258,11 @@ export const InterfaceHook = () => {
   const updateVolumes = () => {
     if (!controller.current) return;
 
-    console.log("=== Updating volumes:", volumes);
-
     const filteredVolumes = getFilteredRegions(volumes);
     controller.current.displayRegions(filteredVolumes);
   };
 
   const onViewerStart: React.EffectCallback = () => {
-    console.log("Called onViewerStart");
-    console.log("Viewer:", viewer);
-    console.log("Controller:", controller.current);
-
     if (!viewer || controller.current) return;
 
     controller.current = new ViewerController(viewer);
@@ -280,20 +271,11 @@ export const InterfaceHook = () => {
 
     controller.current.addMoveEndCallback(() => {
       if (constantVolumeFetch.current) {
-        console.log(
-          "Clearing previous interval for volumes",
-          constantVolumeFetch.current,
-        );
         clearInterval(constantVolumeFetch.current);
       }
       constantVolumeFetch.current = setInterval(() => {
-        console.log("Hou");
         triggerFetchVolumes();
       }, VOLUME_FETCH_INTERVAL);
-      console.log(
-        "Setting new interval for volumes",
-        constantVolumeFetch.current,
-      );
     });
 
     controller.current.addEntityClickCallback(
@@ -309,20 +291,11 @@ export const InterfaceHook = () => {
     );
 
     if (constantVolumeFetch.current) {
-      console.log(
-        "Clearing previous interval for volumes",
-        constantVolumeFetch.current,
-      );
       clearInterval(constantVolumeFetch.current);
     }
     constantVolumeFetch.current = setInterval(() => {
-      console.log("Hey");
       triggerFetchVolumes();
     }, VOLUME_FETCH_INTERVAL);
-    console.log(
-      "Setting initial interval for volumes",
-      constantVolumeFetch.current,
-    );
   };
 
   const onTimeRangeChange: React.EffectCallback = () => {
@@ -332,29 +305,19 @@ export const InterfaceHook = () => {
 
     // Reset the live interval if the time range changes
     if (constantVolumeFetch.current) {
-      console.log(
-        "Clearing previous interval for volumes",
-        constantVolumeFetch.current,
-      );
       clearInterval(constantVolumeFetch.current);
       liveInterval.current = null;
     }
 
     // Update the controller with the new time range
     constantVolumeFetch.current = setInterval(() => {
-      console.log("Hay");
       triggerFetchVolumes();
     }, VOLUME_FETCH_INTERVAL);
-    console.log(
-      "Setting new interval for volumes",
-      constantVolumeFetch.current,
-    );
   };
 
   const onInterfaceUpdate: React.EffectCallback = () => {
     if (!controller.current) return;
 
-    console.log("=== Updating the interface");
     updateVolumes();
   };
 
@@ -424,16 +387,10 @@ export const InterfaceHook = () => {
 
   useEffect(() => {
     return () => {
-      console.log("Cleaning up InterfaceHook");
       if (constantVolumeFetch.current) {
-        console.log(
-          "Clearing constant volume fetch interval",
-          constantVolumeFetch.current,
-        );
         clearInterval(constantVolumeFetch.current);
       }
       if (liveInterval.current) {
-        console.log("Clearing live interval", liveInterval.current);
         clearInterval(liveInterval.current);
       }
       controller.current = null;

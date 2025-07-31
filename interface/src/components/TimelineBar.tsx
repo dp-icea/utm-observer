@@ -92,12 +92,13 @@ export const TimelineBar = () => {
     setSelectedMinutes(value);
   };
 
-  if (isLive) {
-    return null;
-  }
-
   return (
-    <div className="h-32 bg-gray-800 border-gray-700 border-t flex flex-col px-6 py-4 space-y-4">
+    <div
+      className={cn(
+        "h-32 bg-gray-800 border-gray-700 border-t flex flex-col px-6 py-4 space-y-4 transition-opacity",
+        isLive && "opacity-50 grayscale cursor-not-allowed",
+      )}
+    >
       {/* Top Row - Interactive Timeline (moved to top) */}
       <div className="flex items-center space-x-4">
         {/* Start Time Label */}
@@ -145,6 +146,7 @@ export const TimelineBar = () => {
               min={0}
               step={1}
               className="w-full h-8"
+              disabled={isLive}
             />
           </div>
         </div>
@@ -171,6 +173,7 @@ export const TimelineBar = () => {
                   "w-[110px] justify-start text-left font-normal text-xs h-8",
                   !startDate && "text-muted-foreground",
                 )}
+                disabled={isLive}
               >
                 <CalendarIcon className="mr-1 h-3 w-3" />
                 {startDate ? format(startDate, "MMM dd") : "Pick date"}
@@ -189,6 +192,7 @@ export const TimelineBar = () => {
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
             className="w-18 text-xs h-8"
+            disabled={isLive}
           />
         </div>
 
@@ -203,6 +207,7 @@ export const TimelineBar = () => {
                   "w-[110px] justify-start text-left font-normal text-xs h-8",
                   !endDate && "text-muted-foreground",
                 )}
+                disabled={isLive}
               >
                 <CalendarIcon className="mr-1 h-3 w-3" />
                 {endDate ? format(endDate, "MMM dd") : "Pick date"}
@@ -225,6 +230,7 @@ export const TimelineBar = () => {
               setEndTime(e.target.value);
             }}
             className="w-18 text-xs h-8"
+            disabled={isLive}
           />
         </div>
 
