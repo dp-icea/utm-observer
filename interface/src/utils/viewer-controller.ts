@@ -109,6 +109,18 @@ export class ViewerController {
   }
 
   displayFlights(newFlights: Array<Flight>) {
+    const newFlightIds = new Set(newFlights.map((flight) => flight.id));
+
+    // Remove flights that are no longer in the newFlights array
+    Object.keys(this.flights).forEach((flightId) => {
+      if (!newFlightIds.has(flightId)) {
+        this.flights[flightId].forEach((entity) => {
+          this.viewer.entities.removeById(entity.id);
+        });
+        delete this.flights[flightId];
+      }
+    });
+
     // For each entity in the flights set. Remove it and add the new flights
     newFlights.forEach((newFlight) => {
       // TODO: If flight stop displaying. What happens?
@@ -209,7 +221,7 @@ export class ViewerController {
           (entity) => entity.entityIds.length,
         ),
       ) +
-      Object.values(this.flights).flat().length
+        Object.values(this.flights).flat().length
     ) {
       this.viewer.entities.removeAll();
       this.displayedEntities = {};

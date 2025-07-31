@@ -1,6 +1,7 @@
 from pydantic import HttpUrl
 from schemas.common.geo import LatLngPoint, Volume4D
 from schemas.dss.remoteid import IdentificationServiceArea
+from random import random, choice, randint
 from schemas.flights import (
     Flight
 )
@@ -53,7 +54,8 @@ def generate_flight_mock_data() -> List[Flight]:
     t = time.time() * 0.05
 
     flights = []
-    for i, base in enumerate(BASE_COORDS):
+    for i in range(0, randint(1, 4)):
+        base = BASE_COORDS[i]
         uuid = FLIGHT_UUIDS[i]
 
         # Generate smooth variations using Perlin noise
