@@ -21,6 +21,8 @@ import {
 } from "@/schemas";
 import type { AxiosError } from "axios";
 
+const VOLUME_FETCH_INTERVAL = 4000; // 10 seconds
+
 export const isOperationalIntent = (
   region: OperationalIntent | Constraint | IdentificationServiceAreaFull,
 ): region is OperationalIntent => {
@@ -53,6 +55,9 @@ export const InterfaceHook = () => {
   >([]);
 
   const liveInterval = useRef<NodeJS.Timeout | null>(null);
+
+  const constantVolumeFetch = useRef<NodeJS.Timeout | null>(null);
+  const timeRange = useRef<TimeRange | null>(null);
 
   const { viewer } = useCesium();
 
@@ -104,8 +109,15 @@ export const InterfaceHook = () => {
     }
   };
 
-  const fetchVolumes = async (rectangle: Rectangle, timeRange: TimeRange) => {
-    const { startTime, endTime } = timeRange;
+  const fetchVolumes = async (rectangle: Rectangle) => {
+    if (!controller.current) return;
+
+    if (!timeRange.current) return;
+
+    const { startTime, endTime } = timeRange.current;
+
+    console.log("Using Start Time:", startTime);
+    console.log("Using End Time:", endTime);
 
     const boundingVolume: Volume4D = {
       volume: {
@@ -224,6 +236,7 @@ export const InterfaceHook = () => {
     const viewRectangle = controller.current.getViewRectangle();
 
     const timeRange = getTimeRange();
+
     if (viewRectangle) {
       await fetchVolumes(viewRectangle, timeRange);
     }
@@ -249,12 +262,32 @@ export const InterfaceHook = () => {
   };
 
   const onViewerStart: React.EffectCallback = () => {
+    console.log("Called onViewerStart");
+    console.log("Viewer:", viewer);
+    console.log("Controller:", controller.current);
+
     if (!viewer || controller.current) return;
 
     controller.current = new ViewerController(viewer);
 
+    timeRange.current = getTimeRange();
+
     controller.current.addMoveEndCallback(() => {
-      triggerFetchVolumes();
+      if (constantVolumeFetch.current) {
+        console.log(
+          "Clearing previous interval for volumes",
+          constantVolumeFetch.current,
+        );
+        clearInterval(constantVolumeFetch.current);
+      }
+      constantVolumeFetch.current = setInterval(() => {
+        console.log("Hou");
+        triggerFetchVolumes();
+      }, VOLUME_FETCH_INTERVAL);
+      console.log(
+        "Setting new interval for volumes",
+        constantVolumeFetch.current,
+      );
     });
 
     controller.current.addEntityClickCallback(
@@ -269,13 +302,47 @@ export const InterfaceHook = () => {
       },
     );
 
-    triggerFetchVolumes();
+    if (constantVolumeFetch.current) {
+      console.log(
+        "Clearing previous interval for volumes",
+        constantVolumeFetch.current,
+      );
+      clearInterval(constantVolumeFetch.current);
+    }
+    constantVolumeFetch.current = setInterval(() => {
+      console.log("Hey");
+      triggerFetchVolumes();
+    }, VOLUME_FETCH_INTERVAL);
+    console.log(
+      "Setting initial interval for volumes",
+      constantVolumeFetch.current,
+    );
   };
 
   const onTimeRangeChange: React.EffectCallback = () => {
     if (!controller.current) return;
 
-    triggerFetchVolumes();
+    timeRange.current = getTimeRange();
+
+    // Reset the live interval if the time range changes
+    if (constantVolumeFetch.current) {
+      console.log(
+        "Clearing previous interval for volumes",
+        constantVolumeFetch.current,
+      );
+      clearInterval(constantVolumeFetch.current);
+      liveInterval.current = null;
+    }
+
+    // Update the controller with the new time range
+    constantVolumeFetch.current = setInterval(() => {
+      console.log("Hay");
+      triggerFetchVolumes();
+    }, VOLUME_FETCH_INTERVAL);
+    console.log(
+      "Setting new interval for volumes",
+      constantVolumeFetch.current,
+    );
   };
 
   const onInterfaceUpdate: React.EffectCallback = () => {
@@ -343,11 +410,22 @@ export const InterfaceHook = () => {
 
   useEffect(onLiveToggle, [isLive]);
 
-  // Destroy routine
   useEffect(() => {
-    setInterval(() => {
-      triggerFetchVolumes();
-    }, 10000);
+    return () => {
+      console.log("Cleaning up InterfaceHook");
+      if (constantVolumeFetch.current) {
+        console.log(
+          "Clearing constant volume fetch interval",
+          constantVolumeFetch.current,
+        );
+        clearInterval(constantVolumeFetch.current);
+      }
+      if (liveInterval.current) {
+        console.log("Clearing live interval", liveInterval.current);
+        clearInterval(liveInterval.current);
+      }
+      controller.current = null;
+    };
   }, []);
 
   return null;

@@ -42,7 +42,6 @@ export class ViewerController {
   private displayedEntities: Record<RegionId, DisplayedEntity> = {};
   private handler: Cesium.ScreenSpaceEventHandler;
   private flights: Record<string, Cesium.Entity[]> = {};
-  private volumes: Record<string, Cesium.Entity[]> = {};
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -210,7 +209,7 @@ export class ViewerController {
           (entity) => entity.entityIds.length,
         ),
       ) +
-        Object.values(this.flights).flat().length
+      Object.values(this.flights).flat().length
     ) {
       this.viewer.entities.removeAll();
       this.displayedEntities = {};

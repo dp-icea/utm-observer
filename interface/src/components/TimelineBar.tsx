@@ -4,7 +4,6 @@ import {
   addMinutes,
   differenceInHours,
 } from "date-fns";
-import { useRef } from "react";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -18,7 +17,6 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { useMap } from "@/contexts/MapContext";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
 
 export const TimelineBar = () => {
   const {
@@ -33,16 +31,7 @@ export const TimelineBar = () => {
     selectedMinutes,
     setSelectedMinutes,
     isLive,
-    setIsLive,
   } = useMap();
-
-  const liveInterval = useRef<NodeJS.Timeout | null>(null);
-
-  const previousStartDate = useRef<Date | null>(null);
-  const previousEndDate = useRef<Date | null>(null);
-  const previousStartTime = useRef<string>("");
-  const previousEndTime = useRef<string>("");
-  const previousSelectedMinutes = useRef<number[]>([0]);
 
   // Calculate datetime objects
   const startDateTime = new Date(
@@ -103,74 +92,12 @@ export const TimelineBar = () => {
     setSelectedMinutes(value);
   };
 
-  useEffect(() => {
-    if (isLive) {
-      if (liveInterval.current !== null) {
-        clearInterval(liveInterval.current);
-        liveInterval.current = null;
-      }
-
-      // Save the previous values
-      previousStartDate.current = startDate;
-      previousEndDate.current = endDate;
-      previousStartTime.current = startTime;
-      previousEndTime.current = endTime;
-
-      liveInterval.current = setInterval(() => {
-        // Change the time range for live updates
-        const now = new Date();
-        const newStartDateTime = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          0,
-          0,
-        );
-        const newEndDateTime = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          23,
-          59,
-        );
-        setStartDate(newStartDateTime);
-        setEndDate(newEndDateTime);
-        setStartTime(format(now, "HH:mm"));
-        setEndTime(format(addMinutes(now, 1), "HH:mm")); // 1 minute later
-        setSelectedMinutes([0]);
-      }, 5000);
-    } else {
-      if (liveInterval.current !== null) {
-        clearInterval(liveInterval.current);
-        liveInterval.current = null;
-
-        // Restore previous values when exiting live mode
-        if (previousStartDate.current) {
-          setStartDate(previousStartDate.current);
-        }
-        if (previousEndDate.current) {
-          setEndDate(previousEndDate.current);
-        }
-        if (previousStartTime.current != "") {
-          setStartTime(previousStartTime.current);
-        }
-        if (previousEndTime.current != "") {
-          setEndTime(previousEndTime.current);
-        }
-      }
-    }
-  }, [isLive]);
-
   if (isLive) {
     return null;
   }
 
   return (
-    <div
-      className={cn(
-        "h-32 bg-gray-800 border-gray-700 border-t flex flex-col px-6 py-4 space-y-4 transition-opacity",
-      )}
-    >
+    <div className="h-32 bg-gray-800 border-gray-700 border-t flex flex-col px-6 py-4 space-y-4">
       {/* Top Row - Interactive Timeline (moved to top) */}
       <div className="flex items-center space-x-4">
         {/* Start Time Label */}
