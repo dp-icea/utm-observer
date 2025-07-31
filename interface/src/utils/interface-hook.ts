@@ -184,10 +184,6 @@ export const InterfaceHook = () => {
       OperationalIntent | Constraint | IdentificationServiceAreaFull
     >,
   ): Array<OperationalIntent | Constraint | IdentificationServiceAreaFull> => {
-    if (isLive) {
-      return regions;
-    }
-
     const minutesOffset = selectedMinutes[0] || 0;
     return regions.filter((region) => {
       const volumes = region.details.volumes;
@@ -218,18 +214,22 @@ export const InterfaceHook = () => {
       }
 
       // Verify timeline intersection
-      const { startTime } = getTimeRange();
-      const selectedTime = addMinutes(startTime, minutesOffset);
+      if (!isLive) {
+        const { startTime } = getTimeRange();
+        const selectedTime = addMinutes(startTime, minutesOffset);
 
-      return volumes.some((vol) => {
-        const volumeStartTime = parseISO(vol.time_start.value);
-        const volumeEndTime = parseISO(vol.time_end.value);
+        return volumes.some((vol) => {
+          const volumeStartTime = parseISO(vol.time_start.value);
+          const volumeEndTime = parseISO(vol.time_end.value);
 
-        return (
-          isAfter(selectedTime, volumeStartTime) &&
-          isBefore(selectedTime, volumeEndTime)
-        );
-      });
+          return (
+            isAfter(selectedTime, volumeStartTime) &&
+            isBefore(selectedTime, volumeEndTime)
+          );
+        });
+      }
+
+      return true;
     });
   };
 
@@ -395,6 +395,8 @@ export const InterfaceHook = () => {
         const startTime = new Date();
         const endTime = addSeconds(startTime, 10);
         timeRange.current = { startTime, endTime };
+
+        triggerFetchFlights();
       }, 5000);
     } else {
       if (liveInterval.current) {
@@ -402,6 +404,7 @@ export const InterfaceHook = () => {
         controller.current.clearFlights();
         clearInterval(liveInterval.current);
         liveInterval.current = null;
+        timeRange.current = getTimeRange();
       }
     }
   };
