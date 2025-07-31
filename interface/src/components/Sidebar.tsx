@@ -9,7 +9,7 @@ export const Sidebar = () => {
       <div className="text-white space-y-4 p-4">
         <ClientList />
         <OperationalFilters />
-        <NotificationPanel />
+        {/*<NotificationPanel />*/}
         <DroneTracking />
       </div>
     </div>

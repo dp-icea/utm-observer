@@ -109,88 +109,96 @@ export const ClientList = () => {
 
   useEffect(onVolumesUpdate, [volumes]);
 
-  if (clients.length === 0) {
-    return null;
-  }
-
   return (
     <div className="space-y-3">
       <div className="flex items-center space-x-2">
         <Users className="h-4 w-4 text-gray-400" />
         <span className="text-sm font-medium text-white">
-          Clients ({filteredClients.length})
+          {volumes.length > 0 ? `Providers (${filteredClients.length})` : "Providers"}
         </span>
       </div>
 
-      {/* Search and Filter */}
-      <div className="space-y-2">
-        <Input
-          placeholder="Search clients..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="h-8 text-xs"
-        />
-        <div className="flex gap-1">
-          <Button
-            size="sm"
-            variant={statusFilter === "all" ? "default" : "outline"}
-            onClick={() => setStatusFilter("all")}
-            className="h-6 px-2 text-xs"
-          >
-            All
-          </Button>
-          <Button
-            size="sm"
-            variant={statusFilter === "active" ? "default" : "outline"}
-            onClick={() => setStatusFilter("active")}
-            className="h-6 px-2 text-xs"
-          >
-            Active
-          </Button>
-          <Button
-            size="sm"
-            variant={statusFilter === "inactive" ? "default" : "outline"}
-            onClick={() => setStatusFilter("inactive")}
-            className="h-6 px-2 text-xs"
-          >
-            Inactive
-          </Button>
+      {volumes.length === 0 && (
+        <div className="p-3 rounded-lg border bg-gray-750 border-gray-600">
+          <span className="text-xs text-gray-400">
+            No providers detected in the area.
+          </span>
         </div>
-      </div>
+      )}
+
+      {/* Search and Filter */}
+      {volumes.length > 0 && (
+        <div className="space-y-2">
+          <Input
+            placeholder="Search clients..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-8 text-xs"
+          />
+          <div className="flex gap-1">
+            <Button
+              size="sm"
+              variant={statusFilter === "all" ? "default" : "outline"}
+              onClick={() => setStatusFilter("all")}
+              className="h-6 px-2 text-xs"
+            >
+              All
+            </Button>
+            <Button
+              size="sm"
+              variant={statusFilter === "active" ? "default" : "outline"}
+              onClick={() => setStatusFilter("active")}
+              className="h-6 px-2 text-xs"
+            >
+              Active
+            </Button>
+            <Button
+              size="sm"
+              variant={statusFilter === "inactive" ? "default" : "outline"}
+              onClick={() => setStatusFilter("inactive")}
+              className="h-6 px-2 text-xs"
+            >
+              Inactive
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Client List */}
-      <div className="space-y-2 max-h-40 overflow-y-auto">
-        {filteredClients.map((client) => (
-          <div
-            key={client.name}
-            className="p-2 rounded-lg border bg-gray-750 border-gray-600 hover:bg-gray-700 transition-colors cursor-pointer"
-            onClick={() => {
-              toggleClient(client.name);
-            }}
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-white">
-                {client.name}
-              </span>
-              <Badge
-                variant={client.active ? "default" : "secondary"}
-                className="text-xs px-2 py-0"
-              >
-                {client.active ? "Active" : "Inactive"}
-              </Badge>
+      {volumes.length > 0 && (
+        <div className="space-y-2 max-h-40 overflow-y-auto">
+          {filteredClients.map((client) => (
+            <div
+              key={client.name}
+              className="p-2 rounded-lg border bg-gray-750 border-gray-600 hover:bg-gray-700 transition-colors cursor-pointer"
+              onClick={() => {
+                toggleClient(client.name);
+              }}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-medium text-white">
+                  {client.name}
+                </span>
+                <Badge
+                  variant={client.active ? "default" : "secondary"}
+                  className="text-xs px-2 py-0"
+                >
+                  {client.active ? "Active" : "Inactive"}
+                </Badge>
+              </div>
+              <div className="text-xs text-gray-400 text-start">
+                Operational Intents: {client.operationalIntents}
+              </div>
+              <div className="text-xs text-gray-400 text-start">
+                Constraints: {client.constraints}
+              </div>
+              <div className="text-xs text-gray-400 text-start">
+                Identification Service Areas: {client.identificationServiceAreas}
+              </div>
             </div>
-            <div className="text-xs text-gray-400 text-start">
-              Operational Intents: {client.operationalIntents}
-            </div>
-            <div className="text-xs text-gray-400 text-start">
-              Constraints: {client.constraints}
-            </div>
-            <div className="text-xs text-gray-400 text-start">
-              Identification Service Areas: {client.identificationServiceAreas}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

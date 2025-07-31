@@ -154,10 +154,6 @@ export const DroneTracking = () => {
 
   useEffect(onFlightsUpdate, [flights]);
 
-  if (flights.length === 0 || !isLive) {
-    return null;
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -167,142 +163,166 @@ export const DroneTracking = () => {
             Live Flight Tracking
           </span>
         </div>
-        <Badge variant="default" className="text-xs">
-          {flights.length} active
-        </Badge>
+        {flights.length > 0 && (
+          <Badge variant="default" className="text-xs">
+            {flights.length} active
+          </Badge>
+        )}
       </div>
 
+      {!isLive && (
+        <div className="p-3 rounded-lg border bg-gray-750 border-gray-600">
+          <span className="text-xs text-gray-400">
+            Toggle Live mode to see real-time flight data.
+          </span>
+        </div>
+      )}
+
+      {isLive && flights.length === 0 && (
+        <div className="p-3 rounded-lg border bg-gray-750 border-gray-600">
+          <span className="text-xs text-gray-400">
+            No flights detected in the area.
+          </span>
+        </div>
+      )}
+
       {/* Provider Selection */}
-      <div className="space-y-2">
-        <span className="text-xs font-medium text-gray-300 justify-start">
-          Select Providers:
-        </span>
-        <div className="space-y-1">
-          {flightProviders.map((provider) => (
-            <div key={provider.name} className="flex items-center space-x-2">
-              <Checkbox
-                id={provider.name}
-                checked={provider.active}
-                onCheckedChange={() => toggleProvider(provider.name)}
-              />
-              <label
-                htmlFor={provider.name}
-                className="text-xs cursor-pointer text-gray-300"
-              >
-                {provider.name.toUpperCase()}
-              </label>
+      {flights.length > 0 && (
+        <div className="space-y-2">
+          <span className="text-xs font-medium text-gray-300 justify-start">
+            Select Providers:
+          </span>
+          <div className="space-y-1">
+            {flightProviders.map((provider) => (
+              <div key={provider.name} className="flex items-center space-x-2">
+                <Checkbox
+                  id={provider.name}
+                  checked={provider.active}
+                  onCheckedChange={() => toggleProvider(provider.name)}
+                />
+                <label
+                  htmlFor={provider.name}
+                  className="text-xs cursor-pointer text-gray-300"
+                >
+                  {provider.name.toUpperCase()}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Flight List */}
+      {flights.length > 0 && (
+        <div className="space-y-2 max-h-80 overflow-y-auto">
+          {flightDetails.map((flight) => (
+            <div
+              key={flight.id}
+              className={`p-3 rounded-lg border transition-colors ${flight.active
+                ? "bg-blue-900/30 border-blue-600"
+                : "bg-gray-750 border-gray-600 hover:bg-gray-700"
+                }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    checked={flight.active}
+                    onCheckedChange={() => toggleFlightDetail(flight.id)}
+                  />
+                  <span className="text-sm font-medium text-white">
+                    {flight.uasId}
+                  </span>
+                  <div
+                    className={`w-2 h-2 rounded-full ${getStatusColor(flight.status)}`}
+                  />
+                </div>
+                <Badge
+                  variant={
+                    flight.status === "Emergency" ? "destructive" : "secondary"
+                  }
+                  className="text-xs px-2 py-0"
+                >
+                  {flight.status}
+                </Badge>
+              </div>
+
+              <div className="text-xs text-gray-400 mb-2">{flight.operator}</div>
+              <div className="text-xs text-gray-400 mb-2">{flight.owner}</div>
+              <div className="text-xs text-gray-400 mb-2">
+                {flight.description}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center space-x-1">
+                  <span>Type: {flight.aircraftType}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span>Pressure: {flight.pressure_altitude}%</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span>Speed: {flight.speed.toFixed(3)}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span>V. Speed: {flight.vertical_speed}</span>
+                </div>
+                {flight.operatorPosition && (
+                  <div className="flex items-center space-x-1">
+                    <span>
+                      Op. Lat: {flight.operatorPosition.lat.toFixed(2)}°
+                    </span>
+                  </div>
+                )}
+                {flight.operatorPosition && (
+                  <div className="flex items-center space-x-1">
+                    <span>
+                      Op. Lng: {flight.operatorPosition.lng.toFixed(2)}°
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="text-xs mt-2 text-gray-500">
+                {flight.position.lat.toFixed(4)}°,{" "}
+                {flight.position.lng.toFixed(4)}°
+              </div>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Flight List */}
-      <div className="space-y-2 max-h-80 overflow-y-auto">
-        {flightDetails.map((flight) => (
-          <div
-            key={flight.id}
-            className={`p-3 rounded-lg border transition-colors ${flight.active
-              ? "bg-blue-900/30 border-blue-600"
-              : "bg-gray-750 border-gray-600 hover:bg-gray-700"
-              }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  checked={flight.active}
-                  onCheckedChange={() => toggleFlightDetail(flight.id)}
-                />
-                <span className="text-sm font-medium text-white">
-                  {flight.uasId}
-                </span>
-                <div
-                  className={`w-2 h-2 rounded-full ${getStatusColor(flight.status)}`}
-                />
-              </div>
-              <Badge
-                variant={
-                  flight.status === "Emergency" ? "destructive" : "secondary"
-                }
-                className="text-xs px-2 py-0"
-              >
-                {flight.status}
-              </Badge>
-            </div>
-
-            <div className="text-xs text-gray-400 mb-2">{flight.operator}</div>
-            <div className="text-xs text-gray-400 mb-2">{flight.owner}</div>
-            <div className="text-xs text-gray-400 mb-2">
-              {flight.description}
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="flex items-center space-x-1">
-                <span>Type: {flight.aircraftType}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <span>Pressure: {flight.pressure_altitude}%</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <span>Speed: {flight.speed.toFixed(3)}</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <span>V. Speed: {flight.vertical_speed}</span>
-              </div>
-              {flight.operatorPosition && (
-                <div className="flex items-center space-x-1">
-                  <span>
-                    Op. Lat: {flight.operatorPosition.lat.toFixed(2)}°
-                  </span>
-                </div>
-              )}
-              {flight.operatorPosition && (
-                <div className="flex items-center space-x-1">
-                  <span>
-                    Op. Lng: {flight.operatorPosition.lng.toFixed(2)}°
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div className="text-xs mt-2 text-gray-500">
-              {flight.position.lat.toFixed(4)}°,{" "}
-              {flight.position.lng.toFixed(4)}°
-            </div>
-          </div>
-        ))}
-      </div>
+      )}
 
       {/* Quick Actions */}
-      <div className="pt-2 border-t border-gray-600">
-        <div className="flex gap-2">
-          <button
-            onClick={() => {
-              const newFlightDetails = flightDetails.map((f) => ({
-                ...f,
-                active: true,
-              }));
-              setFlightDetails(newFlightDetails);
-              setFlightsFilter(newFlightDetails.map((f) => f.id));
-            }}
-            className="text-xs px-2 py-1 rounded text-blue-400 hover:bg-gray-700"
-          >
-            Select All
-          </button>
-          <button
-            onClick={() => {
-              const newFlightDetails = flightDetails.map((f) => ({
-                ...f,
-                active: false,
-              }));
-              setFlightDetails(newFlightDetails);
-              setFlightsFilter([]);
-            }}
-            className="text-xs px-2 py-1 rounded text-gray-400 hover:bg-gray-700"
-          >
-            Clear All
-          </button>
+      {flights.length > 0 && (
+        <div className="pt-2 border-t border-gray-600">
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const newFlightDetails = flightDetails.map((f) => ({
+                  ...f,
+                  active: true,
+                }));
+                setFlightDetails(newFlightDetails);
+                setFlightsFilter(newFlightDetails.map((f) => f.id));
+              }}
+              className="text-xs px-2 py-1 rounded text-blue-400 hover:bg-gray-700"
+            >
+              Select All
+            </button>
+            <button
+              onClick={() => {
+                const newFlightDetails = flightDetails.map((f) => ({
+                  ...f,
+                  active: false,
+                }));
+                setFlightDetails(newFlightDetails);
+                setFlightsFilter([]);
+              }}
+              className="text-xs px-2 py-1 rounded text-gray-400 hover:bg-gray-700"
+            >
+              Clear All
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

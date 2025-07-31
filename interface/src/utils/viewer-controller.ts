@@ -41,7 +41,7 @@ export class ViewerController {
   private viewer: Cesium.Viewer;
   private displayedEntities: Record<RegionId, DisplayedEntity> = {};
   private handler: Cesium.ScreenSpaceEventHandler;
-  private flights = new Set<EntityId>();
+  private flights: Record<string, Cesium.Entity[]> = {}
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -95,42 +95,104 @@ export class ViewerController {
   }
 
   clearFlights() {
-    if (this.flights.size === 0) {
+    if (Object.keys(this.flights).length === 0) {
       return;
     }
 
-    this.flights.forEach((entityId) => {
-      this.viewer.entities.removeById(entityId);
+    Object.values(this.flights).forEach((entities) => {
+      entities.forEach((entity) => {
+        this.viewer.entities.removeById(entity.id);
+      });
     });
 
-    this.flights.clear();
+    this.flights = {};
   }
 
-  displayFlights(flights: Array<Flight>) {
+  displayFlights(newFlights: Array<Flight>) {
     // For each entity in the flights set. Remove it and add the new flights
-    this.clearFlights();
-
-    flights.forEach((flight) => {
-      const { current_state, id } = flight;
+    newFlights.forEach((newFlight) => {
+      const { current_state, id } = newFlight;
       const { position, operational_status } = current_state;
 
       if (!position || !position.lat || !position.lng) {
         return;
       }
 
-      const entity = this.viewer.entities.add({
-        id: id,
-        position: Cesium.Cartesian3.fromDegrees(position.lng, position.lat, position.alt, Cesium.Ellipsoid.WGS84),
-        point: {
-          pixelSize: 10,
-          color: Cesium.Color.BLACK,
-          outlineColor: Cesium.Color.BLACK,
-          outlineWidth: 2,
-        },
-        description: `Flight ID: ${id}<br>Status: ${operational_status}`,
-      });
+      if (this.flights[id]) {
+        const entity = this.flights[id][0];
+        entity.position = Cesium.Cartesian3.fromDegrees(
+          position.lng,
+          position.lat,
+          position.alt,
+          Cesium.Ellipsoid.WGS84,
+        );
 
-      this.flights.add(entity.id);
+        if (this.flights[id].length > 1) {
+          const label = this.flights[id][1];
+          label.position = Cesium.Cartesian3.fromDegrees(
+            position.lng,
+            position.lat,
+            position.alt + 10,
+            Cesium.Ellipsoid.WGS84,
+          );
+        }
+      } else {
+
+        this.flights[id] = [];
+
+        //const entity = this.viewer.entities.add({
+        //  position: Cesium.Cartesian3.fromDegrees(
+        //    position.lng,
+        //    position.lat,
+        //    position.alt,
+        //    Cesium.Ellipsoid.WGS84,
+        //  ),
+        //  model: {
+        //    uri: "/Inspire.glb",
+        //    minimumPixelSize: 128,
+        //    maximumScale: 20000,
+        //  },
+        //});
+
+        const entity = this.viewer.entities.add({
+          id: id,
+          position: Cesium.Cartesian3.fromDegrees(
+            position.lng,
+            position.lat,
+            position.alt,
+            Cesium.Ellipsoid.WGS84,
+          ),
+          // Replace point with sphere
+          ellipsoid: {
+            radii: new Cesium.Cartesian3(5, 5, 5), // Adjust radius as needed
+            material: Cesium.Color.BLACK.withAlpha(0.8),
+          },
+        });
+
+        this.flights[id].push(entity);
+
+        if (newFlight.details.uas_id) {
+          const label = this.viewer.entities.add({
+            position: Cesium.Cartesian3.fromDegrees(
+              position.lng,
+              position.lat,
+              position.alt + 10,
+              Cesium.Ellipsoid.WGS84,
+            ),
+            label: {
+              text: newFlight.details.uas_id.registration_id,
+              font: "14px sans-serif",
+              fillColor: Cesium.Color.BLACK,
+              outlineColor: Cesium.Color.BLACK,
+              outlineWidth: 2,
+              verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+            },
+          });
+          if (label) {
+            this.flights[id].push(label);
+          }
+        }
+      }
     });
   }
 
@@ -148,7 +210,7 @@ export class ViewerController {
           (entity) => entity.entityIds.length,
         ),
       ) +
-      this.flights.size
+      Object.values(this.flights).flat().length
     ) {
       this.viewer.entities.removeAll();
       this.displayedEntities = {};
