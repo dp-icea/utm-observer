@@ -41,7 +41,7 @@ export class ViewerController {
   private viewer: Cesium.Viewer;
   private displayedEntities: Record<RegionId, DisplayedEntity> = {};
   private handler: Cesium.ScreenSpaceEventHandler;
-  private flights: Record<string, Cesium.Entity[]> = {}
+  private flights: Record<string, Cesium.Entity[]> = {};
 
   constructor(viewer: Cesium.Viewer) {
     this.viewer = viewer;
@@ -137,22 +137,21 @@ export class ViewerController {
           );
         }
       } else {
-
         this.flights[id] = [];
 
-        //const entity = this.viewer.entities.add({
-        //  position: Cesium.Cartesian3.fromDegrees(
-        //    position.lng,
-        //    position.lat,
-        //    position.alt,
-        //    Cesium.Ellipsoid.WGS84,
-        //  ),
-        //  model: {
-        //    uri: "/Inspire.glb",
-        //    minimumPixelSize: 128,
-        //    maximumScale: 20000,
-        //  },
-        //});
+        // const entity = this.viewer.entities.add({
+        //   position: Cesium.Cartesian3.fromDegrees(
+        //     position.lng,
+        //     position.lat,
+        //     position.alt,
+        //     Cesium.Ellipsoid.WGS84,
+        //   ),
+        //   model: {
+        //     uri: "/Inspire.glb",
+        //     minimumPixelSize: 100,
+        //     maximumScale: 1,
+        //   },
+        // });
 
         const entity = this.viewer.entities.add({
           id: id,
@@ -356,7 +355,13 @@ export class ViewerController {
 
     const vertices = volume.outline_polygon.vertices.map(
       // TODO: Validate this
-      (vertex) => Cesium.Cartesian3.fromDegrees(vertex.lng, vertex.lat, minHeight, Cesium.Ellipsoid.WGS84),
+      (vertex) =>
+        Cesium.Cartesian3.fromDegrees(
+          vertex.lng,
+          vertex.lat,
+          minHeight,
+          Cesium.Ellipsoid.WGS84,
+        ),
     );
 
     return this.viewer.entities.add({

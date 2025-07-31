@@ -163,7 +163,7 @@ export const DroneTracking = () => {
             Live Flight Tracking
           </span>
         </div>
-        {flights.length > 0 && (
+        {isLive && flights.length > 0 && (
           <Badge variant="default" className="text-xs">
             {flights.length} active
           </Badge>
@@ -187,7 +187,7 @@ export const DroneTracking = () => {
       )}
 
       {/* Provider Selection */}
-      {flights.length > 0 && (
+      {isLive && flights.length > 0 && (
         <div className="space-y-2">
           <span className="text-xs font-medium text-gray-300 justify-start">
             Select Providers:
@@ -213,14 +213,14 @@ export const DroneTracking = () => {
       )}
 
       {/* Flight List */}
-      {flights.length > 0 && (
+      {isLive && flights.length > 0 && (
         <div className="space-y-2 max-h-80 overflow-y-auto">
           {flightDetails.map((flight) => (
             <div
               key={flight.id}
               className={`p-3 rounded-lg border transition-colors ${flight.active
-                ? "bg-blue-900/30 border-blue-600"
-                : "bg-gray-750 border-gray-600 hover:bg-gray-700"
+                  ? "bg-blue-900/30 border-blue-600"
+                  : "bg-gray-750 border-gray-600 hover:bg-gray-700"
                 }`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -246,7 +246,9 @@ export const DroneTracking = () => {
                 </Badge>
               </div>
 
-              <div className="text-xs text-gray-400 mb-2">{flight.operator}</div>
+              <div className="text-xs text-gray-400 mb-2">
+                {flight.operator}
+              </div>
               <div className="text-xs text-gray-400 mb-2">{flight.owner}</div>
               <div className="text-xs text-gray-400 mb-2">
                 {flight.description}
@@ -291,7 +293,7 @@ export const DroneTracking = () => {
       )}
 
       {/* Quick Actions */}
-      {flights.length > 0 && (
+      {isLive && flights.length > 0 && (
         <div className="pt-2 border-t border-gray-600">
           <div className="flex gap-2">
             <button
