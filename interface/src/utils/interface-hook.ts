@@ -104,10 +104,7 @@ export const InterfaceHook = () => {
     }
   };
 
-  const fetchVolumes = async (
-    rectangle: Rectangle,
-    timeRange: TimeRange,
-  ) => {
+  const fetchVolumes = async (rectangle: Rectangle, timeRange: TimeRange) => {
     const { startTime, endTime } = timeRange;
 
     const boundingVolume: Volume4D = {
@@ -323,7 +320,7 @@ export const InterfaceHook = () => {
 
       liveInterval.current = setInterval(() => {
         triggerFetchFlights();
-      }, 500);
+      }, 10000);
     } else {
       if (liveInterval.current) {
         // Clear the interval if it exists

@@ -151,7 +151,7 @@ async def get_identification_service_areas_volume(
 
 
 @router.post(
-    "/",
+    "/volumes",
     response_description="Query constraints and operational \
     intents existing in an area",
     response_model=Response,
