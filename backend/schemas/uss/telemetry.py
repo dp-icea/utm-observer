@@ -21,14 +21,14 @@ class VehicleTelemetry(BaseModel):
     Vehicle position, altitude, and velocity.
     """
     time_measured: Time
-    position: Optional[Position]
-    velocity: Optional[Velocity]
+    position: Optional[Position] = None
+    velocity: Optional[Velocity] = None
 
 
 class GetOperationalIntentTelemetryResponse(BaseModel):
     """
     Response to a peer request for telemetry of an off-nominal operational intent.
     """
-    operational_intent_id: Optional[UUID]
-    telemetry: Optional[VehicleTelemetry]
-    next_telemetry_opportunity: Optional[Time]
+    operational_intent_id: Optional[UUID] = None
+    telemetry: Optional[VehicleTelemetry] = None
+    next_telemetry_opportunity: Optional[Time] = None

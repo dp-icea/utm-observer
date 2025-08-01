@@ -28,8 +28,8 @@ class ConstraintDetails(BaseModel):
     Details of a UTM constraint.
     """
     volumes: List[Volume4D] = Field(..., min_items=1)
-    type: Optional[str]
-    geozone: Optional[GeoZone]
+    type: Optional[str] = None
+    geozone: Optional[GeoZone] = None
 
 
 class Constraint(BaseModel):

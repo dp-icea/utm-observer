@@ -11,12 +11,12 @@ class Subscription(BaseModel):
     """
     Specification of a geographic area that a client is interested in on an ongoing basis.
     """
-    id: Optional[UUID]
-    version: Optional[str]
+    id: Optional[UUID] = None
+    version: Optional[str] = None
     notification_index: Optional[int] = Field(0, ge=0)
-    time_start: Optional[Time]
-    time_end: Optional[Time]
-    uss_base_url: Optional[str]
+    time_start: Optional[Time] = None
+    time_end: Optional[Time] = None
+    uss_base_url: Optional[str] = None
     notify_for_operational_intents: bool = False
     notify_for_constraints: bool = False
     implicit_subscription: bool = False
@@ -27,7 +27,7 @@ class QuerySubscriptionParameters(BaseModel):
     """
     Parameters for a request to find subscriptions matching the provided criteria.
     """
-    area_of_interest: Optional[Volume4D]
+    area_of_interest: Optional[Volume4D] = None
 
 
 class QuerySubscriptionsResponse(BaseModel):
@@ -74,5 +74,5 @@ class ImplicitSubscriptionParameters(BaseModel):
     """
     Information necessary to create a subscription to serve a single operational intent's notification needs.
     """
-    uss_base_url: Optional[str]
+    uss_base_url: Optional[str] = None
     notify_for_constraints: bool = False

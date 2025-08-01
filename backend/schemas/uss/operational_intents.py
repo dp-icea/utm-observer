@@ -10,8 +10,8 @@ class PutOperationalIntentDetailsParameters(BaseModel):
     """
     Parameters of a message informing of detailed information for a peer operational intent.
     """
-    operational_intent_id: Optional[UUID]
-    operational_intent: Optional[OperationalIntent]
+    operational_intent_id: Optional[UUID] = None
+    operational_intent: Optional[OperationalIntent] = None
     subscriptions: List[SubscriptionState] = Field(..., min_items=1)
 
 

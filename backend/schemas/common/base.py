@@ -23,4 +23,4 @@ class ErrorResponse(BaseModel):
     """
     Human-readable string returned when an error occurs.
     """
-    message: Optional[str]
+    message: Optional[str] = None

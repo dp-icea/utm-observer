@@ -12,8 +12,8 @@ class PutConstraintDetailsParameters(BaseModel):
     """
     Parameters of a message informing of new full information for a constraint.
     """
-    constraint_id: Optional[UUID]
-    constraint: Optional[Constraint]
+    constraint_id: Optional[UUID] = None
+    constraint: Optional[Constraint] = None
     subscriptions: List[SubscriptionState] = Field(..., min_items=1)
 
 

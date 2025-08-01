@@ -13,7 +13,7 @@ class PutConstraintReferenceParameters(BaseModel):
     Parameters for a request to create/update a ConstraintReference in the DSS.
     """
     extents: List[Volume4D] = Field(..., min_items=1)
-    uss_base_url: Optional[str]
+    uss_base_url: Optional[str] = None
 
 
 class GetConstraintReferenceResponse(BaseModel):
@@ -35,7 +35,7 @@ class QueryConstraintReferenceParameters(BaseModel):
     """
     Parameters for a request to find ConstraintReferences matching the provided criteria.
     """
-    area_of_interest: Optional[Volume4D]
+    area_of_interest: Optional[Volume4D] = None
 
 
 class QueryConstraintReferencesResponse(BaseModel):

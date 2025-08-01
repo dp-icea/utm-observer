@@ -47,8 +47,8 @@ class Circle(BaseModel):
     """
     A circular area on the surface of the earth.
     """
-    center: Optional[LatLngPoint]
-    radius: Optional[Radius]
+    center: Optional[LatLngPoint] = None
+    radius: Optional[Radius] = None
 
 
 class Volume3D(BaseModel):
@@ -84,12 +84,12 @@ class Position(BaseModel):
     """
     Location of the vehicle (UAS) as reported for UTM.
     """
-    longitude: Optional[float]
-    latitude: Optional[float]
-    accuracy_h: Optional[PositionAccuracyHorizontal]
-    accuracy_v: Optional[PositionAccuracyVertical]
+    longitude: Optional[float] = None
+    latitude: Optional[float] = None
+    accuracy_h: Optional[PositionAccuracyHorizontal] = None
+    accuracy_v: Optional[PositionAccuracyVertical] = None
     extrapolated: bool = False
-    altitude: Optional[Altitude]
+    altitude: Optional[Altitude] = None
 
 
 class GeoZone(BaseModel):

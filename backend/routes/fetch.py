@@ -101,9 +101,10 @@ async def get_constraints_volume(
 
             constraints.append(constraint_response.constraint)
 
-        except Exception:
-            print(f"Error fetching constraint details: \
+        except Exception as e:
+            print(f"-> ERROR fetching constraint details: \
             {constraint_reference.id}")
+            print(e)
             continue
 
     return constraints
@@ -169,6 +170,10 @@ async def query_volumes(
                 }
             )
         )
+
+    print("===== Querying constraints: =====")
+    pprint(query_constraints)
+    print("===================================")
 
     constraints = await get_constraints_volume(
         query_constraints.constraint_references

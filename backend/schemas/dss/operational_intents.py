@@ -16,10 +16,10 @@ class PutOperationalIntentReferenceParameters(BaseModel):
     extents: List[Volume4D] = Field(..., min_items=1)
     key: Optional[List[str]] = []
     state: OperationalIntentState
-    uss_base_url: Optional[str]
-    subscription_id: Optional[UUID]
-    new_subscription: Optional[ImplicitSubscriptionParameters]
-    flight_type: Optional[FlightType]
+    uss_base_url: Optional[str] = None
+    subscription_id: Optional[UUID] = None
+    new_subscription: Optional[ImplicitSubscriptionParameters] = None
+    flight_type: Optional[FlightType] = None
 
 
 class GetOperationalIntentReferenceResponse(BaseModel):
@@ -41,7 +41,7 @@ class QueryOperationalIntentReferenceParameters(BaseModel):
     """
     Parameters for a request to find OperationalIntentReferences matching the provided criteria.
     """
-    area_of_interest: Optional[Volume4D]
+    area_of_interest: Optional[Volume4D] = None
 
 
 class QueryOperationalIntentReferenceResponse(BaseModel):
@@ -55,6 +55,6 @@ class AirspaceConflictResponse(BaseModel):
     """
     Data provided when an airspace conflict was encountered.
     """
-    message: Optional[str]
+    message: Optional[str] = None
     missing_operational_intents: List[OperationalIntentReference] = []
     missing_constraints: List[ConstraintReference] = []

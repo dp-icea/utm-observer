@@ -319,6 +319,7 @@ export const InterfaceHook = () => {
     if (!controller.current) return;
 
     updateVolumes();
+    updateFlights();
   };
 
   const getFilteredFlights = (flights: Array<Flight>): Array<Flight> => {
@@ -341,11 +342,22 @@ export const InterfaceHook = () => {
     });
   };
 
-  const onFlightsUpdate: React.EffectCallback = () => {
+  const updateFlights = () => {
     if (!controller.current) return;
+
+    console.log("Updating flights", flights);
+    console.log("Is live:", isLive);
+
+    if (!isLive) return;
 
     const filteredFlights = getFilteredFlights(flights);
     controller.current.displayFlights(filteredFlights);
+  };
+
+  const onFlightsUpdate: React.EffectCallback = () => {
+    if (!controller.current) return;
+
+    updateFlights();
   };
 
   const onLiveToggle: React.EffectCallback = () => {
