@@ -345,9 +345,6 @@ export const InterfaceHook = () => {
   const updateFlights = () => {
     if (!controller.current) return;
 
-    console.log("Updating flights", flights);
-    console.log("Is live:", isLive);
-
     if (!isLive) return;
 
     const filteredFlights = getFilteredFlights(flights);
@@ -392,6 +389,8 @@ export const InterfaceHook = () => {
     volumes,
     filters,
     managerFilter,
+    flightsFilter,
+    flightProvidersFilter,
   ]);
   useEffect(onFlightsUpdate, [flights]);
 
