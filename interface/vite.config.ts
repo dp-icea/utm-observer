@@ -22,7 +22,9 @@ export default defineConfig({
   define: {
     "process.env": {
       NODE_ENV: JSON.stringify(process.env.NODE_ENV),
-      VITE_OBSERVER_API_URL: process.env.VITE_OBSERVER_API_URL || "http://localhost:8000",
+      VITE_OBSERVER_API_URL: process.env.VITE_OBSERVER_API_URL,
+      VITE_DSS_API_URL: process.env.VITE_DSS_API_URL,
+      VITE_GEOAWARENESS_API_URL: process.env.VITE_GEOAWARENESS_API_URL,
     },
   },
 });

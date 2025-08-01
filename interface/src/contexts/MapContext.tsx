@@ -32,6 +32,8 @@ interface IMapContext {
   ) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  loadingConstraintRequest: boolean;
+  setLoadingConstraintRequest: (loading: boolean) => void;
   filters: FilterCategory[];
   setFilters: (filters: FilterCategory[]) => void;
   managerFilter: string[];
@@ -64,6 +66,9 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
     Array<Constraint | OperationalIntent | IdentificationServiceAreaFull>
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [loadingConstraintRequest, setLoadingConstraintRequest] =
+    useState<boolean>(false);
+
   const [filters, setFilters] = useState<FilterCategory[]>([
     {
       id: "operational-intents",
@@ -107,6 +112,8 @@ export const MapProvider = ({ children }: { children: ReactNode }) => {
         setVolumes,
         loading,
         setLoading,
+        loadingConstraintRequest,
+        setLoadingConstraintRequest,
         filters,
         setFilters,
         managerFilter,

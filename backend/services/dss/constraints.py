@@ -97,7 +97,7 @@ class DSSConstraintsService:
         response = await self.client.request(
             "DELETE",
             f"{RESOURCE_PATH}/{entity_id}/{ovn}",
-            scope=Authority.CONSTRAINT_PROCESSING,
+            scope=Authority.CONSTRAINT_MANAGEMENT,
         )
 
         if response.status_code != 200:
