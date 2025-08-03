@@ -100,6 +100,7 @@ jobs:
           build-args: |
             VITE_OBSERVER_API_URL=${{ vars.VITE_OBSERVER_API_URL }}
             VITE_ION_ACCESS_TOKEN=${{ secrets.CESIUM_ION_ACCESS_TOKEN }}
+            VITE_CREDENTIALS=${{ secrets.CREDENTIALS }}
 
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built. It increases supply chain security for people who consume the image. For more information, see [Using artifact attestations to establish provenance for builds](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds).
       - name: Generate artifact attestation
