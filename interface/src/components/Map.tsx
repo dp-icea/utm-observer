@@ -1,11 +1,20 @@
 import { Component } from "react";
-import { Terrain, IonResource } from "cesium";
+import { Terrain, IonResource, Ion } from "cesium";
 import * as Cesium from "cesium";
 import { Viewer, Cesium3DTileset, ImageryLayer } from "resium";
 import { InterfaceHook } from "@/utils/interface-hook";
 
 export default class Map extends Component {
   render() {
+
+    const ionAccessToken = import.meta.env.VITE_ION_ACCESS_TOKEN;
+    if (ionAccessToken) {
+      console.log("Using Cesium Ion access token:", ionAccessToken);
+      Ion.defaultAccessToken = ionAccessToken;
+    } else {
+      console.warn("VITE_ION_ACCESS_TOKEN is not set. Using default Cesium Ion access token.");
+    }
+
     return (
       <div className="absolute inset-0">
         <Viewer
@@ -21,6 +30,7 @@ export default class Map extends Component {
           sceneModePicker={false}
           baseLayerPicker={false}
           style={{ width: "100%", height: "100%" }}
+          imageryProvider={false}
         >
           <InterfaceHook />
           <ImageryLayer
@@ -31,7 +41,7 @@ export default class Map extends Component {
             }
             show={true}
           />
-          <Cesium3DTileset url={IonResource.fromAssetId(96188)} />
+          {/*<Cesium3DTileset url={IonResource.fromAssetId(96188)} />*/}
         </Viewer>
       </div>
     );

@@ -221,7 +221,7 @@ export class ViewerController {
           (entity) => entity.entityIds.length,
         ),
       ) +
-        Object.values(this.flights).flat().length
+      Object.values(this.flights).flat().length
     ) {
       this.viewer.entities.removeAll();
       this.displayedEntities = {};
