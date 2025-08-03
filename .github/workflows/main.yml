@@ -8,12 +8,11 @@ env:
   REGISTRY: ghcr.io
   BACKEND_IMAGE_NAME: ${{ github.repository }}-backend
   INTERFACE_IMAGE_NAME: ${{ github.repository }}-interface
-  VITE_OBSERVER_API_URL: https://api.dev.br-utm.org/observer
 
 jobs:
   build-and-push-api:
-    runs-on: ubuntu-latest
 
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -98,9 +97,9 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-        env:
-          VITE_ION_ACCESS_TOKEN: ${{ secrets.CESIUM_ION_ACCESS_TOKEN }}
-
+          build-args: |
+            VITE_OBSERVER_API_URL=${{ vars.VITE_OBSERVER_API_URL }}
+            VITE_ION_ACCESS_TOKEN=${{ secrets.CESIUM_ION_ACCESS_TOKEN }}
 
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built. It increases supply chain security for people who consume the image. For more information, see [Using artifact attestations to establish provenance for builds](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds).
       - name: Generate artifact attestation

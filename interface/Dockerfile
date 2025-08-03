@@ -3,6 +3,10 @@ FROM node:18-alpine AS build
 
 WORKDIR /app
 
+# Make the environment variable available to the build process
+ARG VITE_OBSERVER_API_URL
+ARG VITE_ION_ACCESS_TOKEN
+
 # Install dependencies and build the application
 COPY package.json package-lock.json ./
 RUN npm ci

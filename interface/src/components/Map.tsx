@@ -6,10 +6,8 @@ import { InterfaceHook } from "@/utils/interface-hook";
 
 export default class Map extends Component {
   render() {
-
     const ionAccessToken = import.meta.env.VITE_ION_ACCESS_TOKEN;
     if (ionAccessToken) {
-      console.log("Using Cesium Ion access token:", ionAccessToken);
       Ion.defaultAccessToken = ionAccessToken;
     } else {
       console.warn("VITE_ION_ACCESS_TOKEN is not set. Using default Cesium Ion access token.");

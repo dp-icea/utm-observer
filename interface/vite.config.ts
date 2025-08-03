@@ -24,8 +24,6 @@ export default defineConfig({
       NODE_ENV: JSON.stringify(process.env.NODE_ENV),
       VITE_ION_ACCESS_TOKEN: process.env.VITE_ION_ACCESS_TOKEN,
       VITE_OBSERVER_API_URL: process.env.VITE_OBSERVER_API_URL,
-      VITE_DSS_API_URL: process.env.VITE_DSS_API_URL,
-      VITE_GEOAWARENESS_API_URL: process.env.VITE_GEOAWARENESS_API_URL,
     },
   },
 });
