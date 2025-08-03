@@ -11,9 +11,9 @@ from schemas.common.geo import Volume3D, Volume4D
 from schemas.common.base import Time
 from schemas.common.enums import TimeFormat
 from schemas.dss.common import ConstraintReference, OperationalIntentReference
-from schemas.dss.constraints import QueryConstraintReferenceParameters
-from schemas.dss.operational_intents import QueryOperationalIntentReferenceParameters
-from schemas.dss.remoteid import IdentificationServiceArea, IdentificationServiceAreaDetails, IdentificationServiceAreaFull
+from schemas.dss.constraints import QueryConstraintReferenceParameters, QueryConstraintReferencesResponse
+from schemas.dss.operational_intents import QueryOperationalIntentReferenceParameters, QueryOperationalIntentReferenceResponse
+from schemas.dss.remoteid import IdentificationServiceArea, IdentificationServiceAreaDetails, IdentificationServiceAreaFull, SearchIdentificationServiceAreasResponse
 from schemas.flights import QueryFlightsRequest, QueryFlightsResponse
 from schemas.response import Response
 from schemas.uss.constraints import Constraint
@@ -162,14 +162,20 @@ async def query_volumes(
     area_of_interest: Volume4D = Body(),
 ):
     dss_constraints_service = DSSConstraintsService()
-    query_constraints = await dss_constraints_service\
-        .query_constraint_references(
-            QueryConstraintReferenceParameters.model_validate(
-                {
-                    "area_of_interest": area_of_interest,
-                }
+    try:
+        query_constraints = await dss_constraints_service\
+            .query_constraint_references(
+                QueryConstraintReferenceParameters.model_validate(
+                    {
+                        "area_of_interest": area_of_interest,
+                    }
+                )
             )
+    except Exception as e:
+        query_constraints = QueryConstraintReferencesResponse(
+            constraint_references=[],
         )
+        print("Error querying constraints:", e)
 
     print("===== Querying constraints: =====")
     pprint(query_constraints)
@@ -180,14 +186,21 @@ async def query_volumes(
     )
 
     dss_operational_intents_service = DSSOperationalIntentsService()
-    query_operational_intents = await dss_operational_intents_service\
-        .query_operational_intent_references(
-            QueryOperationalIntentReferenceParameters.model_validate(
-                {
-                    "area_of_interest": area_of_interest,
-                }
+
+    try:
+        query_operational_intents = await dss_operational_intents_service\
+            .query_operational_intent_references(
+                QueryOperationalIntentReferenceParameters.model_validate(
+                    {
+                        "area_of_interest": area_of_interest,
+                    }
+                )
             )
+    except Exception as e:
+        query_operational_intents = QueryOperationalIntentReferenceResponse(
+            operational_intent_references=[],
         )
+        print("Error querying operational intents:", e)
 
     operational_intents = await get_operational_intents_volume(
         query_operational_intents.operational_intent_references
@@ -197,15 +210,21 @@ async def query_volumes(
 
     if "outline_polygon" in area_of_interest.volume.model_dump(mode="json"):
         dss_remoteid_service = DSSRemoteIDService()
-        query_identification_service_areas = await dss_remoteid_service\
-            .search_identification_service_areas(
-                area=",".join(
-                    [f"{vertice.lat},{vertice.lng}" for vertice in area_of_interest.volume.outline_polygon.vertices]),
-                earliest_time=area_of_interest.time_start.value.isoformat(
-                    'T').replace("+00:00", "") + 'Z',
-                latest_time=area_of_interest.time_end.value.isoformat(
-                    'T').replace("+00:00", "") + 'Z',
+        try:
+            query_identification_service_areas = await dss_remoteid_service\
+                .search_identification_service_areas(
+                    area=",".join(
+                        [f"{vertice.lat},{vertice.lng}" for vertice in area_of_interest.volume.outline_polygon.vertices]),
+                    earliest_time=area_of_interest.time_start.value.isoformat(
+                        'T').replace("+00:00", "") + 'Z',
+                    latest_time=area_of_interest.time_end.value.isoformat(
+                        'T').replace("+00:00", "") + 'Z',
+                )
+        except Exception as e:
+            query_identification_service_areas = SearchIdentificationServiceAreasResponse(
+                service_areas=[],
             )
+            print("Error querying identification service areas:", e)
 
         print("===== Querying identification service areas: =====")
         pprint(query_identification_service_areas)
@@ -241,7 +260,7 @@ async def query_flights(
     flights_service = FlightsService()
 
     res = await flights_service.query_flights(area)
-    res.flights += generate_flight_mock_data()
+    # res.flights += generate_flight_mock_data()
     # res = QueryFlightsResponse(
     #     flights=generate_flight_mock_data(),
     #     partial=False,

@@ -20,6 +20,7 @@ import {
   type Volume4D,
 } from "@/schemas";
 import type { AxiosError } from "axios";
+import { toast } from "@/hooks/use-toast";
 
 const VOLUME_FETCH_INTERVAL = 4000; // 10 seconds
 
@@ -103,8 +104,16 @@ export const InterfaceHook = () => {
     } catch (e) {
       if (e.code === "ERR_NETWORK") {
         setMapState(MapState.OFFLINE);
+        toast({
+          title: "Network Error",
+          description: "Unable to fetch flights. Please check your connection.",
+        });
       } else {
         setMapState(MapState.ERROR);
+        toast({
+          title: "Error",
+          description: "An error occurred while fetching flights.",
+        });
       }
     }
   };
@@ -114,7 +123,7 @@ export const InterfaceHook = () => {
 
     if (!timeRange.current) return;
 
-    let { startTime, endTime } = timeRange.current;
+    const { startTime, endTime } = timeRange.current;
 
     const boundingVolume: Volume4D = {
       volume: {
@@ -170,8 +179,16 @@ export const InterfaceHook = () => {
     } catch (e) {
       if (e.code === "ERR_NETWORK") {
         setMapState(MapState.OFFLINE);
+        toast({
+          title: "Network Error",
+          description: "Unable to fetch allocated volumes. Please check your connection.",
+        });
       } else {
         setMapState(MapState.ERROR);
+        toast({
+          title: "Error",
+          description: "An error occurred while fetching allocated volumes.",
+        });
       }
     }
   };

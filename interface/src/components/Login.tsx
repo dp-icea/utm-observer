@@ -47,7 +47,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         sessionStorage.setItem('accessToken', token);
         toast({
           title: 'Login Successful',
-          description: 'Welcome BR-UTM',
+          description: 'Welcome to the BR-UTM monitoring system',
         });
         onLoginSuccess();
       } else {

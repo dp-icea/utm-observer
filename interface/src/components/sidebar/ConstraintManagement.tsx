@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { useMap } from "@/contexts/MapContext";
 import { constraintManagementService } from "@/services/constraintManagement";
+import { toast } from "@/hooks/use-toast";
 
 export const ConstraintManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -22,8 +23,17 @@ export const ConstraintManagement = () => {
     setLoadingConstraintRequest(true);
     try {
       await constraintManagementService.enableConstraint();
+      toast({
+        title: "Constraint Enabled",
+        description: "The constraint has been successfully created.",
+      });
     } catch (error) {
       console.error("Error enabling constraint:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create the constraint. Please try again later.",
+        variant: "destructive",
+      });
     } finally {
       setLoadingConstraintRequest(false);
       setIsDialogOpen(false);
