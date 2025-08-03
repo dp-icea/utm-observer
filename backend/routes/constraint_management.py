@@ -50,7 +50,13 @@ async def create_constraint(
 
     geoawareness_service = GeoawarenessService()
 
-    res = await geoawareness_service.create_constraint(request_body)
+    try:
+        res = await geoawareness_service.create_constraint(request_body)
+    except Exception as e:
+        print(f"Error creating constraint: {e}")
+        raise ValueError(
+            f"Failed to create constraint: {e}"
+        )
 
     print("== Constraint Created ==")
     pprint(res)

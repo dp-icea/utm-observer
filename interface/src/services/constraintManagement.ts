@@ -15,10 +15,10 @@ export const constraintManagementService = {
       return result;
     }
 
-    const now = new Date();
-    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+    const startTime = new Date();
+    const endTime = addMinutes(startTime, 3);
     const payload = {
-      identifier: generateIdentifier(),
+      identifier: "ICEA001",
       country: "BRA",
       name: "ENSAIO 001",
       type: "COMMON",
@@ -27,8 +27,8 @@ export const constraintManagementService = {
       otherReasonInfo: "Area de restrição durante o Ensaio 2 do BR-UTM",
       applicability: [
         {
-          startDateTime: now.toISOString(),
-          endDateTime: oneHourLater.toISOString(),
+          startDateTime: startTime.toISOString(),
+          endDateTime: endTime.toISOString(),
           permanent: "NO",
         },
       ],

@@ -39,7 +39,7 @@ class GeoawarenessService:
 
         res = await self.client.request(
             "PUT",
-            f"{RESOURCES_PATH}/geoawareness/v1/constraint",
+            f"{RESOURCES_PATH}/geoawareness/v1/constraint/ICEA001",
             json=params,
         )
 
