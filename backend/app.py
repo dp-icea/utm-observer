@@ -25,18 +25,18 @@ app = FastAPI(
 )
 
 
-# @app.middleware("http")
-# async def catch_exceptions_middleware(request: Request, call_next):
-#     try:
-#         return await call_next(request)
-#     except Exception as e:
-#         return JSONResponse(
-#             status_code=500,
-#             content=Response(
-#                 message="Internal Server Error",
-#                 data=str(e),
-#             ).model_dump(mode="json")
-#         )
+@app.middleware("http")
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content=Response(
+                message="Internal Server Error",
+                data=str(e),
+            ).model_dump(mode="json")
+        )
 
 app.add_middleware(
     CORSMiddleware,
@@ -50,6 +50,5 @@ app.include_router(FetchRouter, tags=[
                    "Fetch"], prefix="/fetch")
 app.include_router(ConstraintManagementRouter, tags=[
                    "Constraint Management"], prefix="/constraint_management")
-
 app.include_router(HealthRouter, tags=[
                    "Health"], prefix="/api")

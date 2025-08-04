@@ -6,19 +6,21 @@ const RESOURCE_PATH = "/constraint_management";
 
 export const constraintManagementService = {
   enableConstraint: async (): Promise<any> => {
-    function generateIdentifier(length = 7) {
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-      let result = "";
+    function generateIdentifier(length = 4) {
+      const numbers = "0123456789";
+      let result = "BRA";
       for (let i = 0; i < length; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+        result += numbers.charAt(Math.floor(Math.random() * numbers.length));
       }
       return result;
     }
 
     const startTime = new Date();
     const endTime = addMinutes(startTime, 3);
+    const identifier = generateIdentifier();
+    console.log("Generated Identifier:", identifier);
     const payload = {
-      identifier: "ICEA005",
+      identifier: identifier,
       country: "BRA",
       name: "ENSAIO 001",
       type: "COMMON",

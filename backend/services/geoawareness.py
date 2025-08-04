@@ -37,21 +37,38 @@ class GeoawarenessService:
         self, params: Any
     ) -> Any:
 
-        try:
-            res = await self.client.request(
-                "PUT",
-                f"{RESOURCES_PATH}/geoawareness/v1/constraint/ICEA005",
-                json=params,
-            )
-        except Exception as e:
-            print(f"Error creating constraint: {e}. Maybe updating this constraint is not working anymore.")
-            raise ValueError(
-                f"Failed to create constraint: {e}"
-            )
+        attempts = 3
 
-        if res.status_code != 200:
-            raise ValueError(
-                f"Failed to create constraint: {res.status_code} - {res.text}"
-            )
+        prefix = params.get("identifier")[:3]
+        digits = int(params.get("identifier")[3:], base=10)
 
-        return res.json()
+        for attempt in range(attempts):
+            try:
+                if digits > 9999:
+                    digits = 0
+
+                params["identifier"] = f"{prefix}{digits:04d}"
+
+                res = await self.client.request(
+                    "PUT",
+                    f"{RESOURCES_PATH}/geoawareness/v1/constraint",
+                    json=params,
+                )
+
+                if res.status_code != 200:
+                    raise ValueError(
+                        f"Failed to create constraint: {res.status_code} - {res.text}"
+                    )
+
+                return res.json()
+
+            except Exception as e:
+                print(
+                    f"Error creating constraint: {e}. Maybe updating this constraint is not working anymore.")
+                raise ValueError(
+                    f"Failed to create constraint: {e}"
+                )
+                digits += 1
+
+        raise ValueError(
+            "Failed to create constraint after multiple attempts.")
