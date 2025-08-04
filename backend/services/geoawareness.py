@@ -9,6 +9,7 @@ from services.dss.remoteid import DSSRemoteIDService
 from services.uss.remoteid import USSRemoteIDService
 from datetime import datetime, timedelta, timezone
 from pprint import pprint
+import logging
 
 from schemas.flights import (
     Flight,
@@ -29,8 +30,20 @@ class GeoawarenessService:
             raise ValueError(
                 "BRUTM_BASE_URL must be set in the environment variables.")
 
+        async def log_request(request):
+            logging.info(
+                f"Request: {request.method} {request.url}\nHeaders: {request.headers}\nBody: {request.content}")
+
+        async def log_response(response):
+            logging.info(
+                f"Response: {response.status_code} {response.url}\nHeaders: {response.headers}\nBody: {response.text}")
+
         self.client = AsyncClient(
             base_url=base_url,
+            event_hooks={
+                "request": [log_request],
+                "response": [log_response],
+            },
         )
 
     async def create_constraint(
@@ -55,12 +68,12 @@ class GeoawarenessService:
                     json=params,
                 )
 
-                if res.status_code != 200:
+                if res.status_code == 200:
                     raise ValueError(
                         f"Failed to create constraint: {res.status_code} - {res.text}"
                     )
 
-                return res.json()
+                    return res.json()
 
             except Exception as e:
                 print(
