@@ -5,6 +5,7 @@ from schemas.common.base import Time
 from schemas.common.enums import Audition, Authority, TimeFormat
 from config.config import Settings
 from httpx import AsyncClient
+from schemas.dss.remoteid import SearchIdentificationServiceAreasResponse
 from services.dss.remoteid import DSSRemoteIDService
 from services.uss.remoteid import USSRemoteIDService
 from datetime import datetime, timedelta, timezone
@@ -70,11 +71,16 @@ class FlightsService:
         latest_time = (now + timedelta(seconds=10)
                        ).isoformat().replace("+00:00", "") + 'Z'
 
-        isas = await dssClient.search_identification_service_areas(
-            area=area,
-            earliest_time=earliest_time,
-            latest_time=latest_time,
-        )
+        try:
+            isas = await dssClient.search_identification_service_areas(
+                area=area,
+                earliest_time=earliest_time,
+                latest_time=latest_time,
+            )
+        except Exception as e:
+            isas = SearchIdentificationServiceAreasResponse(
+                service_areas=[],
+            )
 
         # Get Flights by ISA
         flights: List[Flight] = []

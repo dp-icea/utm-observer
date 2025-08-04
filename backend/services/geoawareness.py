@@ -37,11 +37,17 @@ class GeoawarenessService:
         self, params: Any
     ) -> Any:
 
-        res = await self.client.request(
-            "PUT",
-            f"{RESOURCES_PATH}/geoawareness/v1/constraint/ICEA003",
-            json=params,
-        )
+        try:
+            res = await self.client.request(
+                "PUT",
+                f"{RESOURCES_PATH}/geoawareness/v1/constraint/ICEA005",
+                json=params,
+            )
+        except Exception as e:
+            print(f"Error creating constraint: {e}. Maybe updating this constraint is not working anymore.")
+            raise ValueError(
+                f"Failed to create constraint: {e}"
+            )
 
         if res.status_code != 200:
             raise ValueError(
