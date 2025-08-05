@@ -22,7 +22,8 @@ import {
 import type { AxiosError } from "axios";
 import { toast } from "@/hooks/use-toast";
 
-const VOLUME_FETCH_INTERVAL = 4000; // 10 seconds
+const VOLUME_FETCH_INTERVAL = 10000;
+const FLIGHT_FETCH_INTERVAL = 10000;
 
 export const isOperationalIntent = (
   region: OperationalIntent | Constraint | IdentificationServiceAreaFull,
@@ -386,7 +387,7 @@ export const InterfaceHook = () => {
         timeRange.current = { startTime, endTime };
 
         triggerFetchFlights();
-      }, 5000);
+      }, FLIGHT_FETCH_INTERVAL);
     } else {
       if (liveInterval.current) {
         // Clear the interval if it exists
