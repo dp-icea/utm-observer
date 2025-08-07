@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, sandbox, dev]
 
 env:
   REGISTRY: ghcr.io
@@ -10,8 +10,11 @@ env:
   INTERFACE_IMAGE_NAME: ${{ github.repository }}-interface
 
 jobs:
-  build-and-push-api:
+  build-and-push-backend:
     runs-on: ubuntu-latest
+
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || github.ref == 'refs/heads/sandbox' && 'sandbox' || 'dev' }}
+
     permissions:
       contents: read
       packages: write
@@ -60,6 +63,8 @@ jobs:
   build-and-push-interface:
     runs-on: ubuntu-latest
 
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || github.ref == 'refs/heads/sandbox' && 'sandbox' || 'dev' }}
+
     permissions:
       contents: read
       packages: write
@@ -97,8 +102,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_OBSERVER_API_URL=${{ vars.SANDBOX_API_URL }}
-            VITE_ION_ACCESS_TOKEN=${{ secrets.CESIUM_ION_ACCESS_TOKEN }}
+            VITE_OBSERVER_API_URL=${{ vars.OBSERVER_API_URL }}
+            VITE_ION_ACCESS_TOKEN=${{ secrets.ION_ACCESS_TOKEN }}
             VITE_CREDENTIALS=${{ secrets.CREDENTIALS }}
 
       # This step generates an artifact attestation for the image, which is an unforgeable statement about where and how it was built. It increases supply chain security for people who consume the image. For more information, see [Using artifact attestations to establish provenance for builds](/actions/security-guides/using-artifact-attestations-to-establish-provenance-for-builds).
