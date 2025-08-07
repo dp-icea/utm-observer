@@ -9,7 +9,7 @@ from .uss.common import OperationalIntent, Constraint
 
 class Flight(RIDFlight):
     identification_service_area: IdentificationServiceArea
-    details: RIDFlightDetails
+    details: Optional[RIDFlightDetails]
 
 class QueryFlightsRequest(BaseModel):
     """

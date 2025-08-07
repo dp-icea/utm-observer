@@ -1,6 +1,7 @@
 from uuid import UUID
 from pydantic import HttpUrl
 from services.client import AuthAsyncClient
+from httpx import AsyncClient
 from schemas.uss.operational_intents import (
     GetOperationalIntentDetailsResponse,
     PutOperationalIntentDetailsParameters,
@@ -15,6 +16,7 @@ RESOURCE_PATH = "/uss/v1/operational_intents"
 class USSOperationalIntentsService:
     def __init__(self, base_url: HttpUrl):
         self._base_url = str(base_url)
+
         self._aud = base_url.host
 
         if not self._base_url or not self._aud:
@@ -34,6 +36,15 @@ class USSOperationalIntentsService:
             f"{RESOURCE_PATH}/{entity_id}",
             scope=Authority.STRATEGIC_COORDINATION,
         )
+
+        if not response:
+            raise ValueError(
+                "No response received from USS Operational Intents Service.")
+
+        print("=== Requesting USS Operational Intent Details ===")
+        print("Response status code:", response.status_code)
+        print("Response headers:", response.headers)
+        print("Response body:", response.text)
 
         if response.status_code != 200:
             raise ValueError(

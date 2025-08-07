@@ -62,11 +62,22 @@ class USSRemoteIDService:
     async def get_identification_service_area_details(
         self, area_id: UUID
     ) -> GetIdentificationServiceAreaDetailsResponse:
+
+        print("=== Requesting Identification Service Area Details ===")
+        print("Area ID:", area_id)
+        print("Base URL:", self.client.base_url)
+        print("Endpoint:", f"{ID_SERVICE_AREAS_PATH}/{area_id}")
+
         response = await self.client.request(
             "GET",
             f"{ID_SERVICE_AREAS_PATH}/{area_id}",
             scope=RIDAuthority.DISPLAY_PROVIDER,
         )
+
+        print("Response status code:", response.status_code)
+        print("Response headers:", response.headers)
+        print("Response body:", response.text)
+
         return GetIdentificationServiceAreaDetailsResponse.model_validate(response.json())
 
     async def post_identification_service_area(

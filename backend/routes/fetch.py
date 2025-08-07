@@ -64,10 +64,11 @@ async def get_operational_intents_volume(
             operational_intents.append(
                 operational_intent_response.operational_intent)
 
-        except Exception:
+        except Exception as e:
             print(
                 f"Error fetching operational intent details: \
                 {operational_intent_reference.id}")
+            print(e)
             continue
 
     return operational_intents
@@ -151,6 +152,18 @@ async def get_identification_service_areas_volume(
     return identification_service_areas
 
 
+# Basic caching system for dss possible errors
+last_query_constraints: QueryConstraintReferencesResponse = QueryConstraintReferencesResponse(
+    constraint_references=[],
+)
+last_query_operational_intents: QueryOperationalIntentReferenceResponse = QueryOperationalIntentReferenceResponse(
+    operational_intent_references=[],
+)
+last_query_identification_service_areas: SearchIdentificationServiceAreasResponse = SearchIdentificationServiceAreasResponse(
+    service_areas=[],
+)
+
+
 @router.post(
     "/volumes",
     response_description="Query constraints and operational \
@@ -161,6 +174,10 @@ async def get_identification_service_areas_volume(
 async def query_volumes(
     area_of_interest: Volume4D = Body(),
 ):
+    global last_query_constraints
+    global last_query_operational_intents
+    global last_query_identification_service_areas
+
     dss_constraints_service = DSSConstraintsService()
     try:
         query_constraints = await dss_constraints_service\
@@ -171,11 +188,12 @@ async def query_volumes(
                     }
                 )
             )
+        last_query_constraints = query_constraints
     except Exception as e:
-        query_constraints = QueryConstraintReferencesResponse(
-            constraint_references=[],
-        )
+        query_constraints = last_query_constraints
         print("Error querying constraints:", e)
+        print("Using last query constraints.")
+        print(query_constraints.model_dump(mode="json"))
 
     print("===== Querying constraints: =====")
     pprint(query_constraints)
@@ -196,11 +214,15 @@ async def query_volumes(
                     }
                 )
             )
+        last_query_operational_intents = query_operational_intents
     except Exception as e:
-        query_operational_intents = QueryOperationalIntentReferenceResponse(
-            operational_intent_references=[],
-        )
+        query_operational_intents = last_query_operational_intents
         print("Error querying operational intents:", e)
+        print("Using last query operational intents.")
+        print(query_operational_intents.model_dump(mode="json"))
+
+    print("=== Querying Operational Intents ===")
+    print(query_operational_intents)
 
     operational_intents = await get_operational_intents_volume(
         query_operational_intents.operational_intent_references
@@ -220,11 +242,12 @@ async def query_volumes(
                     latest_time=area_of_interest.time_end.value.isoformat(
                         'T').replace("+00:00", "") + 'Z',
                 )
+            last_query_identification_service_areas = query_identification_service_areas
         except Exception as e:
-            query_identification_service_areas = SearchIdentificationServiceAreasResponse(
-                service_areas=[],
-            )
+            query_identification_service_areas = last_query_identification_service_areas
             print("Error querying identification service areas:", e)
+            print("Using last query identification service areas.")
+            print(query_identification_service_areas.model_dump(mode="json"))
 
         print("===== Querying identification service areas: =====")
         pprint(query_identification_service_areas)

@@ -183,7 +183,7 @@ export class ViewerController {
 
         this.flights[id].push(entity);
 
-        if (newFlight.details.uas_id) {
+        if (newFlight.details?.uas_id) {
           const label = this.viewer.entities.add({
             position: Cesium.Cartesian3.fromDegrees(
               position.lng,

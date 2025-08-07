@@ -11,7 +11,7 @@ class OperationalIntentDetails(BaseModel):
     Details of a UTM operational intent.
     """
     volumes: List[Volume4D] = []
-    off_nominal_volumes: List[Volume4D] = []
+    off_nominal_volumes: Optional[List[Volume4D]] = None
     priority: Optional[int] = 0
 
 

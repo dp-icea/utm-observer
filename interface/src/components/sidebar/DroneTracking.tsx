@@ -123,17 +123,17 @@ export const DroneTracking = () => {
       } else {
         newFlightDetails[flight.id] = {
           id: flight.id,
-          operator: flight.details.operator_id,
-          description: flight.details.operation_description,
+          operator: flight.details?.operator_id || "Unknown",
+          description: flight.details?.operation_description || "N/A",
           aircraftType: flight.aircraft_type,
           status: flight.current_state.operational_status,
           position: flight.current_state.position,
-          operatorPosition: flight.details.operator_location,
+          operatorPosition: flight.details?.operator_location || undefined,
           speed: flight.current_state.speed,
           vertical_speed: flight.current_state.vertical_speed,
           pressure_altitude: flight.current_state.position.pressure_altitude,
           owner: flight.identification_service_area.owner,
-          uasId: flight.details.uas_id.registration_id,
+          uasId: flight.details?.uas_id.registration_id || "Unknown",
           active: true,
         };
       }

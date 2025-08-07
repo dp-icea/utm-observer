@@ -78,6 +78,7 @@ class FlightsService:
                 latest_time=latest_time,
             )
         except Exception as e:
+            print("Error querying identification service areas to the dss:", e)
             isas = SearchIdentificationServiceAreasResponse(
                 service_areas=[],
             )
@@ -104,7 +105,12 @@ class FlightsService:
                     continue
 
                 for flight in flight_response.flights:
-                    details_response = await ussClient.get_flight_details(flight.id)
+                    details_response = None
+                    try:
+                        details_response = await ussClient.get_flight_details(flight.id)
+                    except Exception:
+                        print("Error fetching isa details in url:", 
+                              isa.uss_base_url, "for flight:", flight.id)
 
                     flight_obj = Flight(
                         id=flight.id,
@@ -114,12 +120,14 @@ class FlightsService:
                         simulated=flight.simulated,
                         recent_positions=flight.recent_positions,
                         identification_service_area=isa,
-                        details=details_response.details
+                        details=details_response.details if details_response else None,
                     )
 
                     flights.append(flight_obj)
 
             except Exception as e:
+                print("Error querying flights for ISA:", isa.uss_base_url, e)
+
                 errors.append({
                     "error": str(e),
                     "service_area": isa.uss_base_url
