@@ -5,8 +5,9 @@ from schemas.response import Response
 
 router = APIRouter()
 
+
 @router.get(
-    "/healthy",
+    "/",
     response_model=Response,
     status_code=HTTPStatus.OK.value,
 )

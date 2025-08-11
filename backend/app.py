@@ -41,7 +41,7 @@ async def catch_exceptions_middleware(request: Request, call_next):
 
 origins = [
     "http://localhost",
-    "http://localhost:3000",
+    "http://localhost:8080",
 ]
 
 app.add_middleware(
@@ -57,4 +57,4 @@ app.include_router(FetchRouter, tags=[
 app.include_router(ConstraintManagementRouter, tags=[
                    "Constraint Management"], prefix="/constraint_management")
 app.include_router(HealthRouter, tags=[
-                   "Health"], prefix="/api")
+                   "Health"], prefix="/healthy")
