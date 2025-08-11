@@ -22,6 +22,7 @@ app = FastAPI(
     description="BR-UTM Observer Backend Service for managing for ecosystem interaction",
     version="1.0.0",
     lifespan=lifespan,
+    root_path="/api",
 )
 
 
@@ -38,9 +39,14 @@ async def catch_exceptions_middleware(request: Request, call_next):
             ).model_dump(mode="json")
         )
 
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
