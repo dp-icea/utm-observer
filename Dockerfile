@@ -1,9 +1,8 @@
-ARG VITE_ION_ACCESS_TOKEN
-ARG VITE_CREDENTIALS
-
 # Stage 1: Build React Frontend
 FROM node:18-alpine AS frontend-builder
 WORKDIR /app/interface
+ARG VITE_ION_ACCESS_TOKEN
+ARG VITE_CREDENTIALS
 COPY interface/package*.json ./
 RUN npm ci
 COPY interface/ ./

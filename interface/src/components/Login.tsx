@@ -1,30 +1,30 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import IconBRUTM from "@/assets/icon-br-utm.svg";
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from "@/hooks/use-toast";
 
 interface LoginProps {
   onLoginSuccess: () => void;
 }
 
 export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const generateJWT = () => {
     // Generate a simple fake JWT token
-    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+    const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
     const payload = btoa(
       JSON.stringify({
-        sub: 'icea',
+        sub: "icea",
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 3600,
-      })
+      }),
     );
     const signature = btoa(Math.random().toString(36).substring(2, 15));
     return `${header}.${payload}.${signature}`;
@@ -34,7 +34,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     // Simulate credential verification
     const credentials = `${username}:${password}`;
     return credentials === import.meta.env.VITE_CREDENTIALS;
-  }
+  };
+
+  useEffect(() => {
+    console.log("Login credentials:", import.meta.env.VITE_CREDENTIALS);
+    console.log("Cesium Access Token:", import.meta.env.VITE_ION_ACCESS_TOKEN);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,17 +49,17 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     setTimeout(() => {
       if (verifyCredentials(username, password)) {
         const token = generateJWT();
-        sessionStorage.setItem('accessToken', token);
+        sessionStorage.setItem("accessToken", token);
         toast({
-          title: 'Login Successful',
-          description: 'Welcome to the BR-UTM monitoring system',
+          title: "Login Successful",
+          description: "Welcome to the BR-UTM monitoring system",
         });
         onLoginSuccess();
       } else {
         toast({
-          title: 'Login Failed',
-          description: 'Invalid username or password',
-          variant: 'destructive',
+          title: "Login Failed",
+          description: "Invalid username or password",
+          variant: "destructive",
         });
       }
       setIsLoading(false);
@@ -112,7 +117,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               disabled={isLoading}
             >
-              {isLoading ? 'Signing in...' : 'Sign In'}
+              {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
         </CardContent>
