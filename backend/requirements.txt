@@ -11,3 +11,4 @@ cryptography==45.0.2
 loguru==0.7.3
 pytest==8.3.5
 vnoise==0.1.0
+dependency-injector==4.42.0

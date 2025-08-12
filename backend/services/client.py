@@ -35,7 +35,7 @@ class AuthAsyncClient(httpx.AsyncClient):
             res = await super().request(
                 method,
                 url,
-                auth=ServiceTokenMiddleware(
+                auth=TokenAuth(
                     aud=self._aud,
                     scope=scope
                 ),
@@ -61,7 +61,7 @@ class AuthAsyncClient(httpx.AsyncClient):
             )
 
 
-class ServiceTokenMiddleware(httpx.Auth):
+class TokenAuth(httpx.Auth):
     def __init__(self, aud: str, scope: Authority) -> None:
         self._aud = aud
         self._scope = scope
@@ -107,7 +107,7 @@ class AuthService:
 
         if not self._base_url or not self._auth_key:
             raise ValueError(
-                "AUTH_URL and AUTH_KEY must be set in the environment \
+                "BRUTM_BASE_URL and BRUTM_KEY must be set in the environment \
                 variables.")
 
         self._client = httpx.AsyncClient(base_url=self._base_url)
@@ -123,7 +123,7 @@ class AuthService:
     async def get_token(
         self,
         aud: str,
-        scope: Authority = Authority.CONSTRAINT_PROCESSING,
+        scope: Authority,
     ) -> str:
         if aud not in self._tokens \
                 or scope not in self._tokens[aud] \
@@ -135,7 +135,7 @@ class AuthService:
     async def refresh_token(
         self,
         aud: str,
-        scope: Authority = Authority.CONSTRAINT_PROCESSING
+        scope: Authority,
     ):
         params = {
             "intended_audience": aud,

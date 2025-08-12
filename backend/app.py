@@ -3,11 +3,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
+# Legacy routes (keeping for backward compatibility)
 from routes.fetch import router as FetchRouter
 from routes.constraint_management import router as ConstraintManagementRouter
-
 from routes.health import router as HealthRouter
+
+# New hexagonal architecture routes
+from presentation.api.world_state import router as WorldStateRouter
+from presentation.api.flights import router as FlightsRouter
+
 from schemas.response import Response
+from core.container import Container
 
 
 @asynccontextmanager
@@ -15,12 +21,16 @@ async def lifespan(app: FastAPI):
     """
     Lifespan event for the FastAPI application.
     """
+    # Initialize dependency injection container
+    container = Container()
+    app.container = container
     yield
 
 app = FastAPI(
     title="UTM Observer API",
-    description="BR-UTM Observer Backend Service for managing for ecosystem interaction",
-    version="1.0.0",
+    description="BR-UTM Observer Backend Service for managing ecosystem \
+interaction",
+    version="2.0.0",
     lifespan=lifespan,
     root_path="/api",
 )
@@ -52,9 +62,31 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(FetchRouter, tags=[
-                   "Fetch"], prefix="/fetch")
-app.include_router(ConstraintManagementRouter, tags=[
-                   "Constraint Management"], prefix="/constraint_management")
-app.include_router(HealthRouter, tags=[
-                   "Health"], prefix="/healthy")
+# New hexagonal architecture routes
+app.include_router(
+    WorldStateRouter,
+    tags=["World State"],
+    prefix="/world-state",
+)
+app.include_router(
+    FlightsRouter,
+    tags=["Flights"],
+    prefix="/flights",
+)
+
+# Legacy routes (keeping for backward compatibility)
+app.include_router(
+    FetchRouter,
+    tags=["Fetch (Legacy)"],
+    prefix="/fetch",
+)
+app.include_router(
+    ConstraintManagementRouter,
+    tags=["Constraint Management (Legacy)"],
+    prefix="/constraint_management",
+)
+app.include_router(
+    HealthRouter,
+    tags=["Health (Legacy)"],
+    prefix="/healthy",
+)
