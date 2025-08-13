@@ -1,0 +1,9 @@
+[tool.black]
+unstable = true
+line-length = 79
+
+[tool.ruff]
+line-length = 79
+
+[tool.autopep8]
+line-length = 79

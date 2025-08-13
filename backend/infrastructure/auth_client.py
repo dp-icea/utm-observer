@@ -6,8 +6,8 @@ from fastapi import HTTPException
 from datetime import datetime
 from threading import Lock
 from config.config import Settings
-from schemas.common.enums import Authority
-from schemas.response import ResponseError
+from schemas.shared.enums import Authority
+from schemas.api.common import ApiError
 
 
 class AuthAsyncClient(httpx.AsyncClient):
@@ -46,17 +46,17 @@ class AuthAsyncClient(httpx.AsyncClient):
         except ConnectionRefusedError as e:
             raise HTTPException(
                 status_code=HTTPStatus.SERVICE_UNAVAILABLE.value,
-                detail=ResponseError(
+                detail=ApiError(
                     message="Connection refused. The service might be down.",
-                    data=str(e),
+                    details=str(e),
                 ).model_dump(mode="json"),
             )
         except httpx.RequestError as e:
             raise HTTPException(
                 status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-                detail=ResponseError(
+                detail=ApiError(
                     message="Request error occurred.",
-                    data=str(e),
+                    details=str(e),
                 ).model_dump(mode="json"),
             )
 
@@ -151,9 +151,9 @@ class AuthService:
         if response.status_code != 200:
             raise HTTPException(
                 status_code=response.status_code,
-                detail=ResponseError(
+                detail=ApiError(
                     message="Error getting DSS token.",
-                    data=response.json() if response.content else None,
+                    details=response.json() if response.content else None,
                 ).model_dump(mode="json"),
             )
 

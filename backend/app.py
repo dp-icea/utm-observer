@@ -3,9 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
-from routes.fetch import router as FetchRouter
-from routes.constraint_management import router as ConstraintManagementRouter
-
+from routes.airspace import router as AirspaceRouter
+from routes.constraints import router as ConstraintsRouter
 from routes.health import router as HealthRouter
 from schemas.response import Response
 
@@ -16,6 +15,7 @@ async def lifespan(app: FastAPI):
     Lifespan event for the FastAPI application.
     """
     yield
+
 
 app = FastAPI(
     title="UTM Observer API",
@@ -36,8 +36,9 @@ async def catch_exceptions_middleware(request: Request, call_next):
             content=Response(
                 message="Internal Server Error",
                 data=str(e),
-            ).model_dump(mode="json")
+            ).model_dump(mode="json"),
         )
+
 
 origins = [
     "http://localhost",
@@ -52,9 +53,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(FetchRouter, tags=[
-                   "Fetch"], prefix="/fetch")
-app.include_router(ConstraintManagementRouter, tags=[
-                   "Constraint Management"], prefix="/constraint_management")
-app.include_router(HealthRouter, tags=[
-                   "Health"], prefix="/healthy")
+app.include_router(AirspaceRouter, tags=["Airspace"], prefix="/airspace")
+app.include_router(
+    ConstraintsRouter, tags=["Constraints"], prefix="/constraints"
+)
+app.include_router(HealthRouter, tags=["Health"], prefix="/healthy")
