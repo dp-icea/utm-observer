@@ -1,7 +1,6 @@
 # Flights Adapter - Direct implementation with all infrastructure logic
 from typing import List
 from datetime import datetime, timedelta, timezone
-from httpx import AsyncClient
 from pydantic import HttpUrl
 
 from ports.flights_port import FlightDataPort
@@ -11,8 +10,9 @@ from domain.external.dss.remoteid import (
     SearchIdentificationServiceAreasResponse,
 )
 from config.config import Settings
-from infrastructure.auth_client import AuthClient
+from infrastructure.auth_client import AuthClient, BaseClient
 from schemas.enums import Authority
+import logging
 
 
 class FlightsAdapter(FlightDataPort):
@@ -30,7 +30,7 @@ class FlightsAdapter(FlightDataPort):
         if not self.api_key:
             raise ValueError("BRUTM_KEY must be set in environment variables")
 
-        self.client = AsyncClient(base_url=self.base_url)
+        self.client = BaseClient(base_url=self.base_url)
         self.dss_client = AuthClient(
             base_url=self.base_url,
             aud=settings.DSS_AUDIENCE,
@@ -68,7 +68,7 @@ class FlightsAdapter(FlightDataPort):
                 )
                 flights.extend(isa_flights)
             except Exception as e:
-                print(
+                logging.error(
                     f"Error querying flights for ISA {isa.uss_base_url}: {e}"
                 )
                 errors.append(
@@ -117,8 +117,7 @@ class FlightsAdapter(FlightDataPort):
                 response.json()
             )
 
-        except Exception as e:
-            print(f"Error querying identification service areas: {e}")
+        except Exception:
             return SearchIdentificationServiceAreasResponse(service_areas=[])
 
     async def _get_flights_from_isa(
@@ -161,18 +160,15 @@ class FlightsAdapter(FlightDataPort):
                 # Get flight details
                 details_response = None
                 try:
-                    details_resp = await uss_client.request(
+                    response = await uss_client.request(
                         "GET",
                         f"/uss/v1/flights/{flight_data['id']}/details",
                         scope=Authority.CONFORMANCE_MONITORING_SA,
                     )
-                    if details_resp.status_code == 200:
-                        details_response = details_resp.json()
-                except Exception as e:
-                    print(
-                        "Error fetching flight details for"
-                        f" {flight_data['id']}: {e}"
-                    )
+                    if response.status_code == 200:
+                        details_response = response.json()
+                except Exception:
+                    pass
 
                 # Create flight object
                 flight_obj = Flight(
@@ -195,5 +191,7 @@ class FlightsAdapter(FlightDataPort):
             return flights
 
         except Exception as e:
-            print(f"Error getting flights from ISA {isa.uss_base_url}: {e}")
+            logging.error(
+                f"Error getting flights from ISA {isa.uss_base_url}: {e}"
+            )
             return []

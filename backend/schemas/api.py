@@ -2,6 +2,7 @@
 from pydantic import BaseModel
 from typing import Optional, Any
 from fastapi import HTTPException
+import logging
 
 
 class ApiResponse(BaseModel):
@@ -22,4 +23,7 @@ class ApiException(HTTPException):
         super().__init__(
             status_code=status_code,
             detail={"message": message, "details": details},
+        )
+        logging.error(
+            f"[API EXCEPTION] {status_code} - {message}. Details: {details}"
         )

@@ -1,9 +1,8 @@
 # Constraint Management Adapter - Direct implementation
 from uuid import UUID
-from httpx import AsyncClient
 
 from ports.constraint_port import ConstraintManagementPort
-from infrastructure.auth_client import AuthClient
+from infrastructure.auth_client import AuthClient, BaseClient
 from schemas.enums import Authority
 from schemas.api import ApiException
 from domain.external.dss.constraints import ChangeConstraintReferenceResponse
@@ -22,7 +21,7 @@ class ConstraintManagementAdapter(ConstraintManagementPort):
             aud=settings.DSS_AUDIENCE,
         )
 
-        self.geoawareness_client = AsyncClient(
+        self.geoawareness_client = BaseClient(
             base_url=f"{settings.BRUTM_BASE_URL}/geoawareness",
         )
 

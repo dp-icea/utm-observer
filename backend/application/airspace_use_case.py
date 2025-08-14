@@ -1,6 +1,7 @@
 # Application layer - use cases that orchestrate domain logic
 from typing import List
 from datetime import datetime
+import logging
 
 from domain.airspace import AirspaceAllocations
 from ports.airspace_port import (
@@ -82,7 +83,7 @@ class AirspaceQueryUseCase:
                     )
                     constraints.append(constraint)
             except Exception as e:
-                print(f"Error fetching constraint {ref.id}: {e}")
+                logging.error(f"Fetching constraint {ref.id}: {e}")
                 continue
         return constraints
 
@@ -99,7 +100,9 @@ class AirspaceQueryUseCase:
                     )
                     operational_intents.append(oi)
             except Exception as e:
-                print(f"Error fetching operational intent {ref.id}: {e}")
+                logging.error(
+                    f"Error fetching operational intent {ref.id}: {e}"
+                )
                 continue
         return operational_intents
 
@@ -116,6 +119,6 @@ class AirspaceQueryUseCase:
                     )
                     isas.append(isa)
             except Exception as e:
-                print(f"Error fetching ISA {ref.id}: {e}")
+                logging.error(f"Error fetching ISA {ref.id}: {e}")
                 continue
         return isas

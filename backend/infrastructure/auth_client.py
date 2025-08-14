@@ -8,6 +8,7 @@ from threading import Lock
 from config.config import Settings
 from schemas.enums import Authority
 from schemas.api import ApiException
+import logging
 
 
 class BaseClient(httpx.AsyncClient):
@@ -22,15 +23,25 @@ class BaseClient(httpx.AsyncClient):
         self, method: str, url: httpx.URL | str, **kwargs: Any
     ) -> httpx.Response:
         try:
+            logging.info(
+                f"[EXTERNAL REQUEST] {method} {self.base_url}{url}"
+                f". Args: {kwargs}"
+            )
             res = await super().request(method, url, **kwargs)
+            logging.info(
+                f"[EXTERNAL RESPONSE] {method} {self.base_url}{url}."
+                f" {res.status_code} {res.text.strip()}"
+            )
             return res
         except ConnectionRefusedError as e:
+            logging.error(f"Connection refused: {e}")
             raise ApiException(
                 status_code=HTTPStatus.SERVICE_UNAVAILABLE.value,
                 message="Connection refused. The service might be down.",
                 details=str(e),
             )
         except httpx.RequestError as e:
+            logging.error(f"Request error: {e}")
             raise ApiException(
                 status_code=HTTPStatus.BAD_REQUEST.value,
                 message="Request error occurred.",
@@ -115,7 +126,7 @@ class AuthService:
                 "        variables."
             )
 
-        self._client = httpx.AsyncClient(base_url=self._base_url)
+        self._client = BaseClient(base_url=self._base_url)
 
     @classmethod
     def get_instance(cls):
@@ -154,12 +165,10 @@ class AuthService:
         )
 
         if response.status_code != 200:
-            raise HTTPException(
+            raise ApiException(
                 status_code=response.status_code,
-                detail=ApiError(
-                    message="Error getting DSS token.",
-                    details=response.json() if response.content else None,
-                ).model_dump(mode="json"),
+                message="Error getting DSS token.",
+                details=response.json() if response.content else None,
             )
 
         if aud not in self._tokens:

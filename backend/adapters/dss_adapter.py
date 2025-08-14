@@ -1,5 +1,6 @@
 # DSS Adapter - Direct implementation with all infrastructure logic
 from typing import List
+import logging
 
 from ports.airspace_port import AirspaceReferencesDataPort
 from domain.base import Volume4D
@@ -65,8 +66,7 @@ class DSSAdapter(AirspaceReferencesDataPort):
             return query_response.constraint_references
 
         except Exception as e:
-            print(f"Error querying constraints from DSS: {e}")
-            print("Using cached constraint references")
+            logging.error(f"Querying constraints from DSS: {e}")
             return self._last_constraints
 
     async def get_operational_intent_references(
@@ -102,8 +102,7 @@ class DSSAdapter(AirspaceReferencesDataPort):
             return query_response.operational_intent_references
 
         except Exception as e:
-            print(f"Error querying operational intents from DSS: {e}")
-            print("Using cached operational intent references")
+            logging.error(f"Error querying operational intents from DSS: {e}")
             return self._last_operational_intents
 
     async def get_identification_service_areas(
@@ -152,6 +151,4 @@ class DSSAdapter(AirspaceReferencesDataPort):
             return search_response.service_areas
 
         except Exception as e:
-            print(f"Error querying ISAs from DSS: {e}")
-            print("Using cached ISA references")
             return self._last_isas

@@ -20,9 +20,9 @@ def get_airspace_query_use_case() -> AirspaceQueryUseCase:
     flights_adapter = FlightsAdapter()
 
     return AirspaceQueryUseCase(
-        airspace_data_port=dss_adapter,
-        volume_details_port=uss_adapter,
-        flight_data_port=flights_adapter,
+        airspace_references_port=dss_adapter,
+        airspace_details_port=uss_adapter,
+        flight_port=flights_adapter,
     )
 
 
