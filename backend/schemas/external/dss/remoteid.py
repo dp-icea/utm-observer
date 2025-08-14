@@ -19,7 +19,7 @@ class IdentificationServiceArea(BaseModel):
     An Identification Service Area (area in which remote ID services are being provided).
     The DSS reports only these declarations and clients must exchange flight information peer-to-peer.
     """
-    uss_base_url: HttpUrl
+    uss_base_url: str
     owner: str
     time_start: Time
     time_end: Time

@@ -5,6 +5,8 @@ from typing import List
 from schemas.common.geo import Volume4D
 from schemas.dss.common import ConstraintReference, OperationalIntentReference
 from schemas.dss.remoteid import IdentificationServiceArea
+from schemas.external.dss.remoteid import IdentificationServiceAreaFull
+from schemas.external.uss.common import Constraint, OperationalIntent
 from schemas.flights import Flight, QueryFlightsRequest
 
 
@@ -34,19 +36,19 @@ class VolumeDetailsPort(ABC):
     """Port for fetching detailed volume information from USS"""
 
     @abstractmethod
-    async def get_constraint_details(self, reference: ConstraintReference):
+    async def get_constraint_details(self, reference: ConstraintReference) -> Constraint:
         pass
 
     @abstractmethod
     async def get_operational_intent_details(
         self, reference: OperationalIntentReference
-    ):
+    ) -> OperationalIntent:
         pass
 
     @abstractmethod
     async def get_identification_service_area_details(
         self, reference: IdentificationServiceArea
-    ):
+    ) -> IdentificationServiceAreaFull:
         pass
 
 

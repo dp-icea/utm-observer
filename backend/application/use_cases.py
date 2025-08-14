@@ -11,8 +11,7 @@ from ports.airspace_repository import (
 )
 from domain.value_objects import Volume4D, LatLngPoint
 from schemas.flights import QueryFlightsRequest
-from schemas.external.uss.constraints import Constraint
-from schemas.external.uss.common import OperationalIntent
+from schemas.external.uss.common import OperationalIntent, Constraint
 from schemas.external.dss.remoteid import (
     IdentificationServiceAreaFull,
     IdentificationServiceAreaDetails,

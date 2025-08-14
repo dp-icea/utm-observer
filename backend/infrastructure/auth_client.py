@@ -35,7 +35,7 @@ class AuthAsyncClient(httpx.AsyncClient):
             res = await super().request(
                 method,
                 url,
-                auth=ServiceTokenMiddleware(
+                auth=AuthHandler(
                     aud=self._aud,
                     scope=scope
                 ),
@@ -61,7 +61,7 @@ class AuthAsyncClient(httpx.AsyncClient):
             )
 
 
-class ServiceTokenMiddleware(httpx.Auth):
+class AuthHandler(httpx.Auth):
     def __init__(self, aud: str, scope: Authority) -> None:
         self._aud = aud
         self._scope = scope
