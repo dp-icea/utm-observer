@@ -1,8 +1,7 @@
-
 from http import HTTPStatus
 from fastapi import APIRouter
 
-from schemas.api.common import ApiResponse
+from schemas.api import ApiResponse
 
 router = APIRouter()
 

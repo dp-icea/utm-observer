@@ -1,12 +1,11 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
 from routes.airspace import router as AirspaceRouter
 from routes.constraints import router as ConstraintsRouter
 from routes.health import router as HealthRouter
-from schemas.api.common import ApiResponse
+from schemas.api import ApiException
 
 
 @asynccontextmanager
@@ -19,7 +18,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="UTM Observer API",
-    description="BR-UTM Observer Backend Service for managing for ecosystem interaction",
+    description=(
+        "BR-UTM Observer Backend Service for managing for ecosystem"
+        " interaction"
+    ),
     version="1.0.0",
     lifespan=lifespan,
     root_path="/api",
@@ -31,11 +33,12 @@ async def catch_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
     except Exception as e:
-        return JSONResponse(
+        if hasattr(e, "status_code"):
+            raise e
+
+        raise ApiException(
             status_code=500,
-            content=ApiResponse(
-                message=str(e)
-            ).model_dump(mode="json"),
+            message=str(e),
         )
 
 

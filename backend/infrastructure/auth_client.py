@@ -6,11 +6,39 @@ from fastapi import HTTPException
 from datetime import datetime
 from threading import Lock
 from config.config import Settings
-from schemas.shared.enums import Authority
-from schemas.api.common import ApiError
+from schemas.enums import Authority
+from schemas.api import ApiException
 
 
-class AuthAsyncClient(httpx.AsyncClient):
+class BaseClient(httpx.AsyncClient):
+    """
+    Custom HTTP client for general use.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    async def request(
+        self, method: str, url: httpx.URL | str, **kwargs: Any
+    ) -> httpx.Response:
+        try:
+            res = await super().request(method, url, **kwargs)
+            return res
+        except ConnectionRefusedError as e:
+            raise ApiException(
+                status_code=HTTPStatus.SERVICE_UNAVAILABLE.value,
+                message="Connection refused. The service might be down.",
+                details=str(e),
+            )
+        except httpx.RequestError as e:
+            raise ApiException(
+                status_code=HTTPStatus.BAD_REQUEST.value,
+                message="Request error occurred.",
+                details=str(e),
+            )
+
+
+class AuthClient(BaseClient):
     """
     Custom HTTP client for authentication.
     """
@@ -20,45 +48,25 @@ class AuthAsyncClient(httpx.AsyncClient):
         self._aud = aud
 
     async def request(
-        self,
-        method: str,
-        url: httpx.URL | str,
-        **kwargs: Any
+        self, method: str, url: httpx.URL | str, **kwargs: Any
     ) -> httpx.Response:
         scope: Authority | None = kwargs.pop("scope", None)
 
         if scope is None:
-            raise ValueError("Authority must be provided in the request for \
-            authentication.")
-
-        try:
-            res = await super().request(
-                method,
-                url,
-                auth=AuthHandler(
-                    aud=self._aud,
-                    scope=scope
+            raise ApiException(
+                status_code=HTTPStatus.BAD_REQUEST.value,
+                message=(
+                    "Authority must be provided in the request for"
+                    " authentication. "
                 ),
-                **kwargs
             )
 
-            return res
-        except ConnectionRefusedError as e:
-            raise HTTPException(
-                status_code=HTTPStatus.SERVICE_UNAVAILABLE.value,
-                detail=ApiError(
-                    message="Connection refused. The service might be down.",
-                    details=str(e),
-                ).model_dump(mode="json"),
-            )
-        except httpx.RequestError as e:
-            raise HTTPException(
-                status_code=HTTPStatus.INTERNAL_SERVER_ERROR.value,
-                detail=ApiError(
-                    message="Request error occurred.",
-                    details=str(e),
-                ).model_dump(mode="json"),
-            )
+        return await super().request(
+            method,
+            url,
+            auth=AuthHandler(aud=self._aud, scope=scope),
+            **kwargs,
+        )
 
 
 class AuthHandler(httpx.Auth):
@@ -69,16 +77,12 @@ class AuthHandler(httpx.Auth):
     def sync_auth_flow(self, request: httpx.Request):
         _ = request
         raise RuntimeError(
-            "This middleware is designed for asynchronous use only.\
-            Use async_auth_flow instead.")
+            "This middleware is designed for asynchronous use only.           "
+            " Use async_auth_flow instead."
+        )
 
     async def async_auth_flow(self, request: httpx.Request):
         auth = AuthService.get_instance()
-
-        print(
-            f"Trying to get token for audience: \
-            {self._aud} and scope: {self._scope}"
-        )
 
         token = await auth.get_token(aud=self._aud, scope=self._scope)
         request.headers["Authorization"] = f"Bearer {token}"
@@ -86,7 +90,7 @@ class AuthHandler(httpx.Auth):
 
         if response.status_code in (
             HTTPStatus.UNAUTHORIZED,
-            HTTPStatus.FORBIDDEN
+            HTTPStatus.FORBIDDEN,
         ):
             await auth.refresh_token(aud=self._aud, scope=self._scope)
             token = await auth.get_token(aud=self._aud, scope=self._scope)
@@ -107,8 +111,9 @@ class AuthService:
 
         if not self._base_url or not self._auth_key:
             raise ValueError(
-                "AUTH_URL and AUTH_KEY must be set in the environment \
-                variables.")
+                "AUTH_URL and AUTH_KEY must be set in the environment         "
+                "        variables."
+            )
 
         self._client = httpx.AsyncClient(base_url=self._base_url)
 
@@ -125,17 +130,17 @@ class AuthService:
         aud: str,
         scope: Authority = Authority.CONSTRAINT_PROCESSING,
     ) -> str:
-        if aud not in self._tokens \
-                or scope not in self._tokens[aud] \
-                or not self._is_token_valid(self._tokens[aud][scope]):
+        if (
+            aud not in self._tokens
+            or scope not in self._tokens[aud]
+            or not self._is_token_valid(self._tokens[aud][scope])
+        ):
             await self.refresh_token(aud=aud, scope=scope)
 
         return self._tokens[aud][scope]
 
     async def refresh_token(
-        self,
-        aud: str,
-        scope: Authority = Authority.CONSTRAINT_PROCESSING
+        self, aud: str, scope: Authority = Authority.CONSTRAINT_PROCESSING
     ):
         params = {
             "intended_audience": aud,

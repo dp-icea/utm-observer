@@ -3,12 +3,11 @@ from http import HTTPStatus
 from typing import List, Any
 from fastapi import APIRouter, Body, Depends
 
-from application.use_cases import ConstraintManagementUseCase
+from application.constraint_use_case import ConstraintManagementUseCase
 from adapters.constraint_management_adapter import ConstraintManagementAdapter
 from adapters.dss_adapter import DSSAdapter
-from domain.value_objects import LatLngPoint
-from schemas.api.common import ApiResponse
-
+from domain.base import LatLngPoint
+from schemas.api import ApiResponse, ApiException
 
 router = APIRouter()
 
@@ -16,11 +15,9 @@ router = APIRouter()
 def get_constraint_management_use_case() -> ConstraintManagementUseCase:
     """Dependency injection for constraint management use case"""
     constraint_adapter = ConstraintManagementAdapter()
-    dss_adapter = DSSAdapter()
-    
+
     return ConstraintManagementUseCase(
         constraint_management_port=constraint_adapter,
-        airspace_data_port=dss_adapter
     )
 
 
@@ -32,11 +29,13 @@ def get_constraint_management_use_case() -> ConstraintManagementUseCase:
 )
 async def create_constraint(
     constraint_data: Any = Body(),
-    use_case: ConstraintManagementUseCase = Depends(get_constraint_management_use_case)
+    use_case: ConstraintManagementUseCase = Depends(
+        get_constraint_management_use_case
+    ),
 ):
     """Create a new constraint (no-fly zone, restriction) in the airspace"""
     result = await use_case.create_constraint(constraint_data)
-    
+
     return ApiResponse(
         message="Constraint created successfully",
         data=result,
@@ -51,12 +50,13 @@ async def create_constraint(
 )
 async def delete_constraints_in_area(
     coordinates: List[LatLngPoint] = Body(),
-    use_case: ConstraintManagementUseCase = Depends(get_constraint_management_use_case)
+    use_case: ConstraintManagementUseCase = Depends(
+        get_constraint_management_use_case
+    ),
 ):
     """Delete all constraints within the specified geographical area"""
-    await use_case.delete_constraints_in_area(coordinates)
-    
-    return ApiResponse(
-        message="Constraints in area deleted successfully",
-        data={"coordinates": coordinates},
+
+    raise ApiException(
+        status_code=HTTPStatus.NOT_IMPLEMENTED.value,
+        message="Delete constraints in area not implemented",
     )

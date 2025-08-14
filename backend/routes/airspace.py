@@ -2,13 +2,13 @@
 from http import HTTPStatus
 from fastapi import APIRouter, Body, Depends
 
-from application.use_cases import AirspaceQueryUseCase
+from application.airspace_use_case import AirspaceQueryUseCase
 from adapters.dss_adapter import DSSAdapter
 from adapters.uss_adapter import USSAdapter
 from adapters.flights_adapter import FlightsAdapter
-from domain.value_objects import Volume4D
-from schemas.api.common import ApiResponse
-from schemas.flights import QueryFlightsRequest
+from domain.base import Volume4D
+from schemas.api import ApiResponse
+from schemas.requests.flights import QueryFlightsRequest
 
 router = APIRouter()
 
@@ -27,8 +27,8 @@ def get_airspace_query_use_case() -> AirspaceQueryUseCase:
 
 
 @router.post(
-    "/snapshot",
-    response_description="Get complete airspace snapshot for an area",
+    "/allocations",
+    response_description="Get complete airspace allocations for an area",
     response_model=ApiResponse,
     status_code=HTTPStatus.OK.value,
 )
@@ -37,13 +37,12 @@ async def get_airspace_snapshot(
     use_case: AirspaceQueryUseCase = Depends(get_airspace_query_use_case),
 ):
     """
-    Get a complete snapshot of airspace including:
+    Get a complete snapshot of the allocations in the airspace including:
     - Constraints (no-fly zones, restrictions)
     - Operational intents (planned flights)
     - Identification service areas (remote ID coverage)
-    - Active flights (live drone positions)
     """
-    snapshot = await use_case.get_airspace_snapshot(area_of_interest)
+    snapshot = await use_case.get_airspace_allocations(area_of_interest)
 
     return ApiResponse(
         message=(
@@ -68,7 +67,7 @@ async def get_active_flights(
     Get live flight data for drones
     currently active in the specified area
     """
-    flights_response = await use_case.flight_data_port.get_active_flights(area)
+    flights_response = await use_case.get_active_flights(area)
 
     return ApiResponse(
         message="Active flight data retrieved",
