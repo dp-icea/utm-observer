@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from schemas.dss.operational_intents import OperationalIntentReference
-from schemas.common.geo import Volume4D, GeoZone
-from schemas.dss.constraints import ConstraintReference
+from domain.value_objects import Volume4D
+from schemas.shared.geo import GeoZone
+from schemas.external.dss.common import ConstraintReference, OperationalIntentReference
 
 
 class OperationalIntentDetails(BaseModel):

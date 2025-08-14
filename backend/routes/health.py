@@ -1,17 +1,18 @@
 
 from http import HTTPStatus
 from fastapi import APIRouter
-from schemas.response import Response
+
+from schemas.api.common import ApiResponse
 
 router = APIRouter()
 
 
 @router.get(
     "/",
-    response_model=Response,
+    response_model=ApiResponse,
     status_code=HTTPStatus.OK.value,
 )
 async def health_check():
-    return Response(
+    return ApiResponse(
         message="OK",
     )

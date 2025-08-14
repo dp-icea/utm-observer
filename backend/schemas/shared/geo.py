@@ -13,7 +13,6 @@ from domain.value_objects import (
 )
 
 # Re-export position and other external-specific schemas
-from __future__ import annotations
 from typing import List, Optional, Any
 from pydantic import BaseModel, Field
 from domain.value_objects import Altitude

@@ -2,8 +2,9 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
-from schemas.dss.subscriptions import SubscriptionState
-from schemas.uss.common import OperationalIntent
+
+from schemas.external.dss.common import SubscriptionState
+from schemas.external.uss.common import OperationalIntent
 
 
 class PutOperationalIntentDetailsParameters(BaseModel):

@@ -1,11 +1,9 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
-from schemas.common.base import Time
-from schemas.dss.remoteid import IdentificationServiceArea
-from schemas.uss.remoteid import RIDFlight, RIDFlightDetails
-from .response import Response
-from .uss.common import OperationalIntent, Constraint
+from domain.value_objects import Time
+from schemas.external.dss.remoteid import IdentificationServiceArea
+from schemas.external.uss.remoteid import RIDFlight, RIDFlightDetails
 
 class Flight(RIDFlight):
     identification_service_area: IdentificationServiceArea

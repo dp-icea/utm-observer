@@ -2,10 +2,9 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from schemas.common.geo import Volume4D
-from schemas.dss.common import ConstraintReference, OperationalIntentReference
-from schemas.dss.remoteid import IdentificationServiceArea
-from schemas.external.dss.remoteid import IdentificationServiceAreaFull
+from domain.value_objects import Volume4D
+from schemas.external.dss.common import ConstraintReference, OperationalIntentReference
+from schemas.external.dss.remoteid import IdentificationServiceArea, IdentificationServiceAreaFull
 from schemas.external.uss.common import Constraint, OperationalIntent
 from schemas.flights import Flight, QueryFlightsRequest
 

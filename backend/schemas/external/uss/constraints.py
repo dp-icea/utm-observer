@@ -2,10 +2,8 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
-from ..common.geo import Volume4D, GeoZone
-from ..dss.constraints import ConstraintReference
-from ..dss.subscriptions import SubscriptionState
-from schemas.uss.common import Constraint
+from schemas.external.dss.common import ConstraintReference, SubscriptionState
+from schemas.external.uss.common import Constraint
 
 
 class PutConstraintDetailsParameters(BaseModel):

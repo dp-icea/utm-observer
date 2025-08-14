@@ -1,11 +1,8 @@
 from __future__ import annotations
 from typing import List, Optional
-from uuid import UUID
 from pydantic import BaseModel, Field
-from schemas.common.base import Time
-from schemas.common.enums import UssAvailabilityState
-from schemas.common.geo import Volume4D
-from schemas.dss.common import ConstraintReference, SubscriberToNotify
+from domain.value_objects import Volume4D
+from schemas.external.dss.common import ConstraintReference, SubscriberToNotify
 
 
 class PutConstraintReferenceParameters(BaseModel):

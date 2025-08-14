@@ -1,21 +1,7 @@
-from typing import List, Any
-from datetime import time
-from uuid import UUID
-from schemas.common.base import Time
-from schemas.common.enums import Audition, Authority, TimeFormat
+from typing import Any
 from config.config import Settings
 from httpx import AsyncClient
-from services.dss.remoteid import DSSRemoteIDService
-from services.uss.remoteid import USSRemoteIDService
-from datetime import datetime, timedelta, timezone
-from pprint import pprint
 import logging
-
-from schemas.flights import (
-    Flight,
-    QueryFlightsRequest,
-    QueryFlightsResponse,
-)
 
 RESOURCES_PATH = "/geoawareness"
 

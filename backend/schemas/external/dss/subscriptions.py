@@ -2,9 +2,9 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
-from schemas.common.base import Time
-from schemas.common.geo import Volume4D
-from schemas.dss.common import OperationalIntentReference, ConstraintReference, SubscriberToNotify, SubscriptionState
+from schemas.external.dss.common import ConstraintReference, OperationalIntentReference
+from schemas.shared.base import Time
+from domain.value_objects import Volume4D
 
 
 class Subscription(BaseModel):

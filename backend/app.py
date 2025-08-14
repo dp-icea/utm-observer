@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from routes.airspace import router as AirspaceRouter
 from routes.constraints import router as ConstraintsRouter
 from routes.health import router as HealthRouter
-from schemas.response import Response
+from schemas.api.common import ApiResponse
 
 
 @asynccontextmanager
@@ -33,9 +33,8 @@ async def catch_exceptions_middleware(request: Request, call_next):
     except Exception as e:
         return JSONResponse(
             status_code=500,
-            content=Response(
-                message="Internal Server Error",
-                data=str(e),
+            content=ApiResponse(
+                message=str(e)
             ).model_dump(mode="json"),
         )
 

@@ -61,19 +61,12 @@ class AirspaceQueryUseCase:
         )
         identification_service_areas = await self._get_isa_details(isa_refs)
 
-        # Get active flights
-        flight_query = QueryFlightsRequest(area=area_of_interest)
-        active_flights = await self.flight_data_port.get_active_flights(
-            flight_query
-        )
-
         return AirspaceSnapshot(
             timestamp=datetime.now(),
             area_of_interest=area_of_interest,
             constraints=constraints,
             operational_intents=operational_intents,
             identification_service_areas=identification_service_areas,
-            active_flights=active_flights,
         )
 
     async def _get_constraint_details(self, references) -> List[Constraint]:
@@ -118,16 +111,10 @@ class AirspaceQueryUseCase:
         for ref in references:
             try:
                 if ref.uss_base_url and ref.id:
-                    isa_details = await self.volume_details_port.get_identification_service_area_details(
+                    isa = await self.volume_details_port.get_identification_service_area_details(
                         ref
                     )
-                    isa_full = IdentificationServiceAreaFull(
-                        reference=ref,
-                        details=IdentificationServiceAreaDetails(
-                            volumes=[isa_details.extents]
-                        ),
-                    )
-                    isas.append(isa_full)
+                    isas.append(isa)
             except Exception as e:
                 print(f"Error fetching ISA {ref.id}: {e}")
                 continue

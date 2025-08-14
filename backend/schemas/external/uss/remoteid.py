@@ -1,9 +1,11 @@
 from __future__ import annotations
 from typing import List, Optional
 from pydantic import BaseModel, Field
-from ..common.base import Time
-from ..common.geo import LatLngPoint, Volume4D
-from ..common.enums import (
+
+from domain.value_objects import Time, Volume4D
+from schemas.external.dss.remoteid import IdentificationServiceArea
+from schemas.shared.geo import LatLngPoint
+from schemas.shared.enums import (
     HorizontalAccuracy,
     VerticalAccuracy,
     SpeedAccuracy,

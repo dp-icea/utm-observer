@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field, HttpUrl
-from ..common.base import Time
-from ..common.geo import Volume4D
+from domain.value_objects import Volume4D
+from schemas.shared.base import Time
 from .common import SubscriberToNotify, SubscriptionState
 
 

@@ -4,6 +4,7 @@ from pydantic import HttpUrl
 from ports.airspace_repository import VolumeDetailsPort
 from schemas.external.dss.common import ConstraintReference, OperationalIntentReference
 from schemas.external.dss.remoteid import IdentificationServiceArea, IdentificationServiceAreaFull, IdentificationServiceAreaDetails
+from schemas.external.uss.common import Constraint, OperationalIntent
 from schemas.external.uss.constraints import GetConstraintDetailsResponse
 from schemas.external.uss.operational_intents import GetOperationalIntentDetailsResponse
 from schemas.external.uss.remoteid import GetIdentificationServiceAreaDetailsResponse
@@ -27,7 +28,7 @@ class USSAdapter(VolumeDetailsPort):
             aud=host,
         )
     
-    async def get_constraint_details(self, reference: ConstraintReference):
+    async def get_constraint_details(self, reference: ConstraintReference) -> Constraint:
         """Get constraint details using factory-created client - direct implementation"""
         if not reference.uss_base_url:
             raise ValueError("USS base URL must be provided in the Constraint Reference.")
@@ -46,7 +47,7 @@ class USSAdapter(VolumeDetailsPort):
         constraint_response = GetConstraintDetailsResponse.model_validate(response.json())
         return constraint_response.constraint
     
-    async def get_operational_intent_details(self, reference: OperationalIntentReference):
+    async def get_operational_intent_details(self, reference: OperationalIntentReference) -> OperationalIntent:
         """Get operational intent details using factory-created client - direct implementation"""
         if not reference.uss_base_url:
             raise ValueError("USS base URL must be provided in the Operational Intent Reference.")
@@ -65,7 +66,7 @@ class USSAdapter(VolumeDetailsPort):
         oi_response = GetOperationalIntentDetailsResponse.model_validate(response.json())
         return oi_response.operational_intent
     
-    async def get_identification_service_area_details(self, reference: IdentificationServiceArea):
+    async def get_identification_service_area_details(self, reference: IdentificationServiceArea) -> IdentificationServiceAreaFull:
         """Get ISA details using factory-created client - direct implementation"""
         if not reference.uss_base_url:
             raise ValueError("USS base URL must be provided in the Identification Service Area Reference.")

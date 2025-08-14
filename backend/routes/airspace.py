@@ -9,7 +9,6 @@ from adapters.flights_adapter import FlightsAdapter
 from domain.value_objects import Volume4D
 from schemas.api.common import ApiResponse
 from schemas.flights import QueryFlightsRequest
-from schemas.fetch import QueryVolumesResponseData
 
 router = APIRouter()
 
@@ -46,18 +45,12 @@ async def get_airspace_snapshot(
     """
     snapshot = await use_case.get_airspace_snapshot(area_of_interest)
 
-    response_data = QueryVolumesResponseData(
-        operational_intents=snapshot.operational_intents,
-        constraints=snapshot.constraints,
-        identification_service_areas=snapshot.identification_service_areas,
-    )
-
     return ApiResponse(
         message=(
             "Airspace snapshot retrieved with"
             f" {snapshot.total_volumes} volumes"
         ),
-        data=response_data,
+        data=snapshot,
     )
 
 

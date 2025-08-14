@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
-from schemas.common.base import Time
-from schemas.common.enums import (
+from domain.value_objects import Time
+from schemas.shared.enums import (
     UssAvailabilityState,
     FlightType,
     OperationalIntentState,

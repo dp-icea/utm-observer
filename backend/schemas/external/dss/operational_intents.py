@@ -2,11 +2,10 @@ from __future__ import annotations
 from typing import List, Optional
 from uuid import UUID
 from pydantic import BaseModel, Field
-from ..common.base import Time
-from ..common.enums import FlightType, OperationalIntentState, UssAvailabilityState
-from ..common.geo import Volume4D
-from .subscriptions import SubscriberToNotify, ImplicitSubscriptionParameters
-from .common import OperationalIntentReference, ConstraintReference
+from schemas.external.dss.subscriptions import ImplicitSubscriptionParameters
+from schemas.shared.enums import FlightType, OperationalIntentState
+from schemas.shared.geo import Volume4D
+from .common import OperationalIntentReference, ConstraintReference, SubscriberToNotify
 
 
 class PutOperationalIntentReferenceParameters(BaseModel):
