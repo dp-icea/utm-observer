@@ -1,24 +1,10 @@
-import { Toaster } from "@/components/ui/toaster";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "@/pages/Index";
-import NotFound from "@/pages/NotFound";
-import { MapProvider } from "@/contexts/MapContext";
-
-const queryClient = new QueryClient();
+import { Providers } from "./app/providers";
+import { AppRouter } from "./app/routing";
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <MapProvider>
-      <Toaster />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </MapProvider>
-  </QueryClientProvider>
+  <Providers>
+    <AppRouter />
+  </Providers>
 );
 
 export default App;
