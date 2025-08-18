@@ -18,7 +18,6 @@ export const constraintManagementService = {
     const startTime = new Date();
     const endTime = addMinutes(startTime, 3);
     const identifier = generateIdentifier();
-    console.log("Generated Identifier:", identifier);
     const payload = {
       identifier: identifier,
       country: "BRA",

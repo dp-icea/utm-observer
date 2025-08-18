@@ -1,12 +1,8 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ROUTES } from "@/shared/constants/routes";
 
-interface AuthGuardProps {
-  children: React.ReactNode;
-}
-
-export const AuthGuard = ({ children }: AuthGuardProps) => {
+export const AuthGuard = () => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,5 +11,5 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
     navigate(ROUTES.LOGIN, { state: { from: location }, replace: true });
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 };
