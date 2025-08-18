@@ -1,9 +1,9 @@
 import { Providers } from "./app/providers";
-import { AppRouter } from "./app/routing";
+import { Router } from "./app/router";
 
 const App = () => (
   <Providers>
-    <AppRouter />
+    <Router />
   </Providers>
 );
 

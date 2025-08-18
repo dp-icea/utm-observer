@@ -1,20 +1,8 @@
-import {
-  Settings,
-  Bell,
-  User,
-  Wifi,
-  WifiOff,
-  AlertCircle,
-  Loader2,
-  Radio,
-  LogOut,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import IconBRUTM from "@/assets/icon-br-utm.svg";
-import { useMap } from "@/contexts/MapContext";
-import { MaterialProgress } from "@/components/ui/material-progress";
-import { MapState } from "@/schemas/context";
+import { Wifi, WifiOff, AlertCircle, Loader2, Radio } from "lucide-react";
+import { Button } from "@/shared/ui/button";
+import IconBRUTM from "@/shared/assets/icon-br-utm.svg";
+import { useMap } from "@/shared/hooks/useMap";
+import { MapState } from "@/shared/types";
 
 export const Header = () => {
   const { loading, mapState, isLive, setIsLive } = useMap();

@@ -135,7 +135,7 @@ src/
 
 ### **Before (Old):**
 ```typescript
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/ui/button";
 import { useMap } from "@/contexts/MapContext";
 import { constraintManagementService } from "@/services/constraintManagement";
 ```

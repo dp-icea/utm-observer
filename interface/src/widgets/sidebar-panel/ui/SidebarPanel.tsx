@@ -1,8 +1,6 @@
-import { ClientList } from "../../../components/sidebar/ClientList";
-import { OperationalFiltersPanel } from "../../../features/filter-operations/ui/OperationalFiltersPanel";
-import { NotificationPanel } from "../../../components/sidebar/NotificationPanel";
-import { FlightTrackingPanel } from "../../../features/track-flights/ui/FlightTrackingPanel";
-import { ConstraintManagementPanel } from "../../../features/manage-constraints/ui/ConstraintManagementPanel";
+import { ClientList } from "@/features/dashboard-filters/ui/ClientListPanel";
+import { OperationalFiltersPanel } from "@/features/dashboard-filters/ui/OperationalFiltersPanel";
+import { FlightTrackingPanel } from "@/features/track-flights/ui/FlightTrackingPanel";
 
 export const SidebarPanel = () => {
   return (

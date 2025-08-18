@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/shared/ui/badge";
+import { Input } from "@/shared/ui/input";
+import { Button } from "@/shared/ui/button";
 import { Users } from "lucide-react";
-import { useMap } from "@/contexts/MapContext";
+import { useMap } from "@/shared/hooks/useMap";
 import {
-  isOperationalIntent,
   isConstraint,
   isIdentificationServiceArea,
-} from "@/utils/interface-hook";
+  isOperationalIntent,
+} from "@/widgets/map-viewer/lib/interfaceHook";
 
 interface Client {
   name: string;
@@ -114,7 +114,9 @@ export const ClientList = () => {
       <div className="flex items-center space-x-2">
         <Users className="h-4 w-4 text-gray-400" />
         <span className="text-sm font-medium text-white">
-          {volumes.length > 0 ? `Providers (${filteredClients.length})` : "Providers"}
+          {volumes.length > 0
+            ? `Providers (${filteredClients.length})`
+            : "Providers"}
         </span>
       </div>
 
@@ -193,7 +195,8 @@ export const ClientList = () => {
                 Constraints: {client.constraints}
               </div>
               <div className="text-xs text-gray-400 text-start">
-                Identification Service Areas: {client.identificationServiceAreas}
+                Identification Service Areas:{" "}
+                {client.identificationServiceAreas}
               </div>
             </div>
           ))}

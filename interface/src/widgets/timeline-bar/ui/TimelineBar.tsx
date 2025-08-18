@@ -5,18 +5,14 @@ import {
   differenceInHours,
 } from "date-fns";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
-import { Button } from "../../../shared/ui/button";
-import { Calendar } from "../../../shared/ui/calendar";
-import { Input } from "../../../shared/ui/input";
-import { Label } from "../../../shared/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "../../../shared/ui/popover";
-import { Slider } from "../../../shared/ui/slider";
-import { useMap } from "../../../contexts/MapContext";
-import { cn } from "../../../shared/lib/utils";
+import { Button } from "@/shared/ui/button";
+import { Calendar } from "@/shared/ui/calendar";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
+import { Slider } from "@/shared/ui/slider";
+import { cn } from "@/shared/lib/utils";
+import { useMap } from "@/shared/hooks/useMap";
 
 export const TimelineBar = () => {
   const {

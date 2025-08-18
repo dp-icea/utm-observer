@@ -1,13 +1,12 @@
-import { useState } from "react";
-import { Checkbox } from "../../../shared/ui/checkbox";
-import { Badge } from "../../../shared/ui/badge";
+import { Checkbox } from "@/shared/ui/checkbox";
+import { Badge } from "@/shared/ui/badge";
 import { Filter } from "lucide-react";
-import { useMap } from "../../../contexts/MapContext";
+import { useMap } from "@/shared/hooks/useMap";
 import {
   isConstraint,
   isIdentificationServiceArea,
   isOperationalIntent,
-} from "../../../utils/interface-hook";
+} from "@/widgets/map-viewer/lib/interfaceHook";
 
 export interface FilterCategory {
   id: string;

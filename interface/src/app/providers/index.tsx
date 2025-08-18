@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
-import { MapProvider } from "../../contexts/MapContext";
-import { Toaster } from "../../shared/ui/toaster";
+import { Toaster } from "@/shared/ui/toaster";
 
 const queryClient = new QueryClient();
 
@@ -11,11 +10,7 @@ interface ProvidersProps {
 
 export const Providers = ({ children }: ProvidersProps) => (
   <QueryClientProvider client={queryClient}>
-    <MapProvider>
-      <Toaster />
-      <BrowserRouter>
-        {children}
-      </BrowserRouter>
-    </MapProvider>
+    <Toaster />
+    <BrowserRouter>{children}</BrowserRouter>
   </QueryClientProvider>
 );

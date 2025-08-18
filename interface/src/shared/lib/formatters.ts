@@ -1,14 +1,10 @@
-import * as Cesium from "cesium";
 import { format } from "date-fns";
-import type { Constraint, ConstraintReference } from "../schemas/constraint";
-import type {
-  OperationalIntent,
-  OperationalIntentReference,
-  OperationalIntentState,
-} from "../schemas/operational-intent";
-import { OperationalIntentStateColor } from "../schemas/operational-intent";
-import type { Volume4D } from "../schemas/common";
-
+import type { Volume4D } from "../types";
+import type { Constraint } from "@/entities/constraint";
+import {
+  OperationalIntentStateColor,
+  type OperationalIntent,
+} from "@/entities/operational-intent";
 /**
  * Format a timestamp for display
  */
@@ -43,7 +39,7 @@ const getVolumeDetailsHtml = (volumes: Volume4D[] | undefined): string => {
           <div>Altitude Min: ${parseFloat(altitudeLower).toFixed(2)} </div>
           <div>Altitude Max: ${parseFloat(altitudeUpper).toFixed(2)}</div>
           <div>Height: ${altitudeUpper !== "unlimited" && altitudeLower !== "ground" ? `${(parseFloat(altitudeUpper) - parseFloat(altitudeLower)).toFixed(2)} ${vol.volume.altitude_upper.units}` : "N/A"}</div>
-          ${ vol.volume["outline_polygon"] ? "<div>Base Polygon: " + vol.volume.outline_polygon?.vertices.length + " vertices</div>" : ""}
+          ${vol.volume["outline_polygon"] ? "<div>Base Polygon: " + vol.volume.outline_polygon?.vertices.length + " vertices</div>" : ""}
         </div>
       </div>
     `;

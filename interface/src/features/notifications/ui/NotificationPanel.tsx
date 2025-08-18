@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/shared/ui/badge";
+import { Button } from "@/shared/ui/button";
 import { Bell, AlertTriangle, Info, CheckCircle } from "lucide-react";
 
 interface Notification {
   id: string;
   type:
-  | "constraint"
-  | "operational-intent"
-  | "subscription"
-  | "utm-zone"
-  | "flight-plan";
+    | "constraint"
+    | "operational-intent"
+    | "subscription"
+    | "utm-zone"
+    | "flight-plan";
   title: string;
   message: string;
   timestamp: string;
@@ -123,10 +123,11 @@ export const NotificationPanel = () => {
         {notifications.map((notification) => (
           <div
             key={notification.id}
-            className={`p-3 rounded-lg border cursor-pointer transition-colors ${notification.read
+            className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+              notification.read
                 ? "bg-gray-800 border-gray-700 hover:bg-gray-750"
                 : "bg-gray-750 border-gray-600 hover:bg-gray-700"
-              }`}
+            }`}
             onClick={() => markAsRead(notification.id)}
           >
             <div className="flex items-start space-x-2">

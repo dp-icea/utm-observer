@@ -1,26 +1,18 @@
 import { useRef, useEffect } from "react";
 import { useCesium } from "resium";
 import { addSeconds, format } from "date-fns";
-import { useMap } from "@/contexts/MapContext";
-import { ViewerController } from "@/utils/viewer-controller";
 import { parseISO, addMinutes, isBefore, isAfter } from "date-fns";
-import { apiFetchService } from "@/services";
-import { formatEntityDetails } from "@/utils/formatters";
-import { MapState } from "@/schemas/context";
 
-import {
-  OperationalIntentStateColor,
-  type Constraint,
-  type Flight,
-  type IdentificationServiceAreaFull,
-  type OperationalIntent,
-  type Rectangle,
-  type RIDFlight,
-  type Volume3D,
-  type Volume4D,
-} from "@/schemas";
-import type { AxiosError } from "axios";
-import { toast } from "@/hooks/use-toast";
+import type { OperationalIntent } from "@/entities/operational-intent";
+import type { Constraint } from "@/entities/constraint";
+import type { IdentificationServiceAreaFull } from "@/entities/identification-service-area";
+import { ViewerController } from "./viewerController";
+import { useMap } from "@/shared/hooks/useMap";
+import { MapState, type Rectangle, type Volume4D } from "@/shared/types";
+import { apiFetchService } from "@/shared/api/fetchApi";
+import { toast } from "@/shared/ui/use-toast";
+import type { Flight } from "@/entities/flight";
+import { formatEntityDetails } from "@/shared/lib/formatters";
 
 const VOLUME_FETCH_INTERVAL = 10000;
 const FLIGHT_FETCH_INTERVAL = 10000;
@@ -169,10 +161,10 @@ export const InterfaceHook = () => {
       const fetchedVolumes: Array<
         OperationalIntent | Constraint | IdentificationServiceAreaFull
       > = [
-          ...res.constraints,
-          ...res.operational_intents,
-          ...res.identification_service_areas,
-        ];
+        ...res.constraints,
+        ...res.operational_intents,
+        ...res.identification_service_areas,
+      ];
 
       localVolumes.current = fetchedVolumes.slice();
       setVolumes(fetchedVolumes);
@@ -182,7 +174,8 @@ export const InterfaceHook = () => {
         setMapState(MapState.OFFLINE);
         toast({
           title: "Network Error",
-          description: "Unable to fetch allocated volumes. Please check your connection.",
+          description:
+            "Unable to fetch allocated volumes. Please check your connection.",
         });
       } else {
         setMapState(MapState.ERROR);

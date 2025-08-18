@@ -1,8 +1,8 @@
 import { Component } from "react";
-import { Terrain, IonResource, Ion } from "cesium";
+import { Terrain, Ion } from "cesium";
 import * as Cesium from "cesium";
-import { Viewer, Cesium3DTileset, ImageryLayer } from "resium";
-import { InterfaceHook } from "../../../utils/interface-hook";
+import { Viewer, ImageryLayer } from "resium";
+import { InterfaceHook } from "../lib/interfaceHook";
 
 export class MapViewer extends Component {
   render() {
@@ -10,7 +10,9 @@ export class MapViewer extends Component {
     if (ionAccessToken) {
       Ion.defaultAccessToken = ionAccessToken;
     } else {
-      console.warn("VITE_ION_ACCESS_TOKEN is not set. Using default Cesium Ion access token.");
+      console.warn(
+        "VITE_ION_ACCESS_TOKEN is not set. Using default Cesium Ion access token.",
+      );
     }
 
     return (

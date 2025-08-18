@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import IconBRUTM from "@/assets/icon-br-utm.svg";
-import { useToast } from "@/hooks/use-toast";
+import { ROUTES } from "@/shared/constants/routes";
+import { Button } from "@/shared/ui/button";
+import { Input } from "@/shared/ui/input";
+import { Label } from "@/shared/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import IconBRUTM from "@/shared/assets/icon-br-utm.svg";
+import { useToast } from "@/shared/hooks/useToast";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useLocation, useNavigate } from "react-router-dom";
 
-interface LoginProps {
-  onLoginSuccess: () => void;
-}
-
-export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
+export const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
 
   const generateJWT = () => {
     // Generate a simple fake JWT token
@@ -54,7 +57,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           title: "Login Successful",
           description: "Welcome to the BR-UTM monitoring system",
         });
-        onLoginSuccess();
+
+        login();
+
+        console.log("Redirectign to dashboard:", from);
+        navigate(from, { replace: true });
       } else {
         toast({
           title: "Login Failed",

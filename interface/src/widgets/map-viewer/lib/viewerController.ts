@@ -1,24 +1,18 @@
 import { Cartesian3 } from "cesium";
 import * as Cesium from "cesium";
-import { debounce } from "lodash-es";
 import {
   OperationalIntentStateColor,
-  type Constraint,
-  type IdentificationServiceAreaFull,
   type OperationalIntent,
-  type RIDFlight,
-  type Volume3D,
-  type Rectangle,
-  type Volume4D,
-  type Flight,
-} from "@/schemas";
-import { apiFetchService } from "@/services";
+} from "@/entities/operational-intent";
+import type { Constraint } from "@/entities/constraint";
+import type { IdentificationServiceAreaFull } from "@/entities/identification-service-area";
+import type { Flight } from "@/entities/flight";
+import type { Rectangle, Volume3D, Volume4D } from "@/shared/types";
 import {
   isConstraint,
   isIdentificationServiceArea,
   isOperationalIntent,
-  type TimeRange,
-} from "@/utils/interface-hook";
+} from "./interfaceHook";
 
 function sum(arr: number[]): number {
   return arr.reduce((acc, val) => acc + val, 0);
@@ -28,7 +22,6 @@ function radiansToDegrees(radians: number): number {
   return radians * (180 / Math.PI);
 }
 
-type EntityId = string;
 type RegionId = string;
 type RegionOvn = string;
 
@@ -221,7 +214,7 @@ export class ViewerController {
           (entity) => entity.entityIds.length,
         ),
       ) +
-      Object.values(this.flights).flat().length
+        Object.values(this.flights).flat().length
     ) {
       this.viewer.entities.removeAll();
       this.displayedEntities = {};

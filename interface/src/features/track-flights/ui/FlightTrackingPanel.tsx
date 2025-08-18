@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Badge } from "../../../shared/ui/badge";
-import { Checkbox } from "../../../shared/ui/checkbox";
-import { Radio, MapPin, Battery, Signal } from "lucide-react";
-import { useMap } from "../../../contexts/MapContext";
-import type { LatLngPoint, RIDOperationalStatus } from "../../../entities/flight/types";
+import { Badge } from "@/shared/ui/badge";
+import { Checkbox } from "@/shared/ui/checkbox";
+import { Radio } from "lucide-react";
+import type { RIDOperationalStatus } from "@/entities/flight";
+import type { LatLngPoint } from "@/shared/types";
+import { useMap } from "@/shared/hooks/useMap";
 
 interface FlightDetail {
   id: string;
@@ -218,10 +219,11 @@ export const FlightTrackingPanel = () => {
           {flightDetails.map((flight) => (
             <div
               key={flight.id}
-              className={`p-3 rounded-lg border transition-colors ${flight.active
+              className={`p-3 rounded-lg border transition-colors ${
+                flight.active
                   ? "bg-blue-900/30 border-blue-600"
                   : "bg-gray-750 border-gray-600 hover:bg-gray-700"
-                }`}
+              }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-2">
