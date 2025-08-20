@@ -8,7 +8,7 @@ import { Label } from "@/shared/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import IconBRUTM from "@/shared/assets/icon-br-utm.svg";
 import { useToast } from "@/shared/hooks/useToast";
-import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useAuth } from "@/app/auth/hooks/useAuth";
 
 export const LoginPage = () => {
   const [username, setUsername] = useState("");
