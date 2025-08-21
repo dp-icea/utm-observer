@@ -6,9 +6,9 @@ import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import IconBRUTM from "@/shared/assets/icon-br-utm.svg";
-import { useToast } from "@/shared/hooks/useToast";
-import { useAuth } from "@/app/auth/hooks/useAuth";
+import LogoBRUTM from "@/shared/assets/icon-br-utm.svg";
+import { useToast } from "@/shared/lib/hooks";
+import { useAuth } from "@/shared/lib/hooks";
 
 export const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -73,7 +73,7 @@ export const LoginPage = () => {
       <Card className="w-full max-w-md bg-gray-800 border-gray-700">
         <CardHeader className="space-y-1 items-center">
           <img
-            src={IconBRUTM}
+            src={LogoBRUTM}
             alt="BR-UTM Logo"
             className="h-30 w-30 rounded-full"
           />

@@ -1,8 +1,8 @@
-import { Header } from "@/widgets/header/ui/Header";
-import { MapViewer } from "@/widgets/map-viewer/ui/MapViewer";
-import { SidebarPanel } from "@/widgets/sidebar-panel/ui/SidebarPanel";
-import { TimelineBar } from "@/widgets/timeline-bar/ui/TimelineBar";
-import { MapProvider } from "@/shared/providers/MapProvider";
+import { Header } from "./Header";
+import { MapViewer } from "./MapViewer";
+import { SidebarPanel } from "./SidebarPanel";
+import { TimelineBar } from "./TimelineBar";
+import { MapProvider } from "@/shared/lib/map";
 
 export const DashboardPage = () => {
   return (

@@ -1,10 +1,9 @@
-import type { Volume4D, Rectangle } from "@/schemas";
-import { api } from "../../../shared/api/client";
-import { addMilliseconds, addMinutes } from "date-fns";
+import { api } from "./api";
+import { addMinutes } from "date-fns";
 
 const RESOURCE_PATH = "/constraint_management";
 
-export const constraintManagementService = {
+export const ConstraintManagementService = {
   enableConstraint: async (): Promise<any> => {
     function generateIdentifier(length = 4) {
       const numbers = "0123456789";

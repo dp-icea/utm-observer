@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -6,7 +6,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     // Check if user has a valid token on component mount
-    const token = sessionStorage.getItem('accessToken');
+    const token = sessionStorage.getItem("accessToken");
     setIsAuthenticated(!!token);
     setIsLoading(false);
   }, []);
@@ -16,7 +16,7 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem("accessToken");
     setIsAuthenticated(false);
   };
 
@@ -24,6 +24,6 @@ export const useAuth = () => {
     isAuthenticated,
     isLoading,
     login,
-    logout
+    logout,
   };
 };
