@@ -1,12 +1,11 @@
 import type {
-  Altitude,
   Latitude,
   LatLngPoint,
   Longitude,
   Time,
   Volume4D,
-} from "../../shared/types/common";
-import type { IdentificationServiceArea } from "../identification-service-area/types";
+} from "./common.d";
+import type { IdentificationServiceArea } from "./isa.d";
 
 export type RIDFlightID = string;
 

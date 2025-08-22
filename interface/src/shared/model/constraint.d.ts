@@ -22,27 +22,6 @@ export interface ConstraintReference {
 
 export type ConstraintUssBaseURL = UssBaseURL;
 
-export interface PutConstraintReferenceParameters {
-  extents: Volume4D[];
-  uss_base_url: ConstraintUssBaseURL;
-}
-
-export interface GetConstraintReferenceResponse {
-  constraint_reference: ConstraintReference;
-}
-
-export interface GetConstraintDetailsResponse {
-  constraint: Constraint;
-}
-
-export interface QueryConstraintReferenceParameters {
-  area_of_interest?: Volume4D;
-}
-
-export interface QueryConstraintReferencesResponse {
-  constraint_references: ConstraintReference[];
-}
-
 export interface ConstraintDetails {
   volumes: Volume4D[];
   type?: string;
