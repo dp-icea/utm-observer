@@ -12,7 +12,7 @@ import { Label } from "@/shared/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/popover";
 import { Slider } from "@/shared/ui/slider";
 import { cn } from "@/shared/lib/utils";
-import { useMap } from "@/shared/hooks/useMap";
+import { useMap } from "@/shared/lib/map";
 
 export const TimelineBar = () => {
   const {

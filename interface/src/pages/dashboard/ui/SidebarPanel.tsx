@@ -1,6 +1,6 @@
-import { ClientList } from "@/features/dashboard-filters/ui/ClientListPanel";
-import { OperationalFiltersPanel } from "@/features/dashboard-filters/ui/OperationalFiltersPanel";
-import { FlightTrackingPanel } from "@/features/track-flights/ui/FlightTrackingPanel";
+import { ClientList } from "./sidebar/ClientListPanel";
+import { OperationalFiltersPanel } from "./sidebar/OperationalFiltersPanel";
+import { FlightTrackingPanel } from "./sidebar/FlightTrackingPanel";
 
 export const SidebarPanel = () => {
   return (
