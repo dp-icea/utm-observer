@@ -4,7 +4,7 @@ import type {
 } from "./flights.d";
 import { api } from "./api";
 
-const RESOURCE_PATH = "/fetch";
+const RESOURCE_PATH = "/airspace";
 
 export const FlightsService = {
   query: async (params: QueryFlightsRequest): Promise<QueryFlightsResponse> => {
