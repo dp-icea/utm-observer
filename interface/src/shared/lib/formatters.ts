@@ -1,10 +1,5 @@
 import { format } from "date-fns";
-import type { Volume4D } from "../types";
-import type { Constraint } from "@/entities/constraint";
-import {
-  OperationalIntentStateColor,
-  type OperationalIntent,
-} from "@/entities/operational-intent";
+import type { Constraint, OperationalIntentStateColor, OperationalIntent, Volume4D } from "@/shared/model";
 /**
  * Format a timestamp for display
  */
@@ -78,11 +73,10 @@ export const formatConstraintDetails = (constraint: Constraint): string => {
       <div class="entity-section">
         <h4>Constraint Details</h4>
         <div class="entity-field"><strong>Type:</strong> ${details.type || '<span class="no-data">Unspecified</span>'}</div>
-        ${
-          details.geozone
-            ? `<div class="entity-field"><strong>GeoZone:</strong> ID=${details.geozone}</div>`
-            : '<div class="entity-field"><strong>GeoZone:</strong> <span class="no-data">None</span></div>'
-        }
+        ${details.geozone
+      ? `<div class="entity-field"><strong>GeoZone:</strong> ID=${details.geozone}</div>`
+      : '<div class="entity-field"><strong>GeoZone:</strong> <span class="no-data">None</span></div>'
+    }
       </div>
       
       <div class="entity-section">

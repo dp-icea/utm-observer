@@ -2,17 +2,21 @@ import { Cartesian3 } from "cesium";
 import * as Cesium from "cesium";
 import {
   OperationalIntentStateColor,
-  type OperationalIntent,
-} from "@/entities/operational-intent";
-import type { Constraint } from "@/entities/constraint";
-import type { IdentificationServiceAreaFull } from "@/entities/identification-service-area";
-import type { Flight } from "@/entities/flight";
-import type { Rectangle, Volume3D, Volume4D } from "@/shared/types";
+} from "@/shared/model";
+import type {
+  OperationalIntent,
+  Constraint,
+  IdentificationServiceAreaFull,
+  Flight,
+  Rectangle,
+  Volume3D,
+  Volume4D,
+} from "@/shared/model";
 import {
   isConstraint,
   isIdentificationServiceArea,
   isOperationalIntent,
-} from "./interfaceHook";
+} from "@/shared/lib";
 
 function sum(arr: number[]): number {
   return arr.reduce((acc, val) => acc + val, 0);
@@ -30,7 +34,7 @@ interface DisplayedEntity {
   entityIds: RegionId[];
 }
 
-export class ViewerController {
+export class MapEntityManager {
   private viewer: Cesium.Viewer;
   private displayedEntities: Record<RegionId, DisplayedEntity> = {};
   private handler: Cesium.ScreenSpaceEventHandler;
@@ -214,7 +218,7 @@ export class ViewerController {
           (entity) => entity.entityIds.length,
         ),
       ) +
-        Object.values(this.flights).flat().length
+      Object.values(this.flights).flat().length
     ) {
       this.viewer.entities.removeAll();
       this.displayedEntities = {};

@@ -1,8 +1,8 @@
 import { Wifi, WifiOff, AlertCircle, Loader2, Radio } from "lucide-react";
 import { Button } from "@/shared/ui/button";
-import IconBRUTM from "@/shared/assets/icon-br-utm.svg";
-import { useMap } from "@/shared/hooks/useMap";
-import { MapState } from "@/shared/types";
+import IconBRUTM from "@/shared/assets/logo.svg";
+import { useMap } from "@/shared/lib/map";
+import { MapState } from "@/shared/model";
 
 export const Header = () => {
   const { loading, mapState, isLive, setIsLive } = useMap();

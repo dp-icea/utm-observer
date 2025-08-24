@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
-import { useAuth } from "@/shared/lib/hooks";
+import { useAuth } from "@/shared/lib/hook";
 import { ROUTES } from "@/shared/config";
 
 export const AuthGuard = () => {

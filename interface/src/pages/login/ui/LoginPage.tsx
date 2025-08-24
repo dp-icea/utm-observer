@@ -1,14 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { ROUTES } from "@/shared/constants/routes";
-import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
-import { Label } from "@/shared/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import LogoBRUTM from "@/shared/assets/icon-br-utm.svg";
-import { useToast } from "@/shared/lib/hooks";
-import { useAuth } from "@/shared/lib/hooks";
+import { ROUTES } from "@/shared/config";
+import { Button, Input, Label, Card, CardContent, CardHeader, CardTitle } from "@/shared/ui";
+import LogoBRUTM from "@/shared/assets/logo.svg";
+import { useToast, useAuth } from "@/shared/lib/hook";
 
 export const LoginPage = () => {
   const [username, setUsername] = useState("");

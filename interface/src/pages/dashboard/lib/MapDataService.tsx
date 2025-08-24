@@ -2,16 +2,21 @@ import { useRef, useEffect } from "react";
 import { useCesium } from "resium";
 import { addSeconds, format } from "date-fns";
 import { parseISO, addMinutes, isBefore, isAfter } from "date-fns";
-
-import type { OperationalIntent } from "@/entities/operational-intent";
-import type { Constraint } from "@/entities/constraint";
-import type { IdentificationServiceAreaFull } from "@/entities/identification-service-area";
-import { ViewerController } from "./viewerController";
-import { useMap } from "@/shared/hooks/useMap";
-import { MapState, type Rectangle, type Volume4D } from "@/shared/types";
-import { apiFetchService } from "@/shared/api/fetchApi";
-import { toast } from "@/shared/ui/use-toast";
-import type { Flight } from "@/entities/flight";
+import type {
+  OperationalIntent,
+  IdentificationServiceAreaFull,
+  Constraint,
+  Rectangle,
+  Volume4D,
+  Flight,
+} from "@/shared/model";
+import {
+  MapState
+} from "@/shared/model";
+import { MapEntityManager } from "./map-entity-manager";
+import { useMap } from "@/shared/lib/map";
+import { FlightsService, AllocationsService } from "@/shared/api";
+import { toast } from "@/shared/lib/hook";
 import { formatEntityDetails } from "@/shared/lib/formatters";
 
 const VOLUME_FETCH_INTERVAL = 10000;
@@ -40,8 +45,8 @@ export interface TimeRange {
   endTime: Date;
 }
 
-export const InterfaceHook = () => {
-  const controller = useRef<ViewerController | null>(null);
+export const MapDataService = () => {
+  const controller = useRef<MapEntityManager | null>(null);
 
   // This was created because of caching problems in the map provider context
   const localVolumes = useRef<
@@ -91,7 +96,7 @@ export const InterfaceHook = () => {
     };
 
     try {
-      const res = await apiFetchService.queryFlights(area);
+      const res = await FlightsService.query(area);
       setFlights(res.flights);
       setMapState(MapState.ONLINE);
     } catch (e) {
@@ -156,15 +161,15 @@ export const InterfaceHook = () => {
     };
 
     try {
-      const res = await apiFetchService.queryVolumes(boundingVolume);
+      const res = await AllocationsService.query(boundingVolume);
 
       const fetchedVolumes: Array<
         OperationalIntent | Constraint | IdentificationServiceAreaFull
       > = [
-        ...res.constraints,
-        ...res.operational_intents,
-        ...res.identification_service_areas,
-      ];
+          ...res.constraints,
+          ...res.operational_intents,
+          ...res.identification_service_areas,
+        ];
 
       localVolumes.current = fetchedVolumes.slice();
       setVolumes(fetchedVolumes);
@@ -276,7 +281,7 @@ export const InterfaceHook = () => {
   const onViewerStart: React.EffectCallback = () => {
     if (!viewer || controller.current) return;
 
-    controller.current = new ViewerController(viewer);
+    controller.current = new MapEntityManager(viewer);
 
     timeRange.current = getTimeRange();
 

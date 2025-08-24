@@ -1,12 +1,16 @@
 import { useState, type ReactNode } from "react";
 import { format } from "date-fns";
-import { MapState } from "@/shared/types/context";
-import type { Constraint } from "@/entities/constraint";
-import type { OperationalIntent } from "@/entities/operational-intent";
-import type { IdentificationServiceAreaFull } from "@/entities/identification-service-area";
-import type { FilterCategory } from "@/features/dashboard-filters/ui/OperationalFiltersPanel";
-import type { Flight } from "@/entities/flight";
-import { MapContext } from "../contexts/MapContext";
+import {
+  MapState
+} from "@/shared/model";
+import type { Constraint, OperationalIntent, IdentificationServiceAreaFull, Flight } from "@/shared/model";
+import { MapContext } from "./context";
+
+export interface FilterCategory {
+  id: string;
+  label: string;
+  enabled: boolean;
+}
 
 export const MapProvider = ({ children }: { children: ReactNode }) => {
   const [startDate, setStartDate] = useState<Date>(new Date());

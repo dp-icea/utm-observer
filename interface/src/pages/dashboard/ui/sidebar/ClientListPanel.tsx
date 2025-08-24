@@ -3,12 +3,12 @@ import { Badge } from "@/shared/ui/badge";
 import { Input } from "@/shared/ui/input";
 import { Button } from "@/shared/ui/button";
 import { Users } from "lucide-react";
-import { useMap } from "@/shared/hooks/useMap";
+import { useMap } from "@/shared/lib/map";
 import {
   isConstraint,
   isIdentificationServiceArea,
   isOperationalIntent,
-} from "@/widgets/map-viewer/lib/interfaceHook";
+} from "@/shared/lib";
 
 interface Client {
   name: string;

@@ -1,18 +1,14 @@
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Badge } from "@/shared/ui/badge";
 import { Filter } from "lucide-react";
-import { useMap } from "@/shared/hooks/useMap";
 import {
   isConstraint,
   isIdentificationServiceArea,
   isOperationalIntent,
-} from "@/widgets/map-viewer/lib/interfaceHook";
-
-export interface FilterCategory {
-  id: string;
-  label: string;
-  enabled: boolean;
-}
+} from "@/shared/lib";
+import {
+  useMap
+} from "@/shared/lib/map";
 
 export const OperationalFiltersPanel = () => {
   const { filters, setFilters, volumes } = useMap();

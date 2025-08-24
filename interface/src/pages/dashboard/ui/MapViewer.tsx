@@ -2,7 +2,7 @@ import { Component } from "react";
 import { Terrain, Ion } from "cesium";
 import * as Cesium from "cesium";
 import { Viewer, ImageryLayer } from "resium";
-import { InterfaceHook } from "../lib/interfaceHook";
+import { MapDataService } from "../lib/MapDataService";
 
 export class MapViewer extends Component {
   render() {
@@ -32,7 +32,7 @@ export class MapViewer extends Component {
           style={{ width: "100%", height: "100%" }}
           imageryProvider={false}
         >
-          <InterfaceHook />
+          <MapDataService />
           <ImageryLayer
             imageryProvider={
               new Cesium.OpenStreetMapImageryProvider({
