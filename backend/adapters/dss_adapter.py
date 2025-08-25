@@ -21,7 +21,7 @@ from domain.external.dss.remoteid import (
     SearchIdentificationServiceAreasResponse,
 )
 from infrastructure.auth_client import AuthClient
-from schemas.enums import Authority
+from schemas.enums import Authority, RIDAuthority
 from config.config import Settings
 
 
@@ -120,7 +120,7 @@ class DSSAdapter(AirspaceReferencesDataPort):
 
             response = await self.client.request(
                 "GET",
-                "/dss/v1/identification_service_areas",
+                "/rid/v2/dss/identification_service_areas",
                 params={
                     "area": area_string,
                     "earliest_time": (
@@ -136,7 +136,7 @@ class DSSAdapter(AirspaceReferencesDataPort):
                         + "Z"
                     ),
                 },
-                scope=Authority.CONFORMANCE_MONITORING_SA,
+                scope=RIDAuthority.DISPLAY_PROVIDER,
             )
 
             if response.status_code != 200:

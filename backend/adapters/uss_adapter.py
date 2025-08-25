@@ -20,7 +20,7 @@ from domain.external.uss.remoteid import (
 )
 from infrastructure.auth_client import AuthClient
 from ports.airspace_port import AirspaceDetailsDataPort
-from schemas.enums import Authority
+from schemas.enums import Authority, RIDAuthority
 
 
 class USSAdapter(AirspaceDetailsDataPort):
@@ -110,8 +110,8 @@ class USSAdapter(AirspaceDetailsDataPort):
 
         response = await client.request(
             "GET",
-            f"/uss/v1/identification_service_areas/{reference.id}",
-            scope=Authority.CONFORMANCE_MONITORING_SA,
+            f"/uss/identification_service_areas/{reference.id}",
+            scope=RIDAuthority.DISPLAY_PROVIDER,
         )
 
         if response.status_code != 200:
