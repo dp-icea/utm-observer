@@ -17,6 +17,7 @@ class BaseClient(httpx.AsyncClient):
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        kwargs.setdefault("timeout", httpx.Timeout(30.0, connect=5.0))
         super().__init__(*args, **kwargs)
 
     async def request(
@@ -28,6 +29,7 @@ class BaseClient(httpx.AsyncClient):
                 f". Args: {kwargs}"
             )
             res = await super().request(method, url, **kwargs)
+            res.raise_for_status()
             logging.info(
                 f"[EXTERNAL RESPONSE] {method} {self.base_url}{url}."
                 f" {res.status_code} {res.text.strip()}"
@@ -40,12 +42,14 @@ class BaseClient(httpx.AsyncClient):
                 message="Connection refused. The service might be down.",
                 details=str(e),
             )
-        except httpx.RequestError as e:
-            logging.error(f"Request error: {e}")
+        except httpx.HTTPStatusError as e:
             raise ApiException(
-                status_code=HTTPStatus.BAD_REQUEST.value,
-                message="Request error occurred.",
-                details=str(e),
+                status_code=e.response.status_code,
+                message="HTTP error occurred.",
+                details={
+                    "headers": dict(e.response.headers),
+                    "body": e.response.text,
+                },
             )
 
 

@@ -31,7 +31,7 @@ app = FastAPI(
 )
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
 )
 
 

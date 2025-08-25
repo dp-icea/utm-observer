@@ -1,10 +1,5 @@
 from enum import Enum
 
-
-class Audition(str, Enum):
-    DSS = "core-service"
-
-
 class Authority(str, Enum):
     STRATEGIC_COORDINATION = "utm.strategic_coordination"
     CONSTRAINT_MANAGEMENT = "utm.constraint_management"

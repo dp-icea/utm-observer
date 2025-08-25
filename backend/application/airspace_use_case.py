@@ -42,13 +42,17 @@ class AirspaceQueryUseCase:
                 area_of_interest
             )
         )
+        logging.info("Fetched constraint references: %s", constraint_refs)
 
         operational_intent_refs = await self.airspace_reference_port.get_operational_intent_references(
             area_of_interest
         )
+        logging.info("Fetched operational intent references: %s", operational_intent_refs)
+
         isa_refs = await self.airspace_reference_port.get_identification_service_areas(
             area_of_interest
         )
+        logging.info("Fetched ISA references: %s", isa_refs)
 
         # Fetch detailed information from USS
         constraints = await self._get_constraint_details(constraint_refs)
