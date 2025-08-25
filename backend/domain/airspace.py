@@ -1,5 +1,6 @@
 # Domain entities - core business objects
 from typing import List
+from domain.flights import Flight
 from pydantic import BaseModel
 from datetime import datetime
 
@@ -27,3 +28,10 @@ class AirspaceAllocations(BaseModel):
             + len(self.operational_intents)
             + len(self.identification_service_areas)
         )
+
+
+class AirspaceFlights(BaseModel):
+    """Active flights in the airspace at a point in time - pure domain entity"""
+
+    timestamp: datetime
+    flights: List[Flight] = []

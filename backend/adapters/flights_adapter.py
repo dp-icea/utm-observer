@@ -1,5 +1,5 @@
 # Flights Adapter - Direct implementation with all infrastructure logic
-from typing import List
+from typing import List, Tuple
 from datetime import datetime, timedelta, timezone
 from pydantic import HttpUrl
 
@@ -38,7 +38,7 @@ class FlightsAdapter(FlightDataPort):
 
     async def get_active_flights(
         self, area: QueryFlightsRequest
-    ) -> List[Flight]:
+    ) -> Tuple[List[Flight], List[dict]]:
         """Get active flights in the specified area - direct implementation"""
 
         # Build query parameters for the area
@@ -75,7 +75,7 @@ class FlightsAdapter(FlightDataPort):
                     {"error": str(e), "service_area": isa.uss_base_url}
                 )
 
-        return flights
+        return flights, errors
 
     async def _query_identification_service_areas(
         self, query_params: dict

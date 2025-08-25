@@ -67,6 +67,9 @@ export const FlightTrackingPanel = () => {
     );
   };
 
+  const isArrayEmpty = (obj: Array<any>) =>
+    obj && Array.isArray(obj) && obj.length === 0;
+
   const getStatusColor = (status: RIDOperationalStatus) => {
     switch (status) {
       case "Undeclared":
@@ -85,6 +88,8 @@ export const FlightTrackingPanel = () => {
   };
 
   const onFlightsUpdate = () => {
+    console.log("Flights updated:", flights);
+
     const currentFlightProviders: Record<string, FlightProvider> = {};
     const currentFlightDetails: Record<string, FlightDetail> = {};
 
@@ -163,14 +168,14 @@ export const FlightTrackingPanel = () => {
             Live Flight Tracking
           </span>
         </div>
-        {isLive && flights.length > 0 && (
+        {isLive && isArrayEmpty(flights) && (
           <Badge variant="default" className="text-xs">
             {flights.length} active
           </Badge>
         )}
       </div>
 
-      {!isLive && (
+      {!isLive && isArrayEmpty(flights) && (
         <div className="p-3 rounded-lg border bg-gray-750 border-gray-600">
           <span className="text-xs text-gray-400">
             Toggle Live mode to see real-time flight data.
@@ -178,7 +183,7 @@ export const FlightTrackingPanel = () => {
         </div>
       )}
 
-      {isLive && flights.length === 0 && (
+      {isLive && isArrayEmpty(flights) && (
         <div className="p-3 rounded-lg border bg-gray-750 border-gray-600">
           <span className="text-xs text-gray-400">
             No flights detected in the area.
@@ -187,7 +192,7 @@ export const FlightTrackingPanel = () => {
       )}
 
       {/* Provider Selection */}
-      {isLive && flights.length > 0 && (
+      {isLive && !isArrayEmpty(flights) && (
         <div className="space-y-2">
           <span className="text-xs font-medium text-gray-300 justify-start">
             Select Providers:
@@ -213,7 +218,7 @@ export const FlightTrackingPanel = () => {
       )}
 
       {/* Flight List */}
-      {isLive && flights.length > 0 && (
+      {isLive && !isArrayEmpty(flights) && (
         <div className="space-y-2 max-h-80 overflow-y-auto">
           {flightDetails.map((flight) => (
             <div
@@ -293,7 +298,7 @@ export const FlightTrackingPanel = () => {
       )}
 
       {/* Quick Actions */}
-      {isLive && flights.length > 0 && (
+      {isLive && !isArrayEmpty(flights) && (
         <div className="pt-2 border-t border-gray-600">
           <div className="flex gap-2">
             <button

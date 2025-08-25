@@ -1,6 +1,4 @@
-import type {
-  Flight,
-} from "@/shared/model";
+import type { Flight } from "@/shared/model";
 
 export interface QueryFlightsRequest {
   north: number;
@@ -10,8 +8,6 @@ export interface QueryFlightsRequest {
 }
 
 export interface QueryFlightsResponse {
-  flights: Flight[];
-  partial: boolean;
-  errors: string[];
   timestamp: string;
+  flights: Flight[];
 }

@@ -1,10 +1,12 @@
-import type { Constraint } from "@/entities/constraint";
-import type { IdentificationServiceAreaFull } from "@/entities/identification-service-area";
-import type { OperationalIntent } from "@/entities/operational-intent";
-import type { FilterCategory } from "@/features/dashboard-filters/ui/OperationalFiltersPanel";
+import type {
+  Constraint,
+  IdentificationServiceAreaFull,
+  OperationalIntent,
+  Flight,
+} from "@/shared/model";
+import { MapState } from "@/shared/model";
+import type { FilterCategory } from "@/shared/lib/map";
 import { createContext } from "react";
-import type { MapState } from "../types";
-import type { Flight } from "@/entities/flight";
 
 export interface IMapContext {
   startDate: Date;

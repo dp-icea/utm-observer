@@ -10,9 +10,7 @@ import type {
   Volume4D,
   Flight,
 } from "@/shared/model";
-import {
-  MapState
-} from "@/shared/model";
+import { MapState } from "@/shared/model";
 import { MapEntityManager } from "./map-entity-manager";
 import { useMap } from "@/shared/lib/map";
 import { FlightsService, AllocationsService } from "@/shared/api";

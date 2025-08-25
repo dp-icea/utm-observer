@@ -1,6 +1,6 @@
 # Ports - interfaces for external data sources
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Tuple
 
 from domain.flights import Flight
 from schemas.requests.flights import QueryFlightsRequest
@@ -12,5 +12,5 @@ class FlightDataPort(ABC):
     @abstractmethod
     async def get_active_flights(
         self, area: QueryFlightsRequest
-    ) -> List[Flight]:
+    ) -> Tuple[List[Flight], List[dict]]:
         pass

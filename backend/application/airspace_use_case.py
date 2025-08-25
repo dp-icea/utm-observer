@@ -1,9 +1,10 @@
 # Application layer - use cases that orchestrate domain logic
+from http import HTTPStatus
 from typing import List
 from datetime import datetime
 import logging
 
-from domain.airspace import AirspaceAllocations
+from domain.airspace import AirspaceAllocations, AirspaceFlights
 from ports.airspace_port import (
     AirspaceDetailsDataPort,
     AirspaceReferencesDataPort,
@@ -11,6 +12,7 @@ from ports.airspace_port import (
 from ports.flights_port import FlightDataPort
 from domain.base import Volume4D
 from domain.flights import Flight
+from schemas.api import ApiException
 from schemas.requests.flights import QueryFlightsRequest
 from domain.external.uss.common import OperationalIntent, Constraint
 from domain.external.dss.remoteid import (
@@ -42,17 +44,14 @@ class AirspaceQueryUseCase:
                 area_of_interest
             )
         )
-        logging.info("Fetched constraint references: %s", constraint_refs)
 
         operational_intent_refs = await self.airspace_reference_port.get_operational_intent_references(
             area_of_interest
         )
-        logging.info("Fetched operational intent references: %s", operational_intent_refs)
 
         isa_refs = await self.airspace_reference_port.get_identification_service_areas(
             area_of_interest
         )
-        logging.info("Fetched ISA references: %s", isa_refs)
 
         # Fetch detailed information from USS
         constraints = await self._get_constraint_details(constraint_refs)
@@ -74,7 +73,22 @@ class AirspaceQueryUseCase:
     ) -> List[Flight]:
         """Get active flights in a given area"""
 
-        return await self.flight_port.get_active_flights(area)
+        flights, errors = await self.flight_port.get_active_flights(area)
+
+        if not flights and errors:
+            raise ApiException(
+                status_code=HTTPStatus.PARTIAL_CONTENT,
+                message="Errors fetching flight data",
+                details={
+                    "errors": errors,
+                    "flights_retrieved": len(flights),
+                },
+            )
+
+        return AirspaceFlights(
+            timestamp=datetime.now(),
+            flights=flights,
+        )
 
     async def _get_constraint_details(self, references) -> List[Constraint]:
         """Fetch constraint details with error handling"""
