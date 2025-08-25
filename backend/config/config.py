@@ -8,6 +8,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 class Settings(BaseSettings):
     BRUTM_KEY: Optional[str] = None
     BRUTM_BASE_URL: Optional[str] = None
+    DSS_AUDIENCE: str = "core-service"
 
     class Config:
         env_file = f".env.{os.getenv('ENV', 'dev')}"

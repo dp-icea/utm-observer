@@ -1,13 +1,14 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+from starlette.responses import StreamingResponse
 
-from routes.fetch import router as FetchRouter
-from routes.constraint_management import router as ConstraintManagementRouter
 
+from routes.airspace import router as AirspaceRouter
+from routes.constraints import router as ConstraintsRouter
 from routes.health import router as HealthRouter
-from schemas.response import Response
+from schemas.api import ApiException
+import logging
 
 
 @asynccontextmanager
@@ -17,27 +18,54 @@ async def lifespan(app: FastAPI):
     """
     yield
 
+
 app = FastAPI(
     title="UTM Observer API",
-    description="BR-UTM Observer Backend Service for managing for ecosystem interaction",
+    description=(
+        "BR-UTM Observer Backend Service for managing for ecosystem"
+        " interaction"
+    ),
     version="1.0.0",
     lifespan=lifespan,
     root_path="/api",
+)
+
+logging.basicConfig(
+    level=logging.DEBUG,
 )
 
 
 @app.middleware("http")
 async def catch_exceptions_middleware(request: Request, call_next):
     try:
-        return await call_next(request)
-    except Exception as e:
-        return JSONResponse(
-            status_code=500,
-            content=Response(
-                message="Internal Server Error",
-                data=str(e),
-            ).model_dump(mode="json")
+        logging.info(
+            f"[API REQUEST] {request.method} {request.url.path} - "
+            f"Headers: {request.headers}, "
+            f"Body: {await request.body()}"
         )
+        response = await call_next(request)
+        body = b"".join([chunk async for chunk in response.body_iterator])
+        logging.info(
+            f"[API RESPONSE] {request.method} {request.url.path} - Status:"
+            f" {response.status_code}, Headers: {response.headers}, Body:"
+            f"{body}"
+        )
+        return StreamingResponse(
+            iter([body]),
+            status_code=response.status_code,
+            headers=response.headers,
+            media_type=response.media_type,
+            background=response.background,
+        )
+    except Exception as e:
+        if hasattr(e, "status_code"):
+            raise e
+
+        raise ApiException(
+            status_code=500,
+            message=str(e),
+        )
+
 
 origins = [
     "http://localhost",
@@ -52,9 +80,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(FetchRouter, tags=[
-                   "Fetch"], prefix="/fetch")
-app.include_router(ConstraintManagementRouter, tags=[
-                   "Constraint Management"], prefix="/constraint_management")
-app.include_router(HealthRouter, tags=[
-                   "Health"], prefix="/healthy")
+app.include_router(AirspaceRouter, tags=["Airspace"], prefix="/airspace")
+app.include_router(
+    ConstraintsRouter, tags=["Constraints"], prefix="/constraints"
+)
+app.include_router(HealthRouter, tags=["Health"], prefix="/healthy")

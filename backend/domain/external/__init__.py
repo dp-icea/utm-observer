@@ -1,0 +1,1 @@
+# External system schemas - contracts with external APIs
